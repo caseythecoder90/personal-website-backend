@@ -1,0 +1,411 @@
+// Personal Website Portfolio - Database Schema
+// Use this with dbdiagram.io to generate ERD
+// Copy/paste this content at https://dbdiagram.io/d
+
+Project PersonalWebsitePortfolio {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Personal Website Portfolio Database Schema
+    
+    Comprehensive database design for a professional portfolio website
+    showcasing projects, skills, blog content, and user analytics.
+    
+    **Key Features:**
+    - Project portfolio with technology tracking
+    - Blog system with categories and tags  
+    - Contact management and inquiries
+    - Analytics and SEO optimization
+    - User authentication and role management
+  '''
+}
+
+// ================================
+// ENUMERATIONS
+// ================================
+
+Enum project_type {
+  PERSONAL
+  PROFESSIONAL
+  OPEN_SOURCE
+  LEARNING
+  FREELANCE
+}
+
+Enum project_status {
+  PLANNING
+  IN_PROGRESS
+  COMPLETED
+  MAINTAINED
+  ARCHIVED
+}
+
+Enum difficulty_level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+Enum technology_category {
+  LANGUAGE
+  FRAMEWORK
+  LIBRARY
+  DATABASE
+  TOOL
+  CLOUD
+  DEPLOYMENT
+  TESTING
+}
+
+Enum proficiency_level {
+  LEARNING
+  FAMILIAR
+  PROFICIENT
+  EXPERT
+}
+
+Enum user_role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+Enum inquiry_type {
+  GENERAL
+  PROJECT
+  COLLABORATION
+  HIRING
+  FREELANCE
+}
+
+Enum submission_status {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+Enum image_type {
+  THUMBNAIL
+  SCREENSHOT
+  ARCHITECTURE_DIAGRAM
+  UI_MOCKUP
+  LOGO
+}
+
+Enum skill_category {
+  TECHNICAL
+  SOFT_SKILL
+  TOOL
+  METHODOLOGY
+  ARCHITECTURE
+}
+
+Enum device_type {
+  DESKTOP
+  MOBILE
+  TABLET
+}
+
+Enum analytics_event {
+  VIEW
+  GITHUB_CLICK
+  DEMO_CLICK
+  SHARE
+  DOWNLOAD
+}
+
+// ================================
+// CORE ENTITIES
+// ================================
+
+Table users {
+  id bigserial [primary key]
+  username varchar(50) [unique, not null]
+  email varchar(255) [unique, not null]
+  password_hash varchar(255) [not null]
+  role user_role [not null, default: 'VIEWER']
+  first_name varchar(100)
+  last_name varchar(100)
+  last_login timestamptz
+  active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'User management for admin and content creation'
+}
+
+Table projects {
+  id bigserial [primary key]
+  name varchar(255) [unique, not null]
+  slug varchar(255) [unique, not null]
+  short_description varchar(500)
+  full_description text
+  github_url varchar(500)
+  live_url varchar(500)
+  docker_url varchar(500)
+  documentation_url varchar(500)
+  project_type project_type [not null, default: 'PERSONAL']
+  status project_status [not null, default: 'PLANNING']
+  difficulty_level difficulty_level [not null, default: 'BEGINNER']
+  start_date timestamptz
+  completion_date timestamptz
+  estimated_hours integer [note: 'Time investment estimate']
+  display_order integer [default: 0]
+  featured boolean [not null, default: false]
+  published boolean [not null, default: false]
+  view_count bigint [not null, default: 0]
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Central portfolio projects with comprehensive metadata'
+}
+
+Table technologies {
+  id bigserial [primary key]
+  name varchar(100) [unique, not null]
+  version varchar(50)
+  category technology_category [not null]
+  icon_url varchar(500)
+  color varchar(7) [note: 'Hex color code for UI']
+  documentation_url varchar(500)
+  proficiency_level proficiency_level [not null, default: 'LEARNING']
+  years_experience decimal(3,1) [note: 'Years of professional experience']
+  featured boolean [not null, default: false]
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Technologies and skills with proficiency tracking'
+}
+
+// ================================
+// RELATIONSHIP TABLES
+// ================================
+
+Table project_technologies {
+  project_id bigint [ref: > projects.id, not null]
+  technology_id bigint [ref: > technologies.id, not null]
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  primary key (project_id, technology_id)
+  Note: 'Many-to-many relationship between projects and technologies'
+}
+
+Table project_images {
+  id bigserial [primary key]
+  project_id bigint [ref: > projects.id, not null]
+  url varchar(1000) [not null]
+  alt_text varchar(255)
+  caption varchar(500)
+  image_type image_type [not null, default: 'SCREENSHOT']
+  display_order integer [not null, default: 0]
+  is_primary boolean [not null, default: false]
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Project image galleries with type classification'
+}
+
+Table learning_outcomes {
+  id bigserial [primary key]
+  project_id bigint [ref: > projects.id, not null]
+  title varchar(255) [not null]
+  description text
+  category skill_category [not null]
+  difficulty_level difficulty_level [not null, default: 'BEGINNER']
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Skills and knowledge gained from each project'
+}
+
+// ================================
+// BLOG SYSTEM
+// ================================
+
+Table blog_categories {
+  id bigserial [primary key]
+  name varchar(100) [unique, not null]
+  slug varchar(100) [unique, not null]
+  description text
+  color varchar(7) [note: 'Hex color for UI theming']
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Blog content organization categories'
+}
+
+Table blog_tags {
+  id bigserial [primary key]
+  name varchar(50) [unique, not null]
+  slug varchar(50) [unique, not null]
+  usage_count integer [not null, default: 0]
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Flexible content tagging with usage tracking'
+}
+
+Table blog_posts {
+  id bigserial [primary key]
+  title varchar(255) [not null]
+  slug varchar(255) [unique, not null]
+  content text
+  excerpt text
+  published boolean [not null, default: false]
+  published_at timestamptz
+  view_count integer [not null, default: 0]
+  read_time_minutes integer [note: 'Estimated reading time']
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Blog posts and technical articles'
+}
+
+Table blog_post_categories {
+  blog_post_id bigint [ref: > blog_posts.id, not null]
+  blog_category_id bigint [ref: > blog_categories.id, not null]
+  
+  primary key (blog_post_id, blog_category_id)
+  Note: 'Many-to-many: blog posts to categories'
+}
+
+Table blog_post_tags {
+  blog_post_id bigint [ref: > blog_posts.id, not null]
+  blog_tag_id bigint [ref: > blog_tags.id, not null]
+  
+  primary key (blog_post_id, blog_tag_id)
+  Note: 'Many-to-many: blog posts to tags'
+}
+
+// ================================
+// USER INTERACTION
+// ================================
+
+Table contact_submissions {
+  id bigserial [primary key]
+  name varchar(255) [not null]
+  email varchar(255) [not null]
+  subject varchar(255)
+  message text [not null]
+  inquiry_type inquiry_type [not null, default: 'GENERAL']
+  status submission_status [not null, default: 'NEW']
+  ip_address inet [note: 'For spam detection and analytics']
+  user_agent text [note: 'Browser/device information']
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  responded_at timestamptz
+  
+  Note: 'Professional inquiries and contact form submissions'
+}
+
+// ================================
+// ANALYTICS & TRACKING
+// ================================
+
+Table page_views {
+  id bigserial [primary key]
+  page_path varchar(500) [not null]
+  referrer varchar(500) [note: 'Traffic source URL']
+  user_agent text
+  ip_address inet
+  country varchar(2) [note: 'ISO country code']
+  device_type device_type
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'General website analytics and traffic tracking'
+}
+
+Table project_analytics {
+  id bigserial [primary key]
+  project_id bigint [ref: > projects.id, not null]
+  event_type analytics_event [not null]
+  referrer varchar(500)
+  user_agent text
+  ip_address inet
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Project-specific user interaction tracking'
+}
+
+// ================================
+// SEO & METADATA
+// ================================
+
+Table seo_meta {
+  id bigserial [primary key]
+  entity_type varchar(50) [not null, note: 'PROJECT, BLOG_POST, PAGE']
+  entity_id bigint [not null]
+  meta_title varchar(255)
+  meta_description text
+  og_title varchar(255) [note: 'Open Graph title']
+  og_description text [note: 'Open Graph description']
+  og_image varchar(500) [note: 'Open Graph image URL']
+  canonical_url varchar(500)
+  structured_data jsonb [note: 'JSON-LD structured data for search engines']
+  updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'SEO metadata for improved search engine visibility'
+}
+
+// ================================
+// CONSTRAINTS & INDEXES
+// ================================
+
+// Unique constraints
+Table project_images {
+  indexes {
+    (project_id, is_primary) [where: "is_primary = true", note: "Only one primary image per project"]
+  }
+}
+
+Table seo_meta {
+  indexes {
+    (entity_type, entity_id) [unique, note: "One SEO record per entity"]
+  }
+}
+
+// Performance indexes
+Table projects {
+  indexes {
+    status [name: 'idx_projects_status']
+    project_type [name: 'idx_projects_type'] 
+    published [name: 'idx_projects_published']
+    featured [name: 'idx_projects_featured']
+    display_order [name: 'idx_projects_display_order']
+    created_at [name: 'idx_projects_created_at']
+    slug [name: 'idx_projects_slug']
+  }
+}
+
+Table technologies {
+  indexes {
+    category [name: 'idx_technologies_category']
+    featured [name: 'idx_technologies_featured']
+    proficiency_level [name: 'idx_technologies_proficiency']
+  }
+}
+
+Table page_views {
+  indexes {
+    created_at [name: 'idx_page_views_created_at']
+    page_path [name: 'idx_page_views_page_path']
+  }
+}
+
+Table project_analytics {
+  indexes {
+    (project_id, created_at) [name: 'idx_project_analytics_project_created']
+    event_type [name: 'idx_project_analytics_event_type']
+  }
+}
+
+Table blog_posts {
+  indexes {
+    published [name: 'idx_blog_posts_published']
+    published_at [name: 'idx_blog_posts_published_at']
+    slug [name: 'idx_blog_posts_slug']
+  }
+}
+
+Table contact_submissions {
+  indexes {
+    status [name: 'idx_contact_submissions_status']
+    created_at [name: 'idx_contact_submissions_created_at']
+    inquiry_type [name: 'idx_contact_submissions_inquiry_type']
+  }
+}
