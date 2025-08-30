@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: personal-website
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/casquinn_personal_website
+    username: casquinn
+    password: Ku^a4MoADdqLf4n>ka,d
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        globally_quoted_identifiers: true
+        globally_quoted_identifiers_skip_column_definitions: true
+        jdbc:
+          time_zone: UTC
+        type:
+          json_format_mapper: jsonb
+  
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: vHZBDJUzyG}1AE6dBMZY
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Custom app properties
+app:
+  version: 1.0.0
+
+# OpenAPI/Swagger configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+logging:
+  level:
+    com.caseyquinn.personal_website: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
