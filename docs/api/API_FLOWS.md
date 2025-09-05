@@ -14,9 +14,11 @@ sequenceDiagram
     participant D as DAO
     participant R as Repository
     participant DB as Database
+    participant IS as ImageService
+    participant FS as FileStorage
     participant Cache as Redis
 
-    A->>C: POST /api/v1/projects
+    A->>C: POST /api/v1/projects (with images)
     C->>C: Validate DTO
     C->>S: createProject(request)
     S->>S: Validate business rules
@@ -28,6 +30,16 @@ sequenceDiagram
     R-->>D: Return project
     D-->>S: Return project
     S->>S: Link technologies
+    
+    alt If images provided
+        S->>IS: processProjectImages(projectId, images)
+        IS->>IS: Validate image files
+        IS->>FS: Upload to storage
+        FS-->>IS: Return image URLs
+        IS->>D: saveProjectImages(images)
+        D->>DB: INSERT project_images
+    end
+    
     S->>Cache: Invalidate project cache
     S-->>C: Return created project
     C-->>A: 201 Created + ProjectResponse
@@ -261,20 +273,26 @@ flowchart LR
 
 Journey Steps:
 1. **Discovery** (LinkedIn/Google) → Land on homepage
-2. **Skills Assessment** → Filter projects by "Java", "Spring Boot"
-3. **Code Quality Review** → Click GitHub links, review commits
-4. **Project Depth** → Read project descriptions, check complexity
-5. **Communication Skills** → Read blog posts about technical topics
-6. **Contact Decision** → Submit hiring inquiry via contact form
+2. **Visual Overview** → Browse project thumbnails for quick assessment
+3. **Skills Assessment** → Filter projects by "Java", "Spring Boot"
+4. **Project Deep-dive** → Click project → View screenshots/demos
+5. **Code Quality Review** → Click GitHub links, review commits
+6. **Architecture Understanding** → View architecture diagrams
+7. **Communication Skills** → Read blog posts about technical topics
+8. **Contact Decision** → Submit hiring inquiry via contact form
 
 Pain Points:
 - Need quick skill verification
-- Want to see code quality, not just descriptions
+- Want to see actual project interfaces, not just descriptions
 - Looking for recent activity and continuous learning
+- Need to understand project complexity quickly
 
 Solutions:
 - Featured technologies on homepage
+- High-quality project thumbnails in grid view
 - Technology filtering on projects
+- Screenshot galleries showing UI/UX work
+- Architecture diagrams for technical depth
 - Direct GitHub links with contribution stats
 - Recent blog posts showing current knowledge
 ```
@@ -332,6 +350,71 @@ Solutions:
 - Learning outcomes documented per project
 - Architecture diagrams and explanations
 - Related content recommendations
+```
+
+### 8. Project Image Upload Flow
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant UI as Frontend
+    participant C as Controller
+    participant S as Service
+    participant IS as ImageService
+    participant FS as FileStorage
+    participant DB as Database
+
+    A->>UI: Select images to upload
+    UI->>UI: Validate files (size, format)
+    UI->>C: POST /api/v1/projects/{id}/images
+    C->>C: Validate multipart files
+    C->>S: uploadProjectImages(projectId, files)
+    
+    loop For each image
+        S->>IS: processImage(file)
+        IS->>IS: Validate image (format, size, dimensions)
+        IS->>IS: Generate thumbnail if needed
+        IS->>FS: Upload original + thumbnail
+        FS-->>IS: Return URLs
+        IS->>IS: Create ProjectImage entity
+    end
+    
+    S->>DB: Save ProjectImage entities
+    DB-->>S: Return saved images
+    S->>S: Update display order
+    S->>S: Set primary image if first upload
+    S-->>C: Return image metadata
+    C-->>UI: 201 Created + ImageResponse[]
+    UI->>UI: Update project gallery view
+```
+
+### 9. Primary Image Management Flow
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant C as Controller
+    participant S as Service
+    participant D as DAO
+    participant DB as Database
+    participant Cache as Redis
+
+    A->>C: PUT /api/v1/projects/{id}/images/{imageId}/primary
+    C->>S: setPrimaryImage(projectId, imageId)
+    S->>D: findProjectImage(imageId)
+    D->>DB: SELECT from project_images
+    DB-->>D: Return image entity
+    D-->>S: Return ProjectImage
+    
+    S->>S: Validate image belongs to project
+    S->>D: updatePrimaryStatus(projectId, imageId)
+    D->>DB: UPDATE project_images SET is_primary = false WHERE project_id = ?
+    D->>DB: UPDATE project_images SET is_primary = true WHERE id = ?
+    DB-->>D: Update complete
+    
+    S->>Cache: Invalidate project cache
+    S-->>C: Success response
+    C-->>A: 200 OK
 ```
 
 ## API Integration Patterns

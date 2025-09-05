@@ -42,47 +42,49 @@ INSERT INTO users (username, email, password_hash, role, first_name, last_name, 
 -- ================================
 -- Insert Technologies
 -- ================================
-INSERT INTO technologies (name, version, category, proficiency_level, years_experience, color, featured, created_at) VALUES
+INSERT INTO technologies (name, version, category, proficiency_level, years_experience, color, icon_url, documentation_url, featured, created_at) VALUES
 -- Programming Languages
-('Java', '21', 'LANGUAGE', 'EXPERT', 5.0, '#f89820', true, CURRENT_TIMESTAMP),
-('JavaScript', 'ES2023', 'LANGUAGE', 'PROFICIENT', 4.0, '#f7df1e', true, CURRENT_TIMESTAMP),
-('TypeScript', '5.0', 'LANGUAGE', 'PROFICIENT', 3.0, '#3178c6', true, CURRENT_TIMESTAMP),
-('Python', '3.11', 'LANGUAGE', 'FAMILIAR', 2.0, '#3776ab', false, CURRENT_TIMESTAMP),
+('Java', '21', 'LANGUAGE', 'EXPERT', 5.0, '#f89820', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg', 'https://docs.oracle.com/en/java/', true, CURRENT_TIMESTAMP),
+('JavaScript', 'ES2023', 'LANGUAGE', 'PROFICIENT', 4.0, '#f7df1e', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', true, CURRENT_TIMESTAMP),
+('TypeScript', '5.0', 'LANGUAGE', 'PROFICIENT', 3.0, '#3178c6', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', 'https://www.typescriptlang.org/docs/', true, CURRENT_TIMESTAMP),
+('Python', '3.11', 'LANGUAGE', 'FAMILIAR', 2.0, '#3776ab', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg', 'https://docs.python.org/3/', false, CURRENT_TIMESTAMP),
 
 -- Frameworks
-('Spring Boot', '3.2', 'FRAMEWORK', 'EXPERT', 4.0, '#6db33f', true, CURRENT_TIMESTAMP),
-('React', '18', 'FRAMEWORK', 'PROFICIENT', 3.0, '#61dafb', true, CURRENT_TIMESTAMP),
-('FastAPI', '0.104', 'FRAMEWORK', 'FAMILIAR', 1.0, '#009688', false, CURRENT_TIMESTAMP),
+('Spring Boot', '3.2', 'FRAMEWORK', 'EXPERT', 4.0, '#6db33f', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg', 'https://docs.spring.io/spring-boot/docs/current/reference/html/', true, CURRENT_TIMESTAMP),
+('React', '18', 'FRAMEWORK', 'PROFICIENT', 3.0, '#61dafb', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', 'https://react.dev/learn', true, CURRENT_TIMESTAMP),
+('FastAPI', '0.104', 'FRAMEWORK', 'FAMILIAR', 1.0, '#009688', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg', 'https://fastapi.tiangolo.com/', false, CURRENT_TIMESTAMP),
 
 -- Databases
-('PostgreSQL', '15', 'DATABASE', 'PROFICIENT', 3.0, '#336791', true, CURRENT_TIMESTAMP),
-('Redis', '7', 'DATABASE', 'FAMILIAR', 2.0, '#dc382d', false, CURRENT_TIMESTAMP),
+('PostgreSQL', '15', 'DATABASE', 'PROFICIENT', 3.0, '#336791', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg', 'https://www.postgresql.org/docs/', true, CURRENT_TIMESTAMP),
+('Redis', '7', 'DATABASE', 'FAMILIAR', 2.0, '#dc382d', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg', 'https://redis.io/docs/', false, CURRENT_TIMESTAMP),
 
 -- Tools
-('Docker', '24', 'TOOL', 'PROFICIENT', 3.0, '#2496ed', true, CURRENT_TIMESTAMP),
-('Maven', '3.9', 'TOOL', 'PROFICIENT', 4.0, '#c71a36', false, CURRENT_TIMESTAMP),
-('Git', '2.42', 'TOOL', 'EXPERT', 5.0, '#f05032', true, CURRENT_TIMESTAMP),
-('IntelliJ IDEA', '2023.3', 'TOOL', 'EXPERT', 5.0, '#000000', false, CURRENT_TIMESTAMP),
+('Docker', '24', 'TOOL', 'PROFICIENT', 3.0, '#2496ed', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', 'https://docs.docker.com/', true, CURRENT_TIMESTAMP),
+('Maven', '3.9', 'TOOL', 'PROFICIENT', 4.0, '#c71a36', null, 'https://maven.apache.org/guides/', false, CURRENT_TIMESTAMP),
+('Git', '2.42', 'TOOL', 'EXPERT', 5.0, '#f05032', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg', 'https://git-scm.com/docs', true, CURRENT_TIMESTAMP),
+('IntelliJ IDEA', '2023.3', 'TOOL', 'EXPERT', 5.0, '#000000', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/intellij/intellij-original.svg', 'https://www.jetbrains.com/help/idea/', false, CURRENT_TIMESTAMP),
 
 -- Libraries
-('Lombok', '1.18', 'LIBRARY', 'EXPERT', 4.0, '#b32629', false, CURRENT_TIMESTAMP),
-('MapStruct', '1.5', 'LIBRARY', 'PROFICIENT', 2.0, '#ff6b35', false, CURRENT_TIMESTAMP),
-('Tailwind CSS', '3.3', 'LIBRARY', 'PROFICIENT', 2.0, '#06b6d4', true, CURRENT_TIMESTAMP),
-('Vite', '5.0', 'TOOL', 'FAMILIAR', 1.0, '#646cff', false, CURRENT_TIMESTAMP),
+('Lombok', '1.18', 'LIBRARY', 'EXPERT', 4.0, '#b32629', null, 'https://projectlombok.org/features/all', false, CURRENT_TIMESTAMP),
+('MapStruct', '1.5', 'LIBRARY', 'PROFICIENT', 2.0, '#ff6b35', null, 'https://mapstruct.org/documentation/', false, CURRENT_TIMESTAMP),
+('Tailwind CSS', '3.3', 'LIBRARY', 'PROFICIENT', 2.0, '#06b6d4', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg', 'https://tailwindcss.com/docs', true, CURRENT_TIMESTAMP),
+('Vite', '5.0', 'TOOL', 'FAMILIAR', 1.0, '#646cff', null, 'https://vitejs.dev/guide/', false, CURRENT_TIMESTAMP),
 
 -- Cloud & Deployment
-('AWS', 'N/A', 'CLOUD', 'LEARNING', 0.5, '#ff9900', false, CURRENT_TIMESTAMP),
-('Kubernetes', '1.28', 'DEPLOYMENT', 'LEARNING', 0.5, '#326ce5', false, CURRENT_TIMESTAMP);
+('AWS', 'N/A', 'CLOUD', 'LEARNING', 0.5, '#ff9900', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg', 'https://docs.aws.amazon.com/', false, CURRENT_TIMESTAMP),
+('Kubernetes', '1.28', 'DEPLOYMENT', 'LEARNING', 0.5, '#326ce5', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg', 'https://kubernetes.io/docs/', false, CURRENT_TIMESTAMP);
 
 -- ================================
 -- Insert Projects
 -- ================================
-INSERT INTO projects (name, slug, short_description, full_description, github_url, live_url, project_type, status, difficulty_level, start_date, completion_date, estimated_hours, display_order, featured, published, view_count, created_at, updated_at) VALUES
+INSERT INTO projects (name, slug, short_description, full_description, github_url, live_url, docker_url, documentation_url, project_type, status, difficulty_level, start_date, completion_date, estimated_hours, display_order, featured, published, view_count, created_at, updated_at) VALUES
 ('Personal Website Portfolio', 'personal-website-portfolio', 
  'Full-stack personal website showcasing projects and technical skills', 
  'A comprehensive personal portfolio website built with enterprise-grade patterns and modern technologies. Features include project management, blog system, analytics tracking, and SEO optimization.',
  'https://github.com/caseyquinn/personal-website',
  'https://caseyquinn.com',
+ 'https://hub.docker.com/r/caseyquinn/personal-website',
+ 'https://caseyquinn.com/docs/api',
  'PERSONAL', 'IN_PROGRESS', 'ADVANCED',
  '2024-01-01'::timestamp, NULL, 120, 1, true, true, 245,
  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -92,6 +94,8 @@ INSERT INTO projects (name, slug, short_description, full_description, github_ur
  'Built a full-featured e-commerce platform using Spring Boot microservices, React frontend, and PostgreSQL. Includes user management, product catalog, shopping cart, and payment processing.',
  'https://github.com/caseyquinn/ecommerce-platform',
  'https://demo-shop.caseyquinn.com',
+ 'https://hub.docker.com/r/caseyquinn/ecommerce-platform',
+ NULL,
  'PROFESSIONAL', 'COMPLETED', 'EXPERT',
  '2023-06-01'::timestamp, '2023-12-15'::timestamp, 280, 2, true, true, 189,
  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -101,6 +105,8 @@ INSERT INTO projects (name, slug, short_description, full_description, github_ur
  'A comprehensive task management system with user authentication, project organization, real-time notifications, and advanced filtering. Built with Spring Boot and secured with JWT.',
  'https://github.com/caseyquinn/task-api',
  NULL,
+ NULL,
+ 'https://api.caseyquinn.com/docs',
  'LEARNING', 'COMPLETED', 'INTERMEDIATE',
  '2023-03-01'::timestamp, '2023-05-20'::timestamp, 85, 3, false, true, 67,
  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -110,6 +116,8 @@ INSERT INTO projects (name, slug, short_description, full_description, github_ur
  'Interactive weather dashboard built with React and TypeScript. Features include location-based forecasts, historical data charts, and severe weather alerts.',
  'https://github.com/caseyquinn/weather-dashboard',
  'https://weather.caseyquinn.com',
+ NULL,
+ NULL,
  'PERSONAL', 'MAINTAINED', 'INTERMEDIATE',
  '2023-01-15'::timestamp, '2023-02-28'::timestamp, 45, 4, false, true, 123,
  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

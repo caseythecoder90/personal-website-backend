@@ -132,6 +132,13 @@ Table users {
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
+  indexes {
+    username [name: 'idx_users_username']
+    email [name: 'idx_users_email']
+    role [name: 'idx_users_role']
+    active [name: 'idx_users_active']
+  }
+  
   Note: 'User management for admin and content creation'
 }
 
@@ -158,6 +165,16 @@ Table projects {
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
+  indexes {
+    slug [name: 'idx_projects_slug']
+    status [name: 'idx_projects_status']
+    project_type [name: 'idx_projects_type'] 
+    published [name: 'idx_projects_published']
+    featured [name: 'idx_projects_featured']
+    display_order [name: 'idx_projects_display_order']
+    created_at [name: 'idx_projects_created_at']
+  }
+  
   Note: 'Central portfolio projects with comprehensive metadata'
 }
 
@@ -174,6 +191,13 @@ Table technologies {
   featured boolean [not null, default: false]
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
+  indexes {
+    name [name: 'idx_technologies_name']
+    category [name: 'idx_technologies_category']
+    featured [name: 'idx_technologies_featured']
+    proficiency_level [name: 'idx_technologies_proficiency']
+  }
+  
   Note: 'Technologies and skills with proficiency tracking'
 }
 
@@ -186,7 +210,11 @@ Table project_technologies {
   technology_id bigint [ref: > technologies.id, not null]
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
-  primary key (project_id, technology_id)
+  indexes {
+    (project_id, technology_id) [unique, name: 'pk_project_technologies']
+    technology_id [name: 'idx_project_technologies_tech']
+  }
+  
   Note: 'Many-to-many relationship between projects and technologies'
 }
 
@@ -201,6 +229,12 @@ Table project_images {
   is_primary boolean [not null, default: false]
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
+  indexes {
+    project_id [name: 'idx_project_images_project']
+    is_primary [name: 'idx_project_images_primary']
+    display_order [name: 'idx_project_images_order']
+  }
+  
   Note: 'Project image galleries with type classification'
 }
 
@@ -212,6 +246,11 @@ Table learning_outcomes {
   category skill_category [not null]
   difficulty_level difficulty_level [not null, default: 'BEGINNER']
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    project_id [name: 'idx_learning_outcomes_project']
+    category [name: 'idx_learning_outcomes_category']
+  }
   
   Note: 'Skills and knowledge gained from each project'
 }
@@ -228,6 +267,11 @@ Table blog_categories {
   color varchar(7) [note: 'Hex color for UI theming']
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
+  indexes {
+    slug [name: 'idx_blog_categories_slug']
+    name [name: 'idx_blog_categories_name']
+  }
+  
   Note: 'Blog content organization categories'
 }
 
@@ -237,6 +281,12 @@ Table blog_tags {
   slug varchar(50) [unique, not null]
   usage_count integer [not null, default: 0]
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    slug [name: 'idx_blog_tags_slug']
+    name [name: 'idx_blog_tags_name']
+    usage_count [name: 'idx_blog_tags_usage']
+  }
   
   Note: 'Flexible content tagging with usage tracking'
 }
@@ -254,6 +304,13 @@ Table blog_posts {
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
+  indexes {
+    slug [name: 'idx_blog_posts_slug']
+    published [name: 'idx_blog_posts_published']
+    published_at [name: 'idx_blog_posts_published_at']
+    created_at [name: 'idx_blog_posts_created_at']
+  }
+  
   Note: 'Blog posts and technical articles'
 }
 
@@ -261,7 +318,11 @@ Table blog_post_categories {
   blog_post_id bigint [ref: > blog_posts.id, not null]
   blog_category_id bigint [ref: > blog_categories.id, not null]
   
-  primary key (blog_post_id, blog_category_id)
+  indexes {
+    (blog_post_id, blog_category_id) [unique, name: 'pk_blog_post_categories']
+    blog_category_id [name: 'idx_blog_post_categories_category']
+  }
+  
   Note: 'Many-to-many: blog posts to categories'
 }
 
@@ -269,7 +330,11 @@ Table blog_post_tags {
   blog_post_id bigint [ref: > blog_posts.id, not null]
   blog_tag_id bigint [ref: > blog_tags.id, not null]
   
-  primary key (blog_post_id, blog_tag_id)
+  indexes {
+    (blog_post_id, blog_tag_id) [unique, name: 'pk_blog_post_tags']
+    blog_tag_id [name: 'idx_blog_post_tags_tag']
+  }
+  
   Note: 'Many-to-many: blog posts to tags'
 }
 
@@ -290,6 +355,13 @@ Table contact_submissions {
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   responded_at timestamptz
   
+  indexes {
+    status [name: 'idx_contact_submissions_status']
+    created_at [name: 'idx_contact_submissions_created_at']
+    inquiry_type [name: 'idx_contact_submissions_inquiry_type']
+    email [name: 'idx_contact_submissions_email']
+  }
+  
   Note: 'Professional inquiries and contact form submissions'
 }
 
@@ -307,6 +379,13 @@ Table page_views {
   device_type device_type
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
+  indexes {
+    created_at [name: 'idx_page_views_created_at']
+    page_path [name: 'idx_page_views_page_path']
+    country [name: 'idx_page_views_country']
+    device_type [name: 'idx_page_views_device']
+  }
+  
   Note: 'General website analytics and traffic tracking'
 }
 
@@ -318,6 +397,12 @@ Table project_analytics {
   user_agent text
   ip_address inet
   created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (project_id, created_at) [name: 'idx_project_analytics_project_created']
+    event_type [name: 'idx_project_analytics_event_type']
+    project_id [name: 'idx_project_analytics_project']
+  }
   
   Note: 'Project-specific user interaction tracking'
 }
@@ -339,73 +424,10 @@ Table seo_meta {
   structured_data jsonb [note: 'JSON-LD structured data for search engines']
   updated_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
   
+  indexes {
+    (entity_type, entity_id) [unique, name: 'idx_seo_meta_entity']
+    entity_type [name: 'idx_seo_meta_type']
+  }
+  
   Note: 'SEO metadata for improved search engine visibility'
-}
-
-// ================================
-// CONSTRAINTS & INDEXES
-// ================================
-
-// Unique constraints
-Table project_images {
-  indexes {
-    (project_id, is_primary) [where: "is_primary = true", note: "Only one primary image per project"]
-  }
-}
-
-Table seo_meta {
-  indexes {
-    (entity_type, entity_id) [unique, note: "One SEO record per entity"]
-  }
-}
-
-// Performance indexes
-Table projects {
-  indexes {
-    status [name: 'idx_projects_status']
-    project_type [name: 'idx_projects_type'] 
-    published [name: 'idx_projects_published']
-    featured [name: 'idx_projects_featured']
-    display_order [name: 'idx_projects_display_order']
-    created_at [name: 'idx_projects_created_at']
-    slug [name: 'idx_projects_slug']
-  }
-}
-
-Table technologies {
-  indexes {
-    category [name: 'idx_technologies_category']
-    featured [name: 'idx_technologies_featured']
-    proficiency_level [name: 'idx_technologies_proficiency']
-  }
-}
-
-Table page_views {
-  indexes {
-    created_at [name: 'idx_page_views_created_at']
-    page_path [name: 'idx_page_views_page_path']
-  }
-}
-
-Table project_analytics {
-  indexes {
-    (project_id, created_at) [name: 'idx_project_analytics_project_created']
-    event_type [name: 'idx_project_analytics_event_type']
-  }
-}
-
-Table blog_posts {
-  indexes {
-    published [name: 'idx_blog_posts_published']
-    published_at [name: 'idx_blog_posts_published_at']
-    slug [name: 'idx_blog_posts_slug']
-  }
-}
-
-Table contact_submissions {
-  indexes {
-    status [name: 'idx_contact_submissions_status']
-    created_at [name: 'idx_contact_submissions_created_at']
-    inquiry_type [name: 'idx_contact_submissions_inquiry_type']
-  }
 }

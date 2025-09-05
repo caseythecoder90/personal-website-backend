@@ -55,14 +55,14 @@ public interface ProjectDao {
     
     List<Project> findMostViewedProjects();
     
-    List<Project> findPublishedByProjectTypeOrderedByDisplay(ProjectType projectType);
+    List<Project> findPublishedByTypeOrderedByDisplay(ProjectType projectType);
     
     // Analytics methods
     long countPublishedProjects();
     
     List<Object[]> countByStatus();
     
-    List<Object[]> countByProjectType();
+    List<Object[]> countByType();
     
     void incrementViewCount(Long id);
     

@@ -314,7 +314,7 @@ public class ProjectDaoImpl implements ProjectDao {
     public List<Project> findPublishedByTypeOrderedByDisplay(ProjectType type) {
         try {
             log.debug("DAO: Fetching published projects by type ordered by display: {}", type);
-            return projectRepository.findPublishedByTypeOrderByDisplayOrder(type);
+            return projectRepository.findPublishedByProjectTypeOrderByDisplayOrder(type);
         } catch (DataAccessResourceFailureException ex) {
             log.error("Database connection failed while fetching published projects by type ordered: {}", type, ex);
             throw new DatabaseConnectionException(ex);
@@ -356,7 +356,7 @@ public class ProjectDaoImpl implements ProjectDao {
     public List<Object[]> countByType() {
         try {
             log.debug("DAO: Counting projects by type");
-            return projectRepository.countByType();
+            return projectRepository.countByProjectType();
         } catch (DataAccessResourceFailureException ex) {
             log.error("Database connection failed while counting projects by type", ex);
             throw new DatabaseConnectionException(ex);

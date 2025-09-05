@@ -170,7 +170,13 @@ ImageType: THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO
 │   ├── DELETE /{id}       # Delete project
 │   ├── GET    /featured   # Get featured projects
 │   ├── GET    /published  # Get published projects
-│   └── POST   /{id}/view  # Track project view
+│   ├── POST   /{id}/view  # Track project view
+│   └── /{id}/images       # Project image management
+│       ├── GET    /       # List project images
+│       ├── POST   /       # Upload new image
+│       ├── PUT    /{imageId}  # Update image metadata
+│       ├── DELETE /{imageId}  # Remove image
+│       └── PUT    /{imageId}/primary  # Set as primary image
 │
 ├── /technologies          # Skills and tech stack
 │   ├── GET    /           # List all technologies
@@ -280,7 +286,11 @@ Related Articles → Share → Comment (future) →
 2. Service validates business rules
 3. DAO saves to database  
 4. Technologies linked via junction table
-5. Images uploaded and associated
+5. ProjectImages uploaded and associated
+   - Image validation (size, format, dimensions)
+   - Auto-generate thumbnails if needed
+   - Set primary image and display order
+   - Store metadata (alt text, captions)
 6. SEO metadata generated
 7. Analytics tracking initialized
 8. Cache invalidated for public endpoints

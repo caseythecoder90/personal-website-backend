@@ -31,7 +31,6 @@ import java.util.List;
 @Validated
 @Slf4j
 @Tag(name = "Projects", description = "Project management APIs")
-//@CrossOrigin(origins = "http://localhost:3000")
 public class ProjectController {
     
     private final ProjectService projectService;
