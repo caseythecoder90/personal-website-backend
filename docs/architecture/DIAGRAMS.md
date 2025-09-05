@@ -2,7 +2,7 @@
 
 This file contains all Mermaid diagrams for the Personal Website Portfolio system. These will render automatically in GitHub.
 
-## 1. Project Creation Flow
+## 1. Project Creation Flow (Enhanced with ProjectImage Integration)
 
 ```mermaid
 sequenceDiagram
@@ -12,11 +12,13 @@ sequenceDiagram
     participant D as DAO
     participant R as Repository
     participant DB as Database
+    participant IS as ImageService
+    participant FS as FileStorage
     participant Cache as Redis
 
-    A->>C: POST /api/v1/projects
-    C->>C: Validate DTO
-    C->>S: createProject(request)
+    A->>C: POST /api/v1/projects (with images)
+    C->>C: Validate DTO + multipart files
+    C->>S: createProject(request, images)
     S->>S: Validate business rules
     S->>S: Check name uniqueness
     S->>D: save(project)
@@ -25,9 +27,21 @@ sequenceDiagram
     DB-->>R: Return saved entity
     R-->>D: Return project
     D-->>S: Return project
+    
     S->>S: Link technologies
+    
+    alt If images provided
+        S->>IS: processProjectImages(projectId, images)
+        IS->>IS: Validate image files (format, size)
+        IS->>FS: Upload images to storage
+        FS-->>IS: Return image URLs
+        IS->>D: saveProjectImages(images)
+        D->>DB: INSERT project_images
+        IS->>IS: Set primary image (first uploaded)
+    end
+    
     S->>Cache: Invalidate project cache
-    S-->>C: Return created project
+    S-->>C: Return created project + images
     C-->>A: 201 Created + ProjectResponse
 ```
 
@@ -133,6 +147,8 @@ flowchart TB
         CC[Contact Controller]
         BC[Blog Controller]
         AC[Analytics Controller]
+        RC[Resume Controller]
+        IC[Image Controller]
     end
     
     subgraph "Business Logic Layer"
@@ -141,6 +157,8 @@ flowchart TB
         CS[Contact Service]
         BS[Blog Service]
         AS[Analytics Service]
+        RS[Resume Service]
+        IS[Image Service]
     end
     
     subgraph "Data Access Layer"
@@ -149,6 +167,7 @@ flowchart TB
         CD[Contact DAO]
         BD[Blog DAO]
         AD[Analytics DAO]
+        ID[Image DAO]
     end
     
     subgraph "Data Layer"
@@ -168,20 +187,23 @@ flowchart TB
     
     Gateway --> Auth
     Gateway --> Rate
-    Auth --> PC & TC & CC & BC & AC
-    Rate --> PC & TC & CC & BC & AC
+    Auth --> PC & TC & CC & BC & AC & RC & IC
+    Rate --> PC & TC & CC & BC & AC & RC & IC
     
     PC --> PS
     TC --> TS
     CC --> CS
     BC --> BS
     AC --> AS
+    RC --> RS
+    IC --> IS
     
     PS --> PD
     TS --> TD
     CS --> CD
     BS --> BD
     AS --> AD
+    IS --> ID
     
     PD --> DB
     TD --> DB
@@ -384,7 +406,122 @@ erDiagram
     BLOG_POST }o--o{ BLOG_TAG : "tagged_with"
 ```
 
-## 8. Admin Dashboard Data Flow
+## 8. Resume Download Flow
+
+```mermaid
+sequenceDiagram
+    participant V as Visitor
+    participant UI as Frontend
+    participant C as ResumeController
+    participant S as ResumeService
+    participant AS as AnalyticsService
+    participant FS as FileStorage
+    participant Q as Queue
+    participant DB as Database
+
+    V->>UI: Click "Download Resume"
+    UI->>C: GET /api/v1/resume/download
+    C->>AS: trackEvent(RESUME_DOWNLOAD, request)
+    AS->>Q: Queue analytics event
+    
+    par Download File
+        C->>S: getCurrentResume()
+        S->>FS: Load latest resume file
+        FS-->>S: Return PDF resource
+        S-->>C: Return resume resource
+        C-->>UI: 200 OK + PDF file
+        UI-->>V: Browser downloads file
+    and Process Analytics
+        Q->>DB: Store download event (async)
+        DB-->>Q: Event stored
+    end
+    
+    Note over V: File saved as "Casey-Quinn-Resume.pdf"
+```
+
+## 9. Admin UI Project Creation Workflow
+
+```mermaid
+flowchart TD
+    A[Admin Login] --> B{Authentication}
+    B -->|Success| C[Admin Dashboard]
+    B -->|Failure| A
+    
+    C --> D[Navigate to Projects]
+    D --> E[Click 'Create New Project']
+    E --> F[Project Creation Form]
+    
+    F --> G{Form Mode}
+    G -->|Quick Create| H[Basic Info + Primary Image]
+    G -->|Full Create| I[Tabbed Interface]
+    
+    H --> H1[Fill Basic Details]
+    H1 --> H2[Upload Primary Image]
+    H2 --> H3[Select Technologies]
+    H3 --> H4{Validation}
+    
+    I --> I1[Basic Info Tab]
+    I1 --> I2[Media Gallery Tab]
+    I2 --> I3[Technologies Tab]
+    I3 --> I4[SEO Settings Tab]
+    I4 --> I5[Learning Outcomes Tab]
+    I5 --> H4
+    
+    H4 -->|Pass| J{Save Action}
+    H4 -->|Fail| K[Show Errors]
+    K --> F
+    
+    J -->|Save Draft| L[Save as Unpublished]
+    J -->|Publish| M[Save as Published]
+    
+    L --> N[Success + Redirect]
+    M --> N
+    N --> O[Project List Updated]
+    
+    style A fill:#e3f2fd
+    style C fill:#e8f5e8
+    style N fill:#c8e6c9
+    style K fill:#ffebee
+```
+
+## 10. ProjectImage Upload and Management Flow
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant UI as Admin UI
+    participant C as ProjectController
+    participant S as ProjectService
+    participant IS as ImageService
+    participant FS as FileStorage
+    participant DB as Database
+    participant Cache as Redis
+
+    A->>UI: Upload project images
+    UI->>UI: Validate files (client-side)
+    UI->>C: POST /api/v1/projects/{id}/images
+    C->>S: uploadProjectImages(projectId, files)
+    
+    loop For each image
+        S->>IS: processImage(file)
+        IS->>IS: Validate (format, size, dimensions)
+        IS->>IS: Generate thumbnail if needed
+        IS->>FS: Upload original + thumbnail
+        FS-->>IS: Return storage URLs
+        IS->>DB: Save ProjectImage entity
+    end
+    
+    S->>S: Update display order
+    S->>S: Set primary image (if first)
+    S->>Cache: Invalidate project cache
+    S-->>C: Return image metadata
+    C-->>UI: 201 Created + image data
+    UI->>UI: Update gallery display
+    
+    Note over A: Images appear in project gallery
+```
+
+## 11. Admin Dashboard Data Flow
 
 ```mermaid
 flowchart TD

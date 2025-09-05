@@ -21,9 +21,12 @@ Detailed functional requirements for the Personal Website Portfolio system, orga
 #### Technical Requirements
 - **TR-1.1.1**: Unique constraints on project names and slugs
 - **TR-1.1.2**: Automatic slug generation with conflict resolution
-- **TR-1.1.3**: Image upload with validation (size, format, dimensions)
-- **TR-1.1.4**: Rich text editor support for descriptions
-- **TR-1.1.5**: Audit trail for all project modifications
+- **TR-1.1.3**: ProjectImage upload with validation (size, format, dimensions)
+- **TR-1.1.4**: Multiple image types support (THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO)
+- **TR-1.1.5**: Primary image selection with automatic fallback
+- **TR-1.1.6**: Image display order management
+- **TR-1.1.7**: Rich text editor support for descriptions
+- **TR-1.1.8**: Audit trail for all project modifications
 
 #### Business Rules
 - **BR-1.1.1**: Project names must be unique across the system
@@ -31,6 +34,10 @@ Detailed functional requirements for the Personal Website Portfolio system, orga
 - **BR-1.1.3**: Featured projects limited to maximum 6 at a time
 - **BR-1.1.4**: Completion date must be after start date if both provided
 - **BR-1.1.5**: GitHub URLs must follow valid GitHub repository format
+- **BR-1.1.6**: Maximum 20 images per project
+- **BR-1.1.7**: Only one primary image per project
+- **BR-1.1.8**: Image files limited to 5MB each
+- **BR-1.1.9**: Supported formats: JPG, PNG, WebP, GIF
 
 #### Acceptance Criteria
 ```gherkin
@@ -64,6 +71,67 @@ Feature: Project Creation
 - **PR-1.2.2**: Images lazy-load for optimal performance
 - **PR-1.2.3**: Filtering responses within 500ms
 - **PR-1.2.4**: Cached project data for 15 minutes
+
+### 1.3 Project Image Management
+**Priority: HIGH**
+
+#### Functional Requirements
+- **FR-1.3.1**: Admin can upload multiple images per project
+- **FR-1.3.2**: Images categorized by type (THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO)
+- **FR-1.3.3**: One primary image designation per project with automatic fallback
+- **FR-1.3.4**: Custom display ordering for image galleries
+- **FR-1.3.5**: Alt text and captions for accessibility and SEO
+- **FR-1.3.6**: Image metadata management (upload date, file size, dimensions)
+
+#### Technical Requirements
+- **TR-1.3.1**: File upload validation (format, size, dimensions)
+- **TR-1.3.2**: Cloud storage integration (AWS S3/Cloudinary)
+- **TR-1.3.3**: Automatic thumbnail generation for performance
+- **TR-1.3.4**: Lazy loading implementation for galleries
+- **TR-1.3.5**: CDN integration for global delivery
+- **TR-1.3.6**: Image optimization and compression
+
+#### Business Rules
+- **BR-1.3.1**: Maximum 20 images per project
+- **BR-1.3.2**: Image files limited to 5MB each
+- **BR-1.3.3**: Supported formats: JPG, PNG, WebP, GIF
+- **BR-1.3.4**: Only one primary image per project
+- **BR-1.3.5**: Minimum image dimensions: 400x300 pixels
+- **BR-1.3.6**: Alt text required for published projects
+
+#### API Endpoints
+```
+GET    /api/v1/projects/{id}/images           # List project images
+POST   /api/v1/projects/{id}/images           # Upload new images
+PUT    /api/v1/projects/{id}/images/{imageId} # Update image metadata
+DELETE /api/v1/projects/{id}/images/{imageId} # Remove image
+PUT    /api/v1/projects/{id}/images/{imageId}/primary # Set primary image
+```
+
+#### Acceptance Criteria
+```gherkin
+Feature: Project Image Management
+  Scenario: Admin uploads project images
+    Given I am editing a project
+    When I upload multiple image files
+    And I set image types and captions
+    Then images are saved with metadata
+    And thumbnails are generated automatically
+    And first image becomes primary by default
+
+  Scenario: Primary image selection
+    Given a project has multiple images
+    When I set an image as primary
+    Then previous primary image is unmarked
+    And new primary image is highlighted
+    And project thumbnail updates
+
+  Scenario: Image validation
+    Given I try to upload an invalid image
+    When file exceeds 5MB or unsupported format
+    Then I receive validation error
+    And image is not uploaded
+```
 
 ---
 
@@ -315,7 +383,12 @@ Feature: Contact Form Submission
 - [ ] Contact form processing
 - [ ] Basic analytics tracking
 - [ ] SEO metadata implementation
-- [ ] Image upload functionality
+- [ ] ProjectImage upload functionality
+  - [ ] ProjectImage entity implementation
+  - [ ] Image upload API endpoints
+  - [ ] File validation and storage
+  - [ ] Primary image management
+  - [ ] Image gallery display
 
 ### Phase 3 (Weeks 5-6): Content Management
 - [ ] Blog post creation and management

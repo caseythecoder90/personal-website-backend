@@ -166,7 +166,7 @@ public class ProjectService {
     
     public List<ProjectResponse> getProjectsByType(ProjectType type) {
         log.info("Service: Fetching projects by type: {}", type);
-        List<Project> projects = projectDao.findByType(type);
+        List<Project> projects = projectDao.findByProjectType(type);
         return projectMapper.toResponseList(projects);
     }
     
