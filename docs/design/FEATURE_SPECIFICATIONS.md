@@ -99,25 +99,48 @@ Feature: Project Creation
 - **BR-1.3.5**: Minimum image dimensions: 400x300 pixels
 - **BR-1.3.6**: Alt text required for published projects
 
-#### API Endpoints
+#### API Endpoints (Separate from Project Creation)
 ```
 GET    /api/v1/projects/{id}/images           # List project images
-POST   /api/v1/projects/{id}/images           # Upload new images
+POST   /api/v1/projects/{id}/images           # Upload new images (multipart/form-data)
 PUT    /api/v1/projects/{id}/images/{imageId} # Update image metadata
 DELETE /api/v1/projects/{id}/images/{imageId} # Remove image
 PUT    /api/v1/projects/{id}/images/{imageId}/primary # Set primary image
 ```
 
+#### Request Format for Image Upload
+```
+POST /api/v1/projects/{id}/images
+Content-Type: multipart/form-data
+
+Request Parts:
+- images: MultipartFile[] (the actual image files)
+- metadata: JSON array of image metadata (alt text, type, captions)
+```
+
 #### Acceptance Criteria
 ```gherkin
-Feature: Project Image Management
-  Scenario: Admin uploads project images
-    Given I am editing a project
-    When I upload multiple image files
-    And I set image types and captions
-    Then images are saved with metadata
+Feature: Project Image Management (Separate Endpoints)
+  Scenario: Admin uploads project images after project creation
+    Given I have created a project successfully
+    When I navigate to the image management section
+    And I upload multiple image files with metadata
+    Then images are saved to storage
+    And image metadata is linked to project
     And thumbnails are generated automatically
     And first image becomes primary by default
+
+  Scenario: Project creation without images
+    Given I create a project without images
+    When project creation completes successfully
+    Then I can add images later via separate endpoint
+    And project is fully functional without images
+
+  Scenario: Failed image upload doesn't affect project
+    Given I have a created project
+    When image upload fails due to network error
+    Then project remains intact and accessible
+    And I can retry image upload separately
 
   Scenario: Primary image selection
     Given a project has multiple images
@@ -131,6 +154,7 @@ Feature: Project Image Management
     When file exceeds 5MB or unsupported format
     Then I receive validation error
     And image is not uploaded
+    And other valid images in the batch are still processed
 ```
 
 ---

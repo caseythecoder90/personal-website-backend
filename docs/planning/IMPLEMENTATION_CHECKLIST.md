@@ -37,17 +37,24 @@ Comprehensive checklist for implementing all features of the Personal Website Po
 ## 📝 Phase 2: Project Management (Week 3-4)
 
 ### Enhanced Project CRUD
-- [ ] **Updated DTOs for Image Support**
-  - [ ] Enhance CreateProjectRequest with image handling
-  - [ ] Create UpdateProjectRequest with image operations
-  - [ ] ProjectResponse with image metadata
-  - [ ] ProjectImageRequest/Response DTOs
+- [ ] **DTOs for Separate Image Handling**
+  - [ ] CreateProjectRequest (project metadata only)
+  - [ ] ProjectImageRequest/Response DTOs for separate endpoint
+  - [ ] UpdateProjectRequest for project updates
+  - [ ] ProjectResponse with linked image metadata
 
-- [ ] **Project Creation with Images**
-  - [ ] Support multipart form data (@RequestPart)
+- [ ] **Project Creation (Metadata Only)**
+  - [ ] POST /api/v1/projects endpoint for project data
+  - [ ] Validate project business rules
+  - [ ] Link technologies via junction table
+  - [ ] Return project with ID for subsequent image uploads
+
+- [ ] **Separate Image Management System**
+  - [ ] POST /api/v1/projects/{id}/images endpoint
+  - [ ] Support multipart form data for image files
   - [ ] Validate image files (format, size, dimensions)
   - [ ] Process and store images with ProjectImage entities
-  - [ ] Set primary image automatically
+  - [ ] Auto-set primary image for first upload
 
 - [ ] **Project Image Management API**
   - [ ] GET /api/v1/projects/{id}/images
@@ -224,9 +231,13 @@ Comprehensive checklist for implementing all features of the Personal Website Po
 **As an admin, I want to manage my project portfolio so that I can showcase my work effectively.**
 
 #### User Stories:
-1. **Project Creation with Images**
-   - As an admin, I want to create a project with multiple images so that visitors can see visual examples of my work
-   - Acceptance: Can upload images during project creation, set primary image, add captions
+1. **Project Creation (Two-Step Process)**
+   - As an admin, I want to create a project first, then add images separately so that project creation is fast and reliable
+   - Acceptance: Can create project without images, project is functional immediately, can add images afterward
+
+2. **Separate Image Management**
+   - As an admin, I want to add images to my projects independently so that image upload failures don't affect project creation
+   - Acceptance: Can upload multiple images after project exists, can retry failed uploads, project remains accessible
 
 2. **Project Image Gallery Management**
    - As an admin, I want to manage project images separately so that I can update visuals without editing the entire project
