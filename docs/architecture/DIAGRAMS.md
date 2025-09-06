@@ -2,7 +2,7 @@
 
 This file contains all Mermaid diagrams for the Personal Website Portfolio system. These will render automatically in GitHub.
 
-## 1. Project Creation Flow (Enhanced with ProjectImage Integration)
+## 1. Project Creation Flow (Separate Image Endpoints)
 
 ```mermaid
 sequenceDiagram
@@ -12,13 +12,11 @@ sequenceDiagram
     participant D as DAO
     participant R as Repository
     participant DB as Database
-    participant IS as ImageService
-    participant FS as FileStorage
     participant Cache as Redis
 
-    A->>C: POST /api/v1/projects (with images)
-    C->>C: Validate DTO + multipart files
-    C->>S: createProject(request, images)
+    A->>C: POST /api/v1/projects (project data only)
+    C->>C: Validate DTO
+    C->>S: createProject(request)
     S->>S: Validate business rules
     S->>S: Check name uniqueness
     S->>D: save(project)
@@ -27,22 +25,13 @@ sequenceDiagram
     DB-->>R: Return saved entity
     R-->>D: Return project
     D-->>S: Return project
-    
     S->>S: Link technologies
-    
-    alt If images provided
-        S->>IS: processProjectImages(projectId, images)
-        IS->>IS: Validate image files (format, size)
-        IS->>FS: Upload images to storage
-        FS-->>IS: Return image URLs
-        IS->>D: saveProjectImages(images)
-        D->>DB: INSERT project_images
-        IS->>IS: Set primary image (first uploaded)
-    end
-    
     S->>Cache: Invalidate project cache
-    S-->>C: Return created project + images
+    S-->>C: Return created project
     C-->>A: 201 Created + ProjectResponse
+    
+    Note over A,C: Project created successfully without images
+    Note over A,C: Images uploaded separately via POST /api/v1/projects/{id}/images
 ```
 
 ## 2. Portfolio Visitor User Journey

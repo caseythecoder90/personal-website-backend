@@ -18,7 +18,7 @@ sequenceDiagram
     participant FS as FileStorage
     participant Cache as Redis
 
-    A->>C: POST /api/v1/projects (with images)
+    A->>C: POST /api/v1/projects (project data only)
     C->>C: Validate DTO
     C->>S: createProject(request)
     S->>S: Validate business rules
@@ -30,19 +30,11 @@ sequenceDiagram
     R-->>D: Return project
     D-->>S: Return project
     S->>S: Link technologies
-    
-    alt If images provided
-        S->>IS: processProjectImages(projectId, images)
-        IS->>IS: Validate image files
-        IS->>FS: Upload to storage
-        FS-->>IS: Return image URLs
-        IS->>D: saveProjectImages(images)
-        D->>DB: INSERT project_images
-    end
-    
     S->>Cache: Invalidate project cache
     S-->>C: Return created project
     C-->>A: 201 Created + ProjectResponse
+    
+    Note over A,C: Images uploaded separately via POST /api/v1/projects/{id}/images
 ```
 
 ### 2. Portfolio Visitor Journey
@@ -352,40 +344,52 @@ Solutions:
 - Related content recommendations
 ```
 
-### 8. Project Image Upload Flow
+### 8. Project Image Upload Flow (Separate Endpoint)
 
 ```mermaid
 sequenceDiagram
     participant A as Admin
-    participant UI as Frontend
-    participant C as Controller
-    participant S as Service
+    participant UI as Admin UI
+    participant C as ProjectController
+    participant S as ProjectService
     participant IS as ImageService
     participant FS as FileStorage
     participant DB as Database
+    participant Cache as Redis
 
-    A->>UI: Select images to upload
-    UI->>UI: Validate files (size, format)
-    UI->>C: POST /api/v1/projects/{id}/images
-    C->>C: Validate multipart files
-    C->>S: uploadProjectImages(projectId, files)
+    Note over A: After project is created successfully
     
-    loop For each image
-        S->>IS: processImage(file)
+    A->>UI: Select images to upload
+    UI->>UI: Validate files (size, format, count)
+    UI->>UI: Collect image metadata (alt text, type, etc.)
+    
+    UI->>C: POST /api/v1/projects/{id}/images
+    Note over C: Content-Type: multipart/form-data
+    C->>C: Validate multipart files and metadata
+    C->>S: uploadProjectImages(projectId, files, metadata)
+    
+    S->>S: Verify project exists and user has permission
+    
+    loop For each image file
+        S->>IS: processImage(file, metadata)
         IS->>IS: Validate image (format, size, dimensions)
-        IS->>IS: Generate thumbnail if needed
-        IS->>FS: Upload original + thumbnail
-        FS-->>IS: Return URLs
-        IS->>IS: Create ProjectImage entity
+        IS->>IS: Generate optimized versions (thumbnail, etc.)
+        IS->>FS: Upload original + optimized versions
+        FS-->>IS: Return storage URLs
+        IS->>IS: Create ProjectImage entity with metadata
+        IS->>DB: Save ProjectImage entity
     end
     
-    S->>DB: Save ProjectImage entities
-    DB-->>S: Return saved images
-    S->>S: Update display order
-    S->>S: Set primary image if first upload
-    S-->>C: Return image metadata
-    C-->>UI: 201 Created + ImageResponse[]
+    S->>S: Auto-set first uploaded image as primary if none exists
+    S->>S: Update display order based on upload sequence
+    S->>Cache: Invalidate project cache
+    
+    S-->>C: Return created images metadata
+    C-->>UI: 201 Created + ProjectImageResponse[]
     UI->>UI: Update project gallery view
+    UI->>UI: Show upload success notification
+    
+    Note over A: Images now visible in project gallery
 ```
 
 ### 9. Primary Image Management Flow

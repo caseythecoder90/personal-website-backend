@@ -164,16 +164,16 @@ ImageType: THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO
 /api/v1/
 ├── /projects              # Portfolio project management
 │   ├── GET    /           # List all projects (paginated)
-│   ├── POST   /           # Create new project
+│   ├── POST   /           # Create new project (metadata only)
 │   ├── GET    /{id}       # Get project by ID
 │   ├── PUT    /{id}       # Update project
 │   ├── DELETE /{id}       # Delete project
 │   ├── GET    /featured   # Get featured projects
 │   ├── GET    /published  # Get published projects
 │   ├── POST   /{id}/view  # Track project view
-│   └── /{id}/images       # Project image management
+│   └── /{id}/images       # Project image management (separate endpoints)
 │       ├── GET    /       # List project images
-│       ├── POST   /       # Upload new image
+│       ├── POST   /       # Upload new images (multipart/form-data)
 │       ├── PUT    /{imageId}  # Update image metadata
 │       ├── DELETE /{imageId}  # Remove image
 │       └── PUT    /{imageId}/primary  # Set as primary image
@@ -280,20 +280,22 @@ Related Articles → Share → Comment (future) →
 
 ## Data Flow
 
-### Project Creation Flow
+### Project Creation Flow (Separate Endpoints)
 ```
-1. Admin creates project via API
+1. Admin creates project via API (metadata only)
 2. Service validates business rules
-3. DAO saves to database  
+3. DAO saves project to database  
 4. Technologies linked via junction table
-5. ProjectImages uploaded and associated
+5. SEO metadata generated
+6. Analytics tracking initialized
+7. Cache invalidated for public endpoints
+8. [Separate Step] ProjectImages uploaded via dedicated endpoint
+   - POST /api/v1/projects/{id}/images
    - Image validation (size, format, dimensions)
    - Auto-generate thumbnails if needed
    - Set primary image and display order
    - Store metadata (alt text, captions)
-6. SEO metadata generated
-7. Analytics tracking initialized
-8. Cache invalidated for public endpoints
+   - Update project cache
 ```
 
 ### Contact Submission Flow

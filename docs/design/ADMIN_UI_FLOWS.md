@@ -19,18 +19,19 @@ flowchart TD
     G -->|Full Create| I[Complete Project Form]
     
     H --> H1[Basic Info]
-    H1 --> H2[Primary Image Upload]
-    H2 --> H3[Technology Selection]
-    H3 --> H4[Save as Draft]
+    H1 --> H2[Technology Selection] 
+    H2 --> H3[Save Project First]
+    H3 --> H4[Add Images Separately]
     H4 --> O[Success Message]
     
     I --> I1[Project Details Tab]
-    I1 --> I2[Media Gallery Tab]
-    I2 --> I3[Technologies Tab]
-    I3 --> I4[SEO Settings Tab]
-    I4 --> I5[Learning Outcomes Tab]
+    I1 --> I2[Save Project]
+    I2 --> I3[Media Gallery Tab (Post-Creation)]
+    I3 --> I4[Technologies Tab]
+    I4 --> I5[SEO Settings Tab]
+    I5 --> I6[Learning Outcomes Tab]
     
-    I5 --> J{Validation}
+    I6 --> J{Validation}
     J -->|Pass| K{Save Action}
     J -->|Fail| L[Show Validation Errors]
     L --> I1
