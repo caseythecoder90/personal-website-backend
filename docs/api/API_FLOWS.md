@@ -447,4 +447,198 @@ sequenceDiagram
     E-->>A: Email sent confirmation
 ```
 
+### 12. Blog Post Creation Flow (Admin UI)
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant UI as Admin UI
+    participant C as BlogController
+    participant S as BlogService
+    participant D as BlogDAO
+    participant DB as Database
+    participant Cache as Redis
+    participant SEO as SEOService
+
+    A->>UI: Navigate to "Create Blog Post"
+    UI->>UI: Load blog creation form
+    UI->>C: GET /api/v1/admin/blog/categories
+    C-->>UI: Return categories list
+    UI->>C: GET /api/v1/admin/blog/tags
+    C-->>UI: Return tags list
+    
+    A->>UI: Fill blog post content
+    A->>UI: Select categories and tags
+    A->>UI: Click "Save Draft"
+    
+    UI->>C: POST /api/v1/admin/blog/posts
+    C->>S: createBlogPost(request)
+    S->>S: Validate content and metadata
+    S->>S: Generate slug from title
+    S->>D: saveBlogPost(blogPost)
+    D->>DB: INSERT blog_post
+    
+    S->>S: Link categories and tags
+    D->>DB: INSERT blog_post_categories
+    D->>DB: INSERT blog_post_tags
+    
+    S->>SEO: generateSEOMetadata(blogPost)
+    SEO->>DB: INSERT seo_meta
+    
+    S-->>C: Return created blog post
+    C-->>UI: 201 Created + BlogPostResponse
+    UI->>UI: Show success message
+    
+    alt If "Publish" instead of "Save Draft"
+        S->>S: Set published = true
+        S->>Cache: Invalidate blog cache
+        S->>SEO: Generate sitemap entry
+    end
+```
+
+### 13. Blog Post Management Flow (Admin UI)
+
+```mermaid
+flowchart TD
+    A[Admin Dashboard] --> B[Navigate to Blog Section]
+    B --> C[Blog Post List View]
+    
+    C --> D{Action Selection}
+    D -->|Create New| E[Create Blog Post Form]
+    D -->|Edit| F[Edit Existing Post]
+    D -->|Publish| G[Publish Draft Post]
+    D -->|Archive| H[Archive Published Post]
+    
+    E --> I[Fill Content & Metadata]
+    I --> J[Select Categories & Tags]
+    J --> K{Save Action}
+    
+    F --> L[Load Existing Content]
+    L --> I
+    
+    K -->|Save Draft| M[Save as Unpublished]
+    K -->|Publish| N[Publish Immediately]
+    
+    G --> O[Confirm Publish Action]
+    O --> P[Update Status to Published]
+    
+    H --> Q[Confirm Archive Action]
+    Q --> R[Update Status to Archived]
+    
+    M --> S[Success Message]
+    N --> T[Published + SEO Update]
+    P --> T
+    R --> U[Archived Successfully]
+    
+    S --> C
+    T --> C
+    U --> C
+    
+    style A fill:#e3f2fd
+    style E fill:#e8f5e8
+    style T fill:#c8e6c9
+    style U fill:#ffecb3
+```
+
+### 14. Technology Management Flow (Admin UI)
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant UI as Admin UI
+    participant C as TechnologyController
+    participant S as TechnologyService
+    participant D as TechnologyDAO
+    participant DB as Database
+    participant Cache as Redis
+
+    A->>UI: Navigate to "Technology Management"
+    UI->>C: GET /api/v1/admin/technologies
+    C->>S: getAllTechnologies()
+    S->>D: findAll()
+    D->>DB: SELECT * FROM technologies
+    DB-->>D: Return technology list
+    D-->>S: Return technologies
+    S-->>C: Return technology list
+    C-->>UI: 200 OK + TechnologyResponse[]
+    
+    A->>UI: Click "Add New Technology"
+    UI->>UI: Show technology creation form
+    
+    A->>UI: Fill technology details
+    A->>UI: Set proficiency level
+    A->>UI: Set years of experience
+    A->>UI: Click "Save"
+    
+    UI->>C: POST /api/v1/admin/technologies
+    C->>S: createTechnology(request)
+    S->>S: Validate technology data
+    S->>S: Check name uniqueness
+    S->>D: saveTechnology(technology)
+    D->>DB: INSERT technology
+    DB-->>D: Return saved technology
+    D-->>S: Return technology
+    
+    S->>Cache: Invalidate technology cache
+    S-->>C: Return created technology
+    C-->>UI: 201 Created + TechnologyResponse
+    UI->>UI: Update technology list
+    
+    Note over A: Technology appears in list with proficiency indicators
+```
+
+### 15. Contact Submission Admin Management Flow
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant UI as Admin Dashboard
+    participant C as ContactController
+    participant S as ContactService
+    participant E as EmailService
+    participant D as ContactDAO
+    participant DB as Database
+
+    A->>UI: Navigate to "Contact Submissions"
+    UI->>C: GET /api/v1/admin/contacts?status=NEW
+    C->>S: getContactSubmissions(status)
+    S->>D: findByStatus(NEW)
+    D->>DB: SELECT from contact_submissions
+    DB-->>D: Return new submissions
+    D-->>S: Return submissions
+    S-->>C: Return contact list
+    C-->>UI: 200 OK + ContactSubmission[]
+    
+    UI->>UI: Display submissions with indicators
+    
+    A->>UI: Click on submission to view details
+    UI->>C: GET /api/v1/admin/contacts/{id}
+    C->>S: getContactSubmission(id)
+    S->>D: markAsRead(id)  # Update status to READ
+    D->>DB: UPDATE contact_submissions SET status = 'READ'
+    S->>D: findById(id)
+    D-->>S: Return full submission details
+    S-->>C: Return submission
+    C-->>UI: 200 OK + ContactSubmissionDetail
+    
+    UI->>UI: Show full submission details
+    
+    A->>UI: Click "Reply" button
+    UI->>UI: Open reply form with pre-filled data
+    A->>UI: Write response message
+    A->>UI: Click "Send Reply"
+    
+    UI->>C: POST /api/v1/admin/contacts/{id}/reply
+    C->>S: replyToSubmission(id, message)
+    S->>E: sendReplyEmail(submission, message)
+    E-->>S: Email sent confirmation
+    S->>D: updateStatus(id, REPLIED)
+    D->>DB: UPDATE contact_submissions SET status = 'replied'
+    S-->>C: Reply sent successfully
+    C-->>UI: 200 OK
+    
+    UI->>UI: Update submission status to "Replied"
+    UI->>UI: Show success notification
+```
+
 This comprehensive documentation provides the foundation for understanding system behavior, data flows, and user interactions. Use these diagrams to guide implementation decisions and communicate system design to stakeholders.
