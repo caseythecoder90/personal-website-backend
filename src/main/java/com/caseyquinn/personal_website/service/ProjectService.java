@@ -10,8 +10,10 @@ import com.caseyquinn.personal_website.entity.Technology;
 import com.caseyquinn.personal_website.entity.enums.ProjectType;
 import com.caseyquinn.personal_website.entity.enums.ProjectStatus;
 import com.caseyquinn.personal_website.entity.enums.DifficultyLevel;
-import com.caseyquinn.personal_website.exception.business.DuplicateProjectException;
-import com.caseyquinn.personal_website.exception.business.ProjectValidationException;
+import com.caseyquinn.personal_website.exception.ErrorCode;
+import com.caseyquinn.personal_website.exception.NotFoundException;
+import com.caseyquinn.personal_website.exception.business.DuplicateResourceException;
+import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.ProjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -132,7 +134,7 @@ public class ProjectService {
     public ProjectResponse getProjectBySlug(String slug) {
         log.info("Service: Fetching project with slug: {}", slug);
         Project project = projectDao.findBySlug(slug)
-                .orElseThrow(() -> new ProjectValidationException("Project not found with slug: " + slug));
+                .orElseThrow(() -> new NotFoundException("Project", "slug", slug));
         return projectMapper.toResponse(project);
     }
     
@@ -203,7 +205,8 @@ public class ProjectService {
         
         // Business validation
         if (project.getTechnologies().contains(technology)) {
-            throw new ProjectValidationException("Technology is already associated with this project");
+            throw new ValidationException(ErrorCode.DUPLICATE_TECH_ASSOCIATION,
+                    "Technology is already associated with this project");
         }
         
         project.addTechnology(technology);
@@ -222,7 +225,8 @@ public class ProjectService {
         
         // Business validation
         if (!project.getTechnologies().contains(technology)) {
-            throw new ProjectValidationException("Technology is not associated with this project");
+            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
+                    "Technology is not associated with this project");
         }
         
         project.removeTechnology(technology);
@@ -256,41 +260,33 @@ public class ProjectService {
     
     // Business validation methods
     private void validateProjectCreation(CreateProjectRequest request) {
-        // Business rule: No duplicate project names
         if (projectDao.existsByName(request.getName())) {
-            throw new DuplicateProjectException(request.getName());
+            throw new DuplicateResourceException("Project", "name", request.getName());
         }
-        
-        // Business rule: GitHub URL must be unique if provided
-        if (request.getGithubUrl() != null) {
-            // Additional business validation logic can be added here
-        }
-        
-        // Business rule: Maximum 10 active projects
+
         long activeProjects = projectDao.count();
         if (activeProjects >= 10) {
-            throw new ProjectValidationException("Maximum number of projects (10) reached");
+            throw new ValidationException(ErrorCode.MAX_PROJECTS_EXCEEDED,
+                    "Maximum number of projects (10) reached");
         }
     }
-    
+
     private void validateProjectUpdate(UpdateProjectRequest request, Project existingProject) {
-        // Business rule: Can't change name to existing name
-        if (!existingProject.getName().equals(request.getName()) && 
+        if (!existingProject.getName().equals(request.getName()) &&
             projectDao.existsByName(request.getName())) {
-            throw new DuplicateProjectException(request.getName());
+            throw new DuplicateResourceException("Project", "name", request.getName());
         }
-        
-        // Business rule: Can't change slug to existing slug if provided
-        if (request.getSlug() != null && !existingProject.getSlug().equals(request.getSlug()) && 
+
+        if (request.getSlug() != null && !existingProject.getSlug().equals(request.getSlug()) &&
             projectDao.existsBySlug(request.getSlug())) {
-            throw new ProjectValidationException("Project with slug '" + request.getSlug() + "' already exists");
+            throw new DuplicateResourceException("Project", "slug", request.getSlug());
         }
     }
-    
+
     private void validateProjectDeletion(Project project) {
-        // Business rule: Can't delete published projects
         if (Boolean.TRUE.equals(project.getPublished())) {
-            throw new ProjectValidationException("Cannot delete published projects. Unpublish first.");
+            throw new ValidationException(ErrorCode.CANNOT_DELETE_PUBLISHED,
+                    "Cannot delete published projects. Unpublish first.");
         }
     }
 }
