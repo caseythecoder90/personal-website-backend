@@ -2,8 +2,10 @@ package com.caseyquinn.personal_website.exception;
 
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.exception.business.BusinessException;
-import com.caseyquinn.personal_website.exception.data.DataAccessException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -33,9 +35,23 @@ public class GlobalExceptionHandler {
                 .body(Response.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Response<Void>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.error("[DB_INTEGRITY] {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Response.error("A data integrity error occurred"));
+    }
+
+    @ExceptionHandler(DataAccessResourceFailureException.class)
+    public ResponseEntity<Response<Void>> handleDataAccessResourceFailure(DataAccessResourceFailureException ex) {
+        log.error("[DB_CONNECTION] Database connection failed after retries", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Response.error("Database connection failed. Please try again later."));
+    }
+
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<Response<Void>> handleDataAccessException(DataAccessException ex) {
-        log.error("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage(), ex);
+        log.error("[DB_ACCESS] {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Response.error("A data access error occurred. Please try again later."));
     }
