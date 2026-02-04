@@ -1,9 +1,11 @@
 package com.caseyquinn.personal_website.exception.business;
 
 import com.caseyquinn.personal_website.exception.BaseException;
+import com.caseyquinn.personal_website.exception.ErrorCode;
 
-public class BusinessException extends BaseException {
-    public BusinessException(String errorCode, String message, Object... parameters) {
-        super(errorCode, message, parameters);
+public abstract class BusinessException extends BaseException {
+
+    protected BusinessException(ErrorCode errorCode, String message) {
+        super(errorCode, message);
     }
 }
