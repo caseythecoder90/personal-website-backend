@@ -7,8 +7,10 @@ import com.caseyquinn.personal_website.dto.response.TechnologyResponse;
 import com.caseyquinn.personal_website.entity.Technology;
 import com.caseyquinn.personal_website.entity.enums.TechnologyCategory;
 import com.caseyquinn.personal_website.entity.enums.ProficiencyLevel;
-import com.caseyquinn.personal_website.exception.business.DuplicateProjectException;
-import com.caseyquinn.personal_website.exception.business.ProjectValidationException;
+import com.caseyquinn.personal_website.exception.ErrorCode;
+import com.caseyquinn.personal_website.exception.NotFoundException;
+import com.caseyquinn.personal_website.exception.business.DuplicateResourceException;
+import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.TechnologyMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +51,7 @@ public class TechnologyService {
     public TechnologyResponse getTechnologyByName(String name) {
         log.info("Service: Fetching technology with name: {}", name);
         Technology technology = technologyDao.findByName(name)
-                .orElseThrow(() -> new ProjectValidationException("Technology not found with name: " + name));
+                .orElseThrow(() -> new NotFoundException("Technology", "name", name));
         return technologyMapper.toResponse(technology);
     }
     
@@ -150,45 +152,43 @@ public class TechnologyService {
     
     // Business validation methods
     private void validateTechnologyCreation(Technology technology) {
-        // Business rule: No duplicate technology names
         if (technologyDao.existsByName(technology.getName())) {
-            throw new DuplicateProjectException("Technology with name '" + technology.getName() + "' already exists");
+            throw new DuplicateResourceException("Technology", "name", technology.getName());
         }
-        
-        // Business rule: Years experience cannot be negative
+
         if (technology.getYearsExperience() != null && technology.getYearsExperience() < 0) {
-            throw new ProjectValidationException("Years of experience cannot be negative");
+            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
+                    "Years of experience cannot be negative");
         }
-        
-        // Business rule: Years experience should be reasonable (max 50 years)
+
         if (technology.getYearsExperience() != null && technology.getYearsExperience() > 50) {
-            throw new ProjectValidationException("Years of experience seems unrealistic (max 50 years)");
+            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
+                    "Years of experience seems unrealistic (max 50 years)");
         }
     }
-    
+
     private void validateTechnologyUpdate(Technology technologyUpdate, Technology existingTechnology) {
-        // Business rule: Can't change name to existing name
-        if (technologyUpdate.getName() != null && !existingTechnology.getName().equals(technologyUpdate.getName()) && 
+        if (technologyUpdate.getName() != null && !existingTechnology.getName().equals(technologyUpdate.getName()) &&
             technologyDao.existsByName(technologyUpdate.getName())) {
-            throw new DuplicateProjectException("Technology with name '" + technologyUpdate.getName() + "' already exists");
+            throw new DuplicateResourceException("Technology", "name", technologyUpdate.getName());
         }
-        
-        // Apply same validation rules as creation
+
         if (technologyUpdate.getYearsExperience() != null && technologyUpdate.getYearsExperience() < 0) {
-            throw new ProjectValidationException("Years of experience cannot be negative");
+            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
+                    "Years of experience cannot be negative");
         }
-        
+
         if (technologyUpdate.getYearsExperience() != null && technologyUpdate.getYearsExperience() > 50) {
-            throw new ProjectValidationException("Years of experience seems unrealistic (max 50 years)");
+            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
+                    "Years of experience seems unrealistic (max 50 years)");
         }
     }
-    
+
     private void validateTechnologyDeletion(Technology technology) {
-        // Business rule: Can't delete technology that's used in projects
         if (!technology.getProjects().isEmpty()) {
-            throw new ProjectValidationException(
-                "Cannot delete technology '" + technology.getName() + 
-                "' because it's used in " + technology.getProjects().size() + " project(s)");
+            throw new ValidationException(ErrorCode.TECHNOLOGY_IN_USE,
+                    "Cannot delete technology '" + technology.getName() +
+                    "' because it is used in " + technology.getProjects().size() + " project(s)");
         }
     }
 }

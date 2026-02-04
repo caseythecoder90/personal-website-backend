@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: personal-website-postgres
+    environment:
+      POSTGRES_DB: casquinn_personal_website
+      POSTGRES_USER: casquinn
+      POSTGRES_PASSWORD: Ku^a4MoADdqLf4n>ka,d
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casquinn -d casquinn_personal_website"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - personal-website-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: personal-website-redis
+    command: redis-server --requirepass vHZBDJUzyG}1AE6dBMZY
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - personal-website-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  personal-website-network:
+    driver: bridge
