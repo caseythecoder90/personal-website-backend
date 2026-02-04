@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public abstract class BaseException extends RuntimeException {
-    private final ErrorCode errorCode;
+    private final com.caseyquinn.personal_website.exception.ErrorCode errorCode;
 
     protected BaseException(ErrorCode errorCode, String message) {
         super(message);
