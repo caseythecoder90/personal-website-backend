@@ -6,7 +6,7 @@ import com.caseyquinn.personal_website.entity.enums.ProjectType;
 import com.caseyquinn.personal_website.entity.enums.ProjectStatus;
 import com.caseyquinn.personal_website.entity.enums.DifficultyLevel;
 import com.caseyquinn.personal_website.exception.NotFoundException;
-//import com.caseyquinn.personal_website.exception.data.RetryableDataAccess;
+import com.caseyquinn.personal_website.exception.data.RetryableDataAccess;
 import com.caseyquinn.personal_website.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-//@RetryableDataAccess
+@RetryableDataAccess
 public class ProjectDaoImpl implements ProjectDao {
 
     private final ProjectRepository projectRepository;
