@@ -5,7 +5,7 @@ import com.caseyquinn.personal_website.entity.Technology;
 import com.caseyquinn.personal_website.entity.enums.TechnologyCategory;
 import com.caseyquinn.personal_website.entity.enums.ProficiencyLevel;
 import com.caseyquinn.personal_website.exception.NotFoundException;
-//import com.caseyquinn.personal_website.exception.data.RetryableDataAccess;
+import com.caseyquinn.personal_website.exception.data.RetryableDataAccess;
 import com.caseyquinn.personal_website.repository.TechnologyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-//@RetryableDataAccess
+@RetryableDataAccess
 public class TechnologyDaoImpl implements TechnologyDao {
 
     private final TechnologyRepository technologyRepository;
