@@ -1,9 +1,8 @@
 package com.caseyquinn.personal_website.exception;
 
-import com.caseyquinn.personal_website.dto.response.ApiResponse;
+import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.exception.business.BusinessException;
 import com.caseyquinn.personal_website.exception.data.DataAccessException;
-import com.caseyquinn.personal_website.exception.data.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,29 +18,26 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-    
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleEntityNotFound(EntityNotFoundException ex) {
-        log.warn("Entity not found: {}", ex.getMessage());
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Response<Void>> handleNotFoundException(NotFoundException ex) {
+        log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(ex.getMessage()));
+                .body(Response.error(ex.getMessage()));
     }
-    
+
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException ex) {
-        log.warn("Business rule violation: {} - {}", ex.getErrorCode(), ex.getMessage());
+    public ResponseEntity<Response<Void>> handleBusinessException(BusinessException ex) {
+        log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ex.getMessage()));
+                .body(Response.error(ex.getMessage()));
     }
-    
+
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDataAccessException(DataAccessException ex) {
-        log.error("Data access error: {} - {}", ex.getErrorCode(), ex.getMessage(), ex);
-        
-        // Don't expose internal database errors to clients
-        String clientMessage = "A data access error occurred. Please try again later.";
+    public ResponseEntity<Response<Void>> handleDataAccessException(DataAccessException ex) {
+        log.error("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(clientMessage));
+                .body(Response.error("A data access error occurred. Please try again later."));
     }
     
     @ExceptionHandler(NoResourceFoundException.class)
@@ -55,7 +51,7 @@ public class GlobalExceptionHandler {
     }
     
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(
+    public ResponseEntity<Response<Map<String, String>>> handleValidationErrors(
             MethodArgumentNotValidException ex) {
         log.warn("Validation error: {}", ex.getMessage());
         
@@ -67,7 +63,7 @@ public class GlobalExceptionHandler {
         });
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.<Map<String, String>>builder()
+                .body(Response.<Map<String, String>>builder()
                         .status("error")
                         .message("Validation failed")
                         .data(errors)
@@ -75,9 +71,9 @@ public class GlobalExceptionHandler {
     }
     
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
+    public ResponseEntity<Response<Void>> handleGenericException(Exception ex) {
         log.error("Unexpected error: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("An unexpected error occurred"));
+                .body(Response.error("An unexpected error occurred"));
     }
 }

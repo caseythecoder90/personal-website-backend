@@ -6,7 +6,7 @@ import com.caseyquinn.personal_website.entity.enums.TechnologyCategory;
 import com.caseyquinn.personal_website.entity.enums.ProficiencyLevel;
 import com.caseyquinn.personal_website.exception.data.DatabaseConnectionException;
 import com.caseyquinn.personal_website.exception.data.DataIntegrityException;
-import com.caseyquinn.personal_website.exception.data.EntityNotFoundException;
+import com.caseyquinn.personal_website.exception.NotFoundException;
 import com.caseyquinn.personal_website.repository.TechnologyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +71,7 @@ public class TechnologyDaoImpl implements TechnologyDao {
     @Override
     public Technology findByIdOrThrow(Long id) {
         return findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Technology", id));
+                .orElseThrow(() -> new NotFoundException("Technology", id));
     }
     
     @Override
@@ -126,11 +126,11 @@ public class TechnologyDaoImpl implements TechnologyDao {
         try {
             log.debug("DAO: Deleting technology with id: {}", id);
             if (!technologyRepository.existsById(id)) {
-                throw new EntityNotFoundException("Technology", id);
+                throw new NotFoundException("Technology", id);
             }
             technologyRepository.deleteById(id);
             log.debug("DAO: Successfully deleted technology with id: {}", id);
-        } catch (EntityNotFoundException ex) {
+        } catch (NotFoundException ex) {
             throw ex; // Re-throw our custom exception
         } catch (DataAccessResourceFailureException ex) {
             log.error("Database connection failed while deleting technology with id: {}", id, ex);

@@ -7,7 +7,7 @@ import com.caseyquinn.personal_website.entity.enums.ProjectStatus;
 import com.caseyquinn.personal_website.entity.enums.DifficultyLevel;
 import com.caseyquinn.personal_website.exception.data.DatabaseConnectionException;
 import com.caseyquinn.personal_website.exception.data.DataIntegrityException;
-import com.caseyquinn.personal_website.exception.data.EntityNotFoundException;
+import com.caseyquinn.personal_website.exception.NotFoundException;
 import com.caseyquinn.personal_website.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +72,7 @@ public class ProjectDaoImpl implements ProjectDao {
     @Override
     public Project findByIdOrThrow(Long id) {
         return findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project", id));
+                .orElseThrow(() -> new NotFoundException("Project", id));
     }
     
     @Override
@@ -127,11 +127,11 @@ public class ProjectDaoImpl implements ProjectDao {
         try {
             log.debug("DAO: Deleting project with id: {}", id);
             if (!projectRepository.existsById(id)) {
-                throw new EntityNotFoundException("Project", id);
+                throw new NotFoundException("Project", id);
             }
             projectRepository.deleteById(id);
             log.debug("DAO: Successfully deleted project with id: {}", id);
-        } catch (EntityNotFoundException ex) {
+        } catch (NotFoundException ex) {
             throw ex; // Re-throw our custom exception
         } catch (DataAccessResourceFailureException ex) {
             log.error("Database connection failed while deleting project with id: {}", id, ex);

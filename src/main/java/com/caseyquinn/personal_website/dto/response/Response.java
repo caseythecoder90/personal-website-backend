@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @Schema(description = "Generic API response wrapper")
-public class ApiResponse<T> {
+public class Response<T> {
     
     @Schema(description = "Response status", example = "success")
     private String status;
@@ -26,8 +26,8 @@ public class ApiResponse<T> {
     @Schema(description = "Request ID for tracing")
     private String requestId;
     
-    public static <T> ApiResponse<T> success(T data) {
-        return ApiResponse.<T>builder()
+    public static <T> Response<T> success(T data) {
+        return Response.<T>builder()
                 .status("success")
                 .message("Operation completed successfully")
                 .data(data)
@@ -35,8 +35,8 @@ public class ApiResponse<T> {
                 .build();
     }
     
-    public static <T> ApiResponse<T> success(T data, String message) {
-        return ApiResponse.<T>builder()
+    public static <T> Response<T> success(T data, String message) {
+        return Response.<T>builder()
                 .status("success")
                 .message(message)
                 .data(data)
@@ -44,8 +44,8 @@ public class ApiResponse<T> {
                 .build();
     }
     
-    public static <T> ApiResponse<T> error(String message) {
-        return ApiResponse.<T>builder()
+    public static <T> Response<T> error(String message) {
+        return Response.<T>builder()
                 .status("error")
                 .message(message)
                 .timestamp(LocalDateTime.now())
