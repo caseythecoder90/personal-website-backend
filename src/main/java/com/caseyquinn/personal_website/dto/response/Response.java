@@ -13,7 +13,10 @@ public class Response<T> {
     
     @Schema(description = "Response status", example = "success")
     private String status;
-    
+
+    @Schema(description = "Machine-readable error code, present on error responses", example = "NOT_FOUND")
+    private String errorCode;
+
     @Schema(description = "Response message", example = "Operation completed successfully")
     private String message;
     
@@ -47,6 +50,15 @@ public class Response<T> {
     public static <T> Response<T> error(String message) {
         return Response.<T>builder()
                 .status("error")
+                .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    public static <T> Response<T> error(String errorCode, String message) {
+        return Response.<T>builder()
+                .status("error")
+                .errorCode(errorCode)
                 .message(message)
                 .timestamp(LocalDateTime.now())
                 .build();
