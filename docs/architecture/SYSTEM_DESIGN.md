@@ -2,7 +2,7 @@
 
 ## Table of Contents
 1. [System Overview](#system-overview)
-2. [Architecture Patterns](#architecture-patterns) 
+2. [Architecture Patterns](#architecture-patterns)
 3. [Domain Model](#domain-model)
 4. [API Design](#api-design)
 5. [User Journeys](#user-journeys)
@@ -14,22 +14,22 @@
 ## System Overview
 
 ### Vision Statement
-A comprehensive personal portfolio website showcasing technical projects, skills, and professional experience. Built using enterprise-grade patterns to demonstrate advanced Spring Boot capabilities.
+A professional portfolio website showcasing technical projects, skills, and professional experience. Built using enterprise-grade patterns to demonstrate advanced Spring Boot capabilities.
 
 ### Core Objectives
-- **Professional Showcase**: Display projects with rich metadata and analytics
+- **Professional Showcase**: Display projects with rich metadata, images, and technology associations
 - **Content Management**: Blog system for technical articles and insights
-- **Visitor Engagement**: Contact forms, analytics, and SEO optimization
+- **Visitor Engagement**: Contact forms for professional inquiries
 - **Skills Demonstration**: Advanced Spring Boot patterns and architecture
 
 ### Technology Stack
 ```
 Backend: Spring Boot 3.5+ with Java 21
-Database: PostgreSQL 15 with JSONB support
+Database: PostgreSQL with Flyway migrations
 Caching: Redis for session and performance
 Documentation: OpenAPI/Swagger
-Testing: JUnit 5, TestContainers
-Deployment: Docker, potentially AWS
+Testing: JUnit 5
+Deployment: Docker, potentially Railway
 ```
 
 ## Architecture Patterns
@@ -39,7 +39,7 @@ Deployment: Docker, potentially AWS
 ┌─────────────────┐
 │   Controllers   │ ← REST API Layer
 ├─────────────────┤
-│   Services      │ ← Business Logic Layer  
+│   Services      │ ← Business Logic Layer
 ├─────────────────┤
 │     DAOs        │ ← Data Access Layer
 ├─────────────────┤
@@ -51,10 +51,11 @@ Deployment: Docker, potentially AWS
 
 ### Key Patterns Implemented
 - **DAO Pattern**: Clean abstraction over JPA repositories
-- **Exception Translation**: Separate business and data exceptions
+- **Exception Translation**: Separate business and data exceptions with ErrorCode enum
 - **DTO Pattern**: Request/Response objects with validation
 - **Mapper Pattern**: MapStruct for type-safe conversions
 - **Builder Pattern**: Lombok for clean object construction
+- **Spring Retry**: Automatic retry on transient data access failures
 
 ### Package Structure
 ```
@@ -80,25 +81,18 @@ com.caseyquinn.personal_website/
 
 ### Core Entities Overview
 
-#### **Project Management Domain**
+#### **Portfolio Domain** (Active — fully wired)
 - `Project` - Central entity for portfolio projects
 - `Technology` - Skills and tech stack with proficiency tracking
 - `ProjectImage` - Visual gallery with type classification
-- `LearningOutcome` - Skills/knowledge gained from projects
 
-#### **Content Management Domain** 
+#### **Blog Domain** (Entities defined — implementation next)
 - `BlogPost` - Technical articles and insights
 - `BlogCategory` - Content organization
 - `BlogTag` - Flexible content tagging
 
-#### **User Interaction Domain**
+#### **Contact Domain** (Entity defined — implementation next)
 - `ContactSubmission` - Professional inquiries
-- `User` - Admin/content management
-- `PageView` - General analytics
-- `ProjectAnalytics` - Project-specific tracking
-
-#### **SEO & Optimization Domain**
-- `SeoMeta` - Search engine optimization metadata
 
 ### Entity Relationships Map
 
@@ -107,31 +101,23 @@ com.caseyquinn.personal_website/
 │   Project   │◄─────►│ ProjectTechnology│◄─────►│ Technology  │
 │             │       │   (Join Table)   │       │             │
 └──────┬──────┘       └─────────────────┘       └─────────────┘
-       │                                                      
-       ├──► ProjectImage (1:N)                               
-       ├──► LearningOutcome (1:N)                            
-       ├──► ProjectAnalytics (1:N)                           
-       └──► SeoMeta (1:1)                                    
+       │
+       └──► ProjectImage (1:N)
 
 ┌─────────────┐       ┌──────────────────┐      ┌─────────────┐
 │  BlogPost   │◄─────►│ BlogPostCategory │◄────►│BlogCategory │
 │             │       │   (Join Table)    │      │             │
 └──────┬──────┘       └──────────────────┘      └─────────────┘
-       │              
+       │
        │              ┌──────────────────┐      ┌─────────────┐
        └─────────────►│  BlogPostTag     │◄────►│  BlogTag    │
                       │   (Join Table)    │      │             │
                       └──────────────────┘      └─────────────┘
 
-┌─────────────────┐    ┌─────────────────┐
-│ ContactSubmission│    │    PageView     │
-│                 │    │                 │  
-└─────────────────┘    └─────────────────┘
-
-┌─────────────┐
-│    User     │ (Admin/Content Management)
-│             │
-└─────────────┘
+┌─────────────────┐
+│ ContactSubmission│  (Standalone)
+│                 │
+└─────────────────┘
 ```
 
 ### Enumeration Types
@@ -141,19 +127,15 @@ ProjectType: PERSONAL, PROFESSIONAL, OPEN_SOURCE, LEARNING, FREELANCE
 ProjectStatus: PLANNING, IN_PROGRESS, COMPLETED, MAINTAINED, ARCHIVED
 DifficultyLevel: BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
 
-// Technology & Skills  
+// Technology & Skills
 TechnologyCategory: LANGUAGE, FRAMEWORK, LIBRARY, DATABASE, TOOL, CLOUD, DEPLOYMENT, TESTING
 ProficiencyLevel: LEARNING, FAMILIAR, PROFICIENT, EXPERT
-SkillCategory: TECHNICAL, SOFT_SKILL, TOOL, METHODOLOGY, ARCHITECTURE
 
-// User Management
-UserRole: ADMIN, EDITOR, VIEWER
+// Contact
 InquiryType: GENERAL, PROJECT, COLLABORATION, HIRING, FREELANCE
 SubmissionStatus: NEW, READ, REPLIED, ARCHIVED
 
-// Analytics & Media
-DeviceType: DESKTOP, MOBILE, TABLET
-AnalyticsEvent: VIEW, GITHUB_CLICK, DEMO_CLICK, SHARE, DOWNLOAD  
+// Media
 ImageType: THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO
 ```
 
@@ -170,8 +152,7 @@ ImageType: THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO
 │   ├── DELETE /{id}       # Delete project
 │   ├── GET    /featured   # Get featured projects
 │   ├── GET    /published  # Get published projects
-│   ├── POST   /{id}/view  # Track project view
-│   └── /{id}/images       # Project image management (separate endpoints)
+│   └── /{id}/images       # Project image management
 │       ├── GET    /       # List project images
 │       ├── POST   /       # Upload new images (multipart/form-data)
 │       ├── PUT    /{imageId}  # Update image metadata
@@ -186,13 +167,11 @@ ImageType: THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO
 │   └── GET    /featured   # Get featured technologies
 │
 ├── /contact              # Professional inquiries
-│   ├── POST   /          # Submit contact form
-│   ├── GET    /          # List submissions (admin)
-│   └── PUT    /{id}      # Update submission status
+│   └── POST  /           # Submit contact form
 │
-├── /blog                 # Content management
+├── /blog                 # Content management (upcoming)
 │   ├── /posts
-│   │   ├── GET    /      # List blog posts
+│   │   ├── GET    /      # List published blog posts
 │   │   ├── POST   /      # Create new post
 │   │   ├── GET    /{id}  # Get post by ID
 │   │   └── PUT    /{id}  # Update post
@@ -200,18 +179,11 @@ ImageType: THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO
 │   │   ├── GET    /      # List categories
 │   │   └── POST   /      # Create category
 │   └── /tags
-│       ├── GET    /      # List tags  
+│       ├── GET    /      # List tags
 │       └── POST   /      # Create tag
 │
-├── /analytics            # Usage tracking
-│   ├── GET /projects/{id}/stats  # Project analytics
-│   ├── GET /dashboard             # Overall analytics
-│   └── POST /track                # Track page view
-│
-└── /admin                # Administrative functions
-    ├── GET /dashboard    # Admin dashboard
-    ├── GET /analytics    # Detailed analytics
-    └── GET /health       # System health check
+└── /resume               # Resume download (upcoming)
+    └── GET /download     # Download current resume PDF
 ```
 
 ### API Response Structure
@@ -232,7 +204,7 @@ ImageType: THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO
 }
 ```
 
-### Error Response Structure  
+### Error Response Structure
 ```json
 {
   "success": false,
@@ -252,44 +224,35 @@ ImageType: THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO
 
 ### 1. Visitor Exploring Portfolio
 ```
-Visitor → Homepage → View Featured Projects → Click Project → 
-View Project Details → Check Tech Stack → Visit GitHub → 
-[Analytics: Track views, tech interests, GitHub clicks]
+Visitor → Homepage → View Featured Projects → Click Project →
+View Project Details → Check Tech Stack → Visit GitHub →
+Browse related projects by technology
 ```
 
 ### 2. Potential Employer Journey
-```  
-Employer → Portfolio → Filter by Technology → Review Projects → 
+```
+Employer → Portfolio → Filter by Technology → Review Projects →
 Read Blog Posts → Contact Form → Submit Inquiry →
-[Admin receives notification and inquiry details]
+Owner receives email notification
 ```
 
-### 3. Content Management Journey
+### 3. Blog Reader Journey
 ```
-Admin → Login → Dashboard → View Analytics → 
-Create/Edit Project → Upload Images → Publish →
-Monitor Contact Submissions → Respond to Inquiries
-```
-
-### 4. Blog Reader Journey
-```
-Reader → Blog Section → Browse Categories → Read Article → 
-Related Articles → Share → Comment (future) →
-[Track engagement and popular content]
+Reader → Blog Section → Browse Categories → Read Article →
+Related Articles → Share →
+[Discover related projects via shared tags]
 ```
 
 ## Data Flow
 
 ### Project Creation Flow (Separate Endpoints)
 ```
-1. Admin creates project via API (metadata only)
+1. API client creates project via POST (metadata only)
 2. Service validates business rules
-3. DAO saves project to database  
+3. DAO saves project to database
 4. Technologies linked via junction table
-5. SEO metadata generated
-6. Analytics tracking initialized
-7. Cache invalidated for public endpoints
-8. [Separate Step] ProjectImages uploaded via dedicated endpoint
+5. Cache invalidated for public endpoints
+6. [Separate Step] ProjectImages uploaded via dedicated endpoint
    - POST /api/v1/projects/{id}/images
    - Image validation (size, format, dimensions)
    - Auto-generate thumbnails if needed
@@ -299,44 +262,27 @@ Related Articles → Share → Comment (future) →
 ```
 
 ### Contact Submission Flow
-```  
+```
 1. Visitor submits contact form
 2. Validation (email format, required fields)
 3. Spam detection (IP rate limiting)
 4. Save to database with status=NEW
-5. Email notification to admin
+5. Email notification to owner
 6. Auto-response to visitor
-7. Admin dashboard shows new submission
-```
-
-### Analytics Collection Flow
-```
-1. User action triggers analytics event
-2. Capture: IP, User-Agent, Referrer, Timestamp
-3. Async processing to avoid blocking UI
-4. Store in analytics tables
-5. Aggregate for dashboard displays
-6. Generate insights and reports
 ```
 
 ## Security Model
 
-### Authentication & Authorization
-- **JWT-based authentication** for admin functions
-- **Role-based access control** (ADMIN, EDITOR, VIEWER)
-- **API key authentication** for external integrations
-
 ### Input Validation & Sanitization
 - **Bean Validation** on all DTOs
-- **SQL Injection prevention** via JPA/Hibernate
+- **SQL Injection prevention** via JPA/Hibernate parameterized queries
 - **XSS protection** on content fields
 - **File upload validation** for images
 
 ### Privacy & Data Protection
-- **IP address anonymization** in analytics
-- **GDPR compliance** for contact submissions
-- **Data retention policies** for analytics
-- **Secure password hashing** (BCrypt)
+- **IP address logging** in contact submissions for spam detection
+- **GDPR-aware** contact data handling
+- **Secure credential management** via environment variables
 
 ## Performance Considerations
 
@@ -345,63 +291,49 @@ Related Articles → Share → Comment (future) →
 Redis Cache Layers:
 ├── Application Cache
 │   ├── Featured Projects (30min TTL)
-│   ├── Technology List (1hr TTL)  
+│   ├── Technology List (1hr TTL)
 │   └── Blog Posts (15min TTL)
-├── Session Cache
-│   └── Admin Sessions (24hr TTL)
 └── Rate Limiting
     ├── Contact Form (5/hr per IP)
     └── API Endpoints (100/min per IP)
 ```
 
 ### Database Optimization
-- **Proper indexing** on frequently queried fields
-- **Pagination** for large result sets  
+- **Flyway migrations** for versioned, repeatable schema management
+- **Proper indexing** on frequently queried fields (slugs, status, featured, timestamps)
+- **Pagination** for large result sets
 - **Eager/Lazy loading** optimization
-- **Connection pooling** configuration
-- **Query optimization** with JPQL
+- **Connection pooling** via HikariCP
 
 ### Monitoring & Observability
 - **Application metrics** via Spring Actuator
-- **Database performance** monitoring
-- **API response times** tracking
-- **Error rate** monitoring
-- **Resource utilization** tracking
+- **Health check** endpoints
+- **Structured logging** via Logback with compact console pattern
 
 ## Future Roadmap
 
-### Phase 3: Enhanced Features (Weeks 5-6)
-- [ ] Advanced search and filtering
-- [ ] Project comparison functionality
-- [ ] Skills assessment visualization
-- [ ] Interactive project timeline
+### Portfolio Phase (Current)
+- [x] Project CRUD with DAO pattern
+- [x] Technology management
+- [x] Flyway database migrations
+- [ ] ProjectImage upload endpoints
+- [ ] Redis caching implementation
 
-### Phase 4: Integration & Deployment (Weeks 7-8)  
+### Blog Phase (Next)
+- [ ] Blog post CRUD endpoints
+- [ ] Category and tag management
+- [ ] Content filtering and search
+
+### Contact & Resume Phase
+- [ ] Contact form processing with email notifications
+- [ ] Resume upload and download
+- [ ] Rate limiting implementation
+
+### Production Phase
 - [ ] CI/CD pipeline setup
-- [ ] AWS deployment configuration
+- [ ] Railway/Vercel deployment
 - [ ] CDN for image optimization
-- [ ] Backup and disaster recovery
-
-### Phase 5: Advanced Analytics (Weeks 9-10)
-- [ ] Google Analytics integration
-- [ ] A/B testing framework
-- [ ] Conversion tracking
-- [ ] Advanced reporting dashboard
-
-### Phase 6: Performance & Scale (Weeks 11-12)
-- [ ] Database partitioning
-- [ ] Microservices architecture  
-- [ ] Event-driven architecture
-- [ ] Advanced caching strategies
 
 ---
-
-## Next Steps for Design Documentation
-
-1. **Create Entity Relationship Diagram** using dbdiagram.io
-2. **Design API Flow Diagrams** using Draw.io  
-3. **Build User Journey Maps** using Lucidchart
-4. **Create Architecture Diagrams** using PlantUML
-5. **Document Feature Specifications** in detail
 
 This system design serves as the foundation for implementation decisions and provides clear documentation for future development phases.

@@ -1,86 +1,70 @@
 -- Personal Website Portfolio Test Data
--- Run this script to populate the database with test data for development
+-- Run this script against the local PostgreSQL database to populate test data
+-- Requires V1__initial_schema.sql to have been applied first (via Flyway or manually)
 
 -- Clear existing data in dependency order
-DELETE FROM project_analytics;
-DELETE FROM page_views;
-DELETE FROM seo_meta;
 DELETE FROM blog_post_tags;
 DELETE FROM blog_post_categories;
 DELETE FROM blog_posts;
 DELETE FROM blog_tags;
 DELETE FROM blog_categories;
 DELETE FROM contact_submissions;
-DELETE FROM learning_outcomes;
 DELETE FROM project_images;
 DELETE FROM project_technologies;
 DELETE FROM projects;
 DELETE FROM technologies;
-DELETE FROM users;
 
 -- Reset sequences
-ALTER SEQUENCE users_id_seq RESTART WITH 1;
-ALTER SEQUENCE projects_id_seq RESTART WITH 1;
 ALTER SEQUENCE technologies_id_seq RESTART WITH 1;
+ALTER SEQUENCE projects_id_seq RESTART WITH 1;
 ALTER SEQUENCE project_images_id_seq RESTART WITH 1;
-ALTER SEQUENCE learning_outcomes_id_seq RESTART WITH 1;
-ALTER SEQUENCE contact_submissions_id_seq RESTART WITH 1;
 ALTER SEQUENCE blog_categories_id_seq RESTART WITH 1;
 ALTER SEQUENCE blog_tags_id_seq RESTART WITH 1;
 ALTER SEQUENCE blog_posts_id_seq RESTART WITH 1;
-ALTER SEQUENCE page_views_id_seq RESTART WITH 1;
-ALTER SEQUENCE project_analytics_id_seq RESTART WITH 1;
-ALTER SEQUENCE seo_meta_id_seq RESTART WITH 1;
-
--- ================================
--- Insert Users
--- ================================
-INSERT INTO users (username, email, password_hash, role, first_name, last_name, active, created_at, updated_at) VALUES
-('admin', 'casey@caseyquinn.com', '$2a$10$hash', 'ADMIN', 'Casey', 'Quinn', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('editor', 'editor@caseyquinn.com', '$2a$10$hash', 'EDITOR', 'Test', 'Editor', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+ALTER SEQUENCE contact_submissions_id_seq RESTART WITH 1;
 
 -- ================================
 -- Insert Technologies
 -- ================================
-INSERT INTO technologies (name, version, category, proficiency_level, years_experience, color, icon_url, documentation_url, featured, created_at) VALUES
+INSERT INTO technologies (name, version, category, proficiency_level, years_experience, color, icon_url, documentation_url, featured, created_at, updated_at) VALUES
 -- Programming Languages
-('Java', '21', 'LANGUAGE', 'EXPERT', 5.0, '#f89820', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg', 'https://docs.oracle.com/en/java/', true, CURRENT_TIMESTAMP),
-('JavaScript', 'ES2023', 'LANGUAGE', 'PROFICIENT', 4.0, '#f7df1e', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', true, CURRENT_TIMESTAMP),
-('TypeScript', '5.0', 'LANGUAGE', 'PROFICIENT', 3.0, '#3178c6', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', 'https://www.typescriptlang.org/docs/', true, CURRENT_TIMESTAMP),
-('Python', '3.11', 'LANGUAGE', 'FAMILIAR', 2.0, '#3776ab', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg', 'https://docs.python.org/3/', false, CURRENT_TIMESTAMP),
+('Java', '21', 'LANGUAGE', 'EXPERT', 5.0, '#f89820', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg', 'https://docs.oracle.com/en/java/', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('JavaScript', 'ES2023', 'LANGUAGE', 'PROFICIENT', 4.0, '#f7df1e', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('TypeScript', '5.0', 'LANGUAGE', 'PROFICIENT', 3.0, '#3178c6', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', 'https://www.typescriptlang.org/docs/', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Python', '3.11', 'LANGUAGE', 'FAMILIAR', 2.0, '#3776ab', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg', 'https://docs.python.org/3/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- Frameworks
-('Spring Boot', '3.2', 'FRAMEWORK', 'EXPERT', 4.0, '#6db33f', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg', 'https://docs.spring.io/spring-boot/docs/current/reference/html/', true, CURRENT_TIMESTAMP),
-('React', '18', 'FRAMEWORK', 'PROFICIENT', 3.0, '#61dafb', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', 'https://react.dev/learn', true, CURRENT_TIMESTAMP),
-('FastAPI', '0.104', 'FRAMEWORK', 'FAMILIAR', 1.0, '#009688', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg', 'https://fastapi.tiangolo.com/', false, CURRENT_TIMESTAMP),
+('Spring Boot', '3.2', 'FRAMEWORK', 'EXPERT', 4.0, '#6db33f', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg', 'https://docs.spring.io/spring-boot/docs/current/reference/html/', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('React', '18', 'FRAMEWORK', 'PROFICIENT', 3.0, '#61dafb', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', 'https://react.dev/learn', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('FastAPI', '0.104', 'FRAMEWORK', 'FAMILIAR', 1.0, '#009688', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg', 'https://fastapi.tiangolo.com/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- Databases
-('PostgreSQL', '15', 'DATABASE', 'PROFICIENT', 3.0, '#336791', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg', 'https://www.postgresql.org/docs/', true, CURRENT_TIMESTAMP),
-('Redis', '7', 'DATABASE', 'FAMILIAR', 2.0, '#dc382d', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg', 'https://redis.io/docs/', false, CURRENT_TIMESTAMP),
+('PostgreSQL', '15', 'DATABASE', 'PROFICIENT', 3.0, '#336791', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg', 'https://www.postgresql.org/docs/', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Redis', '7', 'DATABASE', 'FAMILIAR', 2.0, '#dc382d', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg', 'https://redis.io/docs/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- Tools
-('Docker', '24', 'TOOL', 'PROFICIENT', 3.0, '#2496ed', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', 'https://docs.docker.com/', true, CURRENT_TIMESTAMP),
-('Maven', '3.9', 'TOOL', 'PROFICIENT', 4.0, '#c71a36', null, 'https://maven.apache.org/guides/', false, CURRENT_TIMESTAMP),
-('Git', '2.42', 'TOOL', 'EXPERT', 5.0, '#f05032', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg', 'https://git-scm.com/docs', true, CURRENT_TIMESTAMP),
-('IntelliJ IDEA', '2023.3', 'TOOL', 'EXPERT', 5.0, '#000000', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/intellij/intellij-original.svg', 'https://www.jetbrains.com/help/idea/', false, CURRENT_TIMESTAMP),
+('Docker', '24', 'TOOL', 'PROFICIENT', 3.0, '#2496ed', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', 'https://docs.docker.com/', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Maven', '3.9', 'TOOL', 'PROFICIENT', 4.0, '#c71a36', null, 'https://maven.apache.org/guides/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Git', '2.42', 'TOOL', 'EXPERT', 5.0, '#f05032', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg', 'https://git-scm.com/docs', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('IntelliJ IDEA', '2023.3', 'TOOL', 'EXPERT', 5.0, '#000000', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/intellij/intellij-original.svg', 'https://www.jetbrains.com/help/idea/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- Libraries
-('Lombok', '1.18', 'LIBRARY', 'EXPERT', 4.0, '#b32629', null, 'https://projectlombok.org/features/all', false, CURRENT_TIMESTAMP),
-('MapStruct', '1.5', 'LIBRARY', 'PROFICIENT', 2.0, '#ff6b35', null, 'https://mapstruct.org/documentation/', false, CURRENT_TIMESTAMP),
-('Tailwind CSS', '3.3', 'LIBRARY', 'PROFICIENT', 2.0, '#06b6d4', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg', 'https://tailwindcss.com/docs', true, CURRENT_TIMESTAMP),
-('Vite', '5.0', 'TOOL', 'FAMILIAR', 1.0, '#646cff', null, 'https://vitejs.dev/guide/', false, CURRENT_TIMESTAMP),
+('Lombok', '1.18', 'LIBRARY', 'EXPERT', 4.0, '#b32629', null, 'https://projectlombok.org/features/all', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('MapStruct', '1.5', 'LIBRARY', 'PROFICIENT', 2.0, '#ff6b35', null, 'https://mapstruct.org/documentation/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Tailwind CSS', '3.3', 'LIBRARY', 'PROFICIENT', 2.0, '#06b6d4', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg', 'https://tailwindcss.com/docs', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Vite', '5.0', 'TOOL', 'FAMILIAR', 1.0, '#646cff', null, 'https://vitejs.dev/guide/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- Cloud & Deployment
-('AWS', 'N/A', 'CLOUD', 'LEARNING', 0.5, '#ff9900', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg', 'https://docs.aws.amazon.com/', false, CURRENT_TIMESTAMP),
-('Kubernetes', '1.28', 'DEPLOYMENT', 'LEARNING', 0.5, '#326ce5', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg', 'https://kubernetes.io/docs/', false, CURRENT_TIMESTAMP);
+('AWS', 'N/A', 'CLOUD', 'LEARNING', 0.5, '#ff9900', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original.svg', 'https://docs.aws.amazon.com/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Kubernetes', '1.28', 'DEPLOYMENT', 'LEARNING', 0.5, '#326ce5', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg', 'https://kubernetes.io/docs/', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ================================
 -- Insert Projects
 -- ================================
 INSERT INTO projects (name, slug, short_description, full_description, github_url, live_url, docker_url, documentation_url, project_type, status, difficulty_level, start_date, completion_date, estimated_hours, display_order, featured, published, view_count, created_at, updated_at) VALUES
-('Personal Website Portfolio', 'personal-website-portfolio', 
- 'Full-stack personal website showcasing projects and technical skills', 
- 'A comprehensive personal portfolio website built with enterprise-grade patterns and modern technologies. Features include project management, blog system, analytics tracking, and SEO optimization.',
+('Personal Website Portfolio', 'personal-website-portfolio',
+ 'Full-stack personal website showcasing projects and technical skills',
+ 'A comprehensive personal portfolio website built with enterprise-grade patterns and modern technologies. Features include project management, blog system, and contact management.',
  'https://github.com/caseyquinn/personal-website',
  'https://caseyquinn.com',
  'https://hub.docker.com/r/caseyquinn/personal-website',
@@ -91,7 +75,7 @@ INSERT INTO projects (name, slug, short_description, full_description, github_ur
 
 ('E-Commerce Platform', 'ecommerce-platform',
  'Scalable microservices-based e-commerce solution',
- 'Built a full-featured e-commerce platform using Spring Boot microservices, React frontend, and PostgreSQL. Includes user management, product catalog, shopping cart, and payment processing.',
+ 'Built a full-featured e-commerce platform using Spring Boot microservices, React frontend, and PostgreSQL. Includes product catalog, shopping cart, and payment processing.',
  'https://github.com/caseyquinn/ecommerce-platform',
  'https://demo-shop.caseyquinn.com',
  'https://hub.docker.com/r/caseyquinn/ecommerce-platform',
@@ -102,7 +86,7 @@ INSERT INTO projects (name, slug, short_description, full_description, github_ur
 
 ('Task Management API', 'task-management-api',
  'RESTful API for project and task management',
- 'A comprehensive task management system with user authentication, project organization, real-time notifications, and advanced filtering. Built with Spring Boot and secured with JWT.',
+ 'A comprehensive task management system with project organization, real-time notifications, and advanced filtering. Built with Spring Boot.',
  'https://github.com/caseyquinn/task-api',
  NULL,
  NULL,
@@ -125,20 +109,18 @@ INSERT INTO projects (name, slug, short_description, full_description, github_ur
 -- ================================
 -- Link Projects to Technologies
 -- ================================
-INSERT INTO project_technologies (project_id, technology_id, created_at) VALUES
+INSERT INTO project_technologies (project_id, technology_id) VALUES
 -- Personal Website Portfolio (Java, Spring Boot, React, TypeScript, PostgreSQL, Docker)
-(1, 1, CURRENT_TIMESTAMP), (1, 5, CURRENT_TIMESTAMP), (1, 6, CURRENT_TIMESTAMP), 
-(1, 3, CURRENT_TIMESTAMP), (1, 8, CURRENT_TIMESTAMP), (1, 10, CURRENT_TIMESTAMP),
+(1, 1), (1, 5), (1, 6), (1, 3), (1, 8), (1, 10),
 
 -- E-Commerce Platform (Java, Spring Boot, React, PostgreSQL, Redis, Docker, AWS)
-(2, 1, CURRENT_TIMESTAMP), (2, 5, CURRENT_TIMESTAMP), (2, 6, CURRENT_TIMESTAMP),
-(2, 8, CURRENT_TIMESTAMP), (2, 9, CURRENT_TIMESTAMP), (2, 10, CURRENT_TIMESTAMP), (2, 18, CURRENT_TIMESTAMP),
+(2, 1), (2, 5), (2, 6), (2, 8), (2, 9), (2, 10), (2, 18),
 
 -- Task Management API (Java, Spring Boot, PostgreSQL, Maven)
-(3, 1, CURRENT_TIMESTAMP), (3, 5, CURRENT_TIMESTAMP), (3, 8, CURRENT_TIMESTAMP), (3, 11, CURRENT_TIMESTAMP),
+(3, 1), (3, 5), (3, 8), (3, 11),
 
 -- Weather Dashboard (React, TypeScript, JavaScript, Tailwind CSS)
-(4, 6, CURRENT_TIMESTAMP), (4, 3, CURRENT_TIMESTAMP), (4, 2, CURRENT_TIMESTAMP), (4, 16, CURRENT_TIMESTAMP);
+(4, 6), (4, 3), (4, 2), (4, 16);
 
 -- ================================
 -- Insert Project Images
@@ -150,18 +132,6 @@ INSERT INTO project_images (project_id, url, alt_text, caption, image_type, disp
 
 (2, 'https://example.com/images/ecommerce-home.png', 'E-commerce homepage', 'Product catalog with search', 'SCREENSHOT', 1, true, CURRENT_TIMESTAMP),
 (2, 'https://example.com/images/ecommerce-cart.png', 'Shopping cart interface', 'Intuitive shopping cart design', 'UI_MOCKUP', 2, false, CURRENT_TIMESTAMP);
-
--- ================================
--- Insert Learning Outcomes
--- ================================
-INSERT INTO learning_outcomes (project_id, title, description, category, difficulty_level, created_at) VALUES
-(1, 'Enterprise Architecture Patterns', 'Mastered layered architecture with DAO pattern, dependency injection, and proper separation of concerns', 'ARCHITECTURE', 'ADVANCED', CURRENT_TIMESTAMP),
-(1, 'Advanced Spring Boot Features', 'Implemented comprehensive exception handling, validation, and OpenAPI documentation', 'TECHNICAL', 'ADVANCED', CURRENT_TIMESTAMP),
-(1, 'Database Design & Optimization', 'Designed normalized schema with proper indexing and constraint management', 'TECHNICAL', 'INTERMEDIATE', CURRENT_TIMESTAMP),
-
-(2, 'Microservices Architecture', 'Built scalable microservices with proper service boundaries and communication patterns', 'ARCHITECTURE', 'EXPERT', CURRENT_TIMESTAMP),
-(2, 'Payment Integration', 'Integrated secure payment processing with Stripe API and webhook handling', 'TECHNICAL', 'ADVANCED', CURRENT_TIMESTAMP),
-(2, 'Performance Optimization', 'Implemented caching strategies and database optimization for high-traffic scenarios', 'TECHNICAL', 'ADVANCED', CURRENT_TIMESTAMP);
 
 -- ================================
 -- Insert Blog Categories
@@ -192,41 +162,12 @@ INSERT INTO contact_submissions (name, email, subject, message, inquiry_type, st
 ('Sarah Johnson', 'sarah.j@techcorp.com', 'Job Opportunity', 'We have an exciting backend developer position that might interest you.', 'HIRING', 'READ', '10.0.0.50', CURRENT_TIMESTAMP - INTERVAL '1 week'),
 ('Mike Brown', 'mike@startup.io', 'Freelance Project', 'Looking for a Java developer for a 3-month project. Are you available?', 'FREELANCE', 'REPLIED', '172.16.0.25', CURRENT_TIMESTAMP - INTERVAL '3 days');
 
--- ================================
--- Insert Page Views (sample analytics)
--- ================================
-INSERT INTO page_views (page_path, referrer, user_agent, ip_address, country, device_type, created_at) VALUES
-('/', 'https://google.com', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', '203.0.113.1', 'US', 'DESKTOP', CURRENT_TIMESTAMP - INTERVAL '1 hour'),
-('/projects', 'https://linkedin.com', 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0)', '203.0.113.2', 'CA', 'MOBILE', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
-('/projects/personal-website-portfolio', '/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', '203.0.113.3', 'UK', 'DESKTOP', CURRENT_TIMESTAMP - INTERVAL '30 minutes');
-
--- ================================
--- Insert Project Analytics
--- ================================
-INSERT INTO project_analytics (project_id, event_type, referrer, user_agent, ip_address, created_at) VALUES
-(1, 'VIEW', 'https://google.com', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', '203.0.113.1', CURRENT_TIMESTAMP - INTERVAL '1 hour'),
-(1, 'GITHUB_CLICK', '/projects/personal-website-portfolio', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', '203.0.113.1', CURRENT_TIMESTAMP - INTERVAL '45 minutes'),
-(2, 'VIEW', 'https://linkedin.com', 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0)', '203.0.113.2', CURRENT_TIMESTAMP - INTERVAL '2 hours'),
-(2, 'DEMO_CLICK', '/projects/ecommerce-platform', 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0)', '203.0.113.2', CURRENT_TIMESTAMP - INTERVAL '1 hour 30 minutes');
-
--- ================================
--- Insert SEO Metadata
--- ================================
-INSERT INTO seo_meta (entity_type, entity_id, meta_title, meta_description, og_title, og_description, canonical_url, updated_at) VALUES
-('PROJECT', 1, 'Personal Website Portfolio | Casey Quinn', 'Enterprise-grade personal portfolio built with Spring Boot, React, and PostgreSQL. Showcasing modern development practices and clean architecture.', 'Casey Quinn - Personal Website Portfolio', 'Full-stack personal website showcasing projects and technical skills', 'https://caseyquinn.com/projects/personal-website-portfolio', CURRENT_TIMESTAMP),
-('PROJECT', 2, 'E-Commerce Platform | Casey Quinn', 'Scalable microservices e-commerce platform built with Spring Boot. Features user management, product catalog, and secure payment processing.', 'E-Commerce Platform - Casey Quinn Portfolio', 'Scalable microservices-based e-commerce solution', 'https://caseyquinn.com/projects/ecommerce-platform', CURRENT_TIMESTAMP);
-
 -- Verify data insertion
-SELECT 'Users' as table_name, COUNT(*) as count FROM users
-UNION ALL SELECT 'Technologies', COUNT(*) FROM technologies
+SELECT 'Technologies' as table_name, COUNT(*) as count FROM technologies
 UNION ALL SELECT 'Projects', COUNT(*) FROM projects
 UNION ALL SELECT 'Project Technologies', COUNT(*) FROM project_technologies
 UNION ALL SELECT 'Project Images', COUNT(*) FROM project_images
-UNION ALL SELECT 'Learning Outcomes', COUNT(*) FROM learning_outcomes
 UNION ALL SELECT 'Blog Categories', COUNT(*) FROM blog_categories
 UNION ALL SELECT 'Blog Tags', COUNT(*) FROM blog_tags
 UNION ALL SELECT 'Contact Submissions', COUNT(*) FROM contact_submissions
-UNION ALL SELECT 'Page Views', COUNT(*) FROM page_views
-UNION ALL SELECT 'Project Analytics', COUNT(*) FROM project_analytics
-UNION ALL SELECT 'SEO Meta', COUNT(*) FROM seo_meta
 ORDER BY table_name;
