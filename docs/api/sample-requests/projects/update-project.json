@@ -1,0 +1,43 @@
+{
+  "comment": "PUT {{baseUrl}}/projects/{id} — Updates an existing project. Same required fields as create (name, shortDescription, type). All fields in the body overwrite the stored values. Published projects cannot be deleted — archive first.",
+
+  "archive-published-project": {
+    "comment": "Use this pattern to archive a published project before deleting it.",
+    "name": "E-Commerce Platform",
+    "shortDescription": "Scalable microservices-based e-commerce solution",
+    "type": "PROFESSIONAL",
+    "status": "ARCHIVED",
+    "published": false
+  },
+
+  "promote-to-featured": {
+    "comment": "Promote an existing project to featured status and adjust display order.",
+    "name": "Task Management API",
+    "shortDescription": "RESTful task management API with role-based access control",
+    "fullDescription": "A comprehensive task management system with JWT auth, project organization, role-based access control, real-time WebSocket notifications, and audit logging.",
+    "type": "LEARNING",
+    "status": "COMPLETED",
+    "difficultyLevel": "INTERMEDIATE",
+    "githubUrl": "https://github.com/caseyquinn/task-api",
+    "published": true,
+    "featured": true,
+    "displayOrder": 3
+  },
+
+  "update-status-and-dates": {
+    "comment": "Mark an in-progress project as completed and fill in the end date.",
+    "name": "Personal Website Portfolio",
+    "shortDescription": "Full-stack personal website showcasing projects and technical skills",
+    "type": "PERSONAL",
+    "status": "COMPLETED",
+    "difficultyLevel": "ADVANCED",
+    "githubUrl": "https://github.com/caseyquinn/personal-website",
+    "demoUrl": "https://caseyquinn.com",
+    "startDate": "2024-01-01T00:00:00",
+    "endDate": "2024-11-30T00:00:00",
+    "published": true,
+    "featured": true,
+    "displayOrder": 1,
+    "technologyIds": [1, 2, 3, 4]
+  }
+}

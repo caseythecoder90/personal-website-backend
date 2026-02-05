@@ -20,6 +20,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,24 +39,28 @@ public class Technology {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false, unique = true)
-    private String name; // "Java", "Spring Boot", "React"
-    
-    private String version; // "21", "3.2", "18"
-    
+    @Column(nullable = false, unique = true, length = 100)
+    private String name;
+
+    @Column(length = 50)
+    private String version;
+
     @Enumerated(EnumType.STRING)
-    private TechnologyCategory category; // LANGUAGE, FRAMEWORK, DATABASE, TOOL, CLOUD
-    
-    private String iconUrl; // URL to technology icon/logo
-    private String color; // Hex color for UI display
+    private TechnologyCategory category;
+
+    @Column(length = 500)
+    private String iconUrl;
+    @Column(length = 7)
+    private String color;
+    @Column(length = 500)
     private String documentationUrl;
     
     @Column(name = "proficiency_level")
     @Enumerated(EnumType.STRING)
     private ProficiencyLevel proficiencyLevel; // LEARNING, FAMILIAR, PROFICIENT, EXPERT
     
-    @Column(name = "years_experience")
-    private Double yearsExperience;
+    @Column(name = "years_experience", precision = 3, scale = 1)
+    private BigDecimal yearsExperience;
     
     @Builder.Default
     private Boolean featured = false; // Show in skills section

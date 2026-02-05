@@ -46,6 +46,7 @@ public class ProjectImage {
     @Column(name = "alt_text")
     private String altText;
     
+    @Column(length = 500)
     private String caption;
     
     @Enumerated(EnumType.STRING)

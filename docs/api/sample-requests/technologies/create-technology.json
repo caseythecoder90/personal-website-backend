@@ -1,0 +1,102 @@
+{
+  "comment": "POST {{baseUrl}}/technologies — Technology controller not yet implemented. DTOs (CreateTechnologyRequest / UpdateTechnologyRequest) exist and are ready. These samples match the DTO field names exactly. yearsExperience is an Integer (0-50).",
+
+  "examples": [
+    {
+      "label": "Language — Java",
+      "name": "Java",
+      "version": "21",
+      "category": "LANGUAGE",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
+      "color": "#f89820",
+      "documentationUrl": "https://docs.oracle.com/en/java/",
+      "proficiencyLevel": "EXPERT",
+      "yearsExperience": 5,
+      "featured": true
+    },
+    {
+      "label": "Framework — Spring Boot",
+      "name": "Spring Boot",
+      "version": "3.5",
+      "category": "FRAMEWORK",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg",
+      "color": "#6db33f",
+      "documentationUrl": "https://docs.spring.io/spring-boot/",
+      "proficiencyLevel": "EXPERT",
+      "yearsExperience": 4,
+      "featured": true
+    },
+    {
+      "label": "Framework — React",
+      "name": "React",
+      "version": "18",
+      "category": "FRAMEWORK",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+      "color": "#61dafb",
+      "documentationUrl": "https://react.dev/",
+      "proficiencyLevel": "PROFICIENT",
+      "yearsExperience": 3,
+      "featured": true
+    },
+    {
+      "label": "Database — PostgreSQL",
+      "name": "PostgreSQL",
+      "version": "16",
+      "category": "DATABASE",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
+      "color": "#336791",
+      "documentationUrl": "https://www.postgresql.org/docs/",
+      "proficiencyLevel": "PROFICIENT",
+      "yearsExperience": 3,
+      "featured": true
+    },
+    {
+      "label": "Database — Redis",
+      "name": "Redis",
+      "version": "7",
+      "category": "DATABASE",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg",
+      "color": "#d63031",
+      "documentationUrl": "https://redis.io/docs/",
+      "proficiencyLevel": "FAMILIAR",
+      "yearsExperience": 1,
+      "featured": false
+    },
+    {
+      "label": "Tool — Docker",
+      "name": "Docker",
+      "version": "24",
+      "category": "DEPLOYMENT",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
+      "color": "#2496ed",
+      "documentationUrl": "https://docs.docker.com/",
+      "proficiencyLevel": "PROFICIENT",
+      "yearsExperience": 3,
+      "featured": true
+    },
+    {
+      "label": "Cloud — AWS",
+      "name": "AWS",
+      "version": null,
+      "category": "CLOUD",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg",
+      "color": "#ff9900",
+      "documentationUrl": "https://docs.aws.amazon.com/",
+      "proficiencyLevel": "FAMILIAR",
+      "yearsExperience": 2,
+      "featured": false
+    },
+    {
+      "label": "Testing — JUnit",
+      "name": "JUnit",
+      "version": "5",
+      "category": "TESTING",
+      "iconUrl": null,
+      "color": "#4e9a06",
+      "documentationUrl": "https://junit.org/junit5/",
+      "proficiencyLevel": "PROFICIENT",
+      "yearsExperience": 4,
+      "featured": false
+    }
+  ]
+}
