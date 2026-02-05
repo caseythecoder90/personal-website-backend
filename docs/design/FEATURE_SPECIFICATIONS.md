@@ -11,12 +11,11 @@ Detailed functional requirements for the Personal Website Portfolio system, orga
 **Priority: HIGH**
 
 #### Functional Requirements
-- **FR-1.1.1**: Admin can create new projects with complete metadata
+- **FR-1.1.1**: Content can be created via API with complete metadata
 - **FR-1.1.2**: System generates URL-friendly slugs automatically
 - **FR-1.1.3**: Projects can be saved as drafts (unpublished)
 - **FR-1.1.4**: Technology stack can be linked via many-to-many relationship
 - **FR-1.1.5**: Multiple images can be uploaded with type classification
-- **FR-1.1.6**: Learning outcomes can be documented per project
 
 #### Technical Requirements
 - **TR-1.1.1**: Unique constraints on project names and slugs
@@ -26,7 +25,6 @@ Detailed functional requirements for the Personal Website Portfolio system, orga
 - **TR-1.1.5**: Primary image selection with automatic fallback
 - **TR-1.1.6**: Image display order management
 - **TR-1.1.7**: Rich text editor support for descriptions
-- **TR-1.1.8**: Audit trail for all project modifications
 
 #### Business Rules
 - **BR-1.1.1**: Project names must be unique across the system
@@ -42,12 +40,11 @@ Detailed functional requirements for the Personal Website Portfolio system, orga
 #### Acceptance Criteria
 ```gherkin
 Feature: Project Creation
-  Scenario: Admin creates new project successfully
-    Given I am logged in as admin
-    When I create a project with name "E-commerce Platform"
-    And I add description and technology stack
+  Scenario: Create new project successfully via API
+    Given I call POST /api/v1/projects with valid data
+    When the request is processed
     Then the project is saved with auto-generated slug
-    And I can view it in the admin dashboard
+    And I receive 201 Created with the project data
 
   Scenario: Duplicate project name validation
     Given a project named "Personal Website" exists
@@ -76,12 +73,12 @@ Feature: Project Creation
 **Priority: HIGH**
 
 #### Functional Requirements
-- **FR-1.3.1**: Admin can upload multiple images per project
+- **FR-1.3.1**: Images can be uploaded per project via dedicated API endpoint
 - **FR-1.3.2**: Images categorized by type (THUMBNAIL, SCREENSHOT, ARCHITECTURE_DIAGRAM, UI_MOCKUP, LOGO)
 - **FR-1.3.3**: One primary image designation per project with automatic fallback
 - **FR-1.3.4**: Custom display ordering for image galleries
-- **FR-1.3.5**: Alt text and captions for accessibility and SEO
-- **FR-1.3.6**: Image metadata management (upload date, file size, dimensions)
+- **FR-1.3.5**: Alt text and captions for accessibility
+- **FR-1.3.6**: Image metadata management (upload date)
 
 #### Technical Requirements
 - **TR-1.3.1**: File upload validation (format, size, dimensions)
@@ -89,7 +86,6 @@ Feature: Project Creation
 - **TR-1.3.3**: Automatic thumbnail generation for performance
 - **TR-1.3.4**: Lazy loading implementation for galleries
 - **TR-1.3.5**: CDN integration for global delivery
-- **TR-1.3.6**: Image optimization and compression
 
 #### Business Rules
 - **BR-1.3.1**: Maximum 20 images per project
@@ -108,26 +104,14 @@ DELETE /api/v1/projects/{id}/images/{imageId} # Remove image
 PUT    /api/v1/projects/{id}/images/{imageId}/primary # Set primary image
 ```
 
-#### Request Format for Image Upload
-```
-POST /api/v1/projects/{id}/images
-Content-Type: multipart/form-data
-
-Request Parts:
-- images: MultipartFile[] (the actual image files)
-- metadata: JSON array of image metadata (alt text, type, captions)
-```
-
 #### Acceptance Criteria
 ```gherkin
 Feature: Project Image Management (Separate Endpoints)
-  Scenario: Admin uploads project images after project creation
+  Scenario: Upload project images after project creation
     Given I have created a project successfully
-    When I navigate to the image management section
-    And I upload multiple image files with metadata
+    When I POST images to /api/v1/projects/{id}/images
     Then images are saved to storage
     And image metadata is linked to project
-    And thumbnails are generated automatically
     And first image becomes primary by default
 
   Scenario: Project creation without images
@@ -136,25 +120,11 @@ Feature: Project Image Management (Separate Endpoints)
     Then I can add images later via separate endpoint
     And project is fully functional without images
 
-  Scenario: Failed image upload doesn't affect project
-    Given I have a created project
-    When image upload fails due to network error
-    Then project remains intact and accessible
-    And I can retry image upload separately
-
   Scenario: Primary image selection
     Given a project has multiple images
-    When I set an image as primary
+    When I set an image as primary via PUT /{imageId}/primary
     Then previous primary image is unmarked
-    And new primary image is highlighted
-    And project thumbnail updates
-
-  Scenario: Image validation
-    Given I try to upload an invalid image
-    When file exceeds 5MB or unsupported format
-    Then I receive validation error
-    And image is not uploaded
-    And other valid images in the batch are still processed
+    And new primary image is active
 ```
 
 ---
@@ -165,7 +135,7 @@ Feature: Project Image Management (Separate Endpoints)
 **Priority: HIGH**
 
 #### Functional Requirements
-- **FR-2.1.1**: Admin can add/edit technologies with proficiency levels
+- **FR-2.1.1**: Technologies can be added/edited via API with proficiency levels
 - **FR-2.1.2**: Technologies categorized (Language, Framework, Tool, etc.)
 - **FR-2.1.3**: Years of experience tracked per technology
 - **FR-2.1.4**: Visual indicators (colors, icons) for UI consistency
@@ -194,11 +164,11 @@ Feature: Project Image Management (Separate Endpoints)
 **Priority: MEDIUM**
 
 #### Functional Requirements
-- **FR-3.1.1**: Admin can create/edit blog posts with rich text
+- **FR-3.1.1**: Blog posts can be created/edited via API with rich text
 - **FR-3.1.2**: Posts can be categorized and tagged
 - **FR-3.1.3**: Draft and published states with scheduled publishing
 - **FR-3.1.4**: Reading time estimation calculated automatically
-- **FR-3.1.5**: SEO metadata generated for each post
+- **FR-3.1.5**: Automatic excerpt generation if not provided
 
 #### Technical Requirements
 - **TR-3.1.1**: Markdown support for technical content
@@ -221,7 +191,7 @@ Feature: Project Image Management (Separate Endpoints)
 - **FR-3.2.1**: Categories for content organization
 - **FR-3.2.2**: Tags for flexible content labeling
 - **FR-3.2.3**: Related posts suggestion based on tags/categories
-- **FR-3.2.4**: Category and tag management interface
+- **FR-3.2.4**: Category and tag management via API
 - **FR-3.2.5**: Usage statistics for categories and tags
 
 ---
@@ -234,13 +204,12 @@ Feature: Project Image Management (Separate Endpoints)
 #### Functional Requirements
 - **FR-4.1.1**: Visitors can submit contact inquiries with type classification
 - **FR-4.1.2**: Form validation prevents spam and invalid submissions
-- **FR-4.1.3**: Email notifications sent to admin and visitor
-- **FR-4.1.4**: Admin dashboard shows new inquiries with priorities
-- **FR-4.1.5**: Inquiry status tracking (NEW → READ → REPLIED → ARCHIVED)
+- **FR-4.1.3**: Email notifications sent to owner and visitor
+- **FR-4.1.4**: Inquiry status tracking (NEW → READ → REPLIED → ARCHIVED)
 
 #### Security Requirements
 - **SR-4.1.1**: Rate limiting: 5 submissions per hour per IP
-- **SR-4.1.2**: CAPTCHA verification for bot prevention
+- **SR-4.1.2**: CAPTCHA verification for bot prevention (future)
 - **SR-4.1.3**: Input sanitization to prevent XSS attacks
 - **SR-4.1.4**: IP address logging for abuse tracking
 
@@ -254,16 +223,16 @@ Feature: Project Image Management (Separate Endpoints)
 ```gherkin
 Feature: Contact Form Submission
   Scenario: Valid inquiry submission
-    Given I fill out the contact form completely
-    When I submit the form
-    Then I receive confirmation message
-    And admin gets notification email
-    And inquiry appears in admin dashboard
+    Given I POST a valid contact form to /api/v1/contact
+    When the request is processed
+    Then I receive 201 Created
+    And owner gets notification email
+    And visitor gets confirmation email
 
   Scenario: Rate limiting protection
-    Given I have submitted 5 forms in the last hour
+    Given 5 forms have been submitted in the last hour from this IP
     When I try to submit another form
-    Then I receive rate limit error
+    Then I receive rate limit error (429)
     And form is not processed
 ```
 
@@ -271,167 +240,74 @@ Feature: Contact Form Submission
 **Priority: MEDIUM**
 
 #### Functional Requirements
-- **FR-4.2.1**: Admin can respond to inquiries directly
+- **FR-4.2.1**: Inquiries can be responded to via API
 - **FR-4.2.2**: Email templates for common response types
-- **FR-4.2.3**: Inquiry categorization and priority assignment
-- **FR-4.2.4**: Response time tracking and metrics
-- **FR-4.2.5**: Automated follow-up reminders
+- **FR-4.2.3**: Inquiry status updates via API
+- **FR-4.2.4**: Response time tracking
 
 ---
 
-## 5. Analytics & Tracking
+## 5. Resume Management
 
-### 5.1 Visitor Analytics
+### 5.1 Resume Download
 **Priority: MEDIUM**
 
 #### Functional Requirements
-- **FR-5.1.1**: Track page views with visitor information
-- **FR-5.1.2**: Geographic distribution of visitors
-- **FR-5.1.3**: Device and browser statistics
-- **FR-5.1.4**: Traffic source analysis (direct, search, referral)
-- **FR-5.1.5**: Real-time visitor counter
-
-#### Privacy Requirements
-- **PR-5.1.1**: GDPR compliance with data retention policies
-- **PR-5.1.2**: Anonymous visitor tracking option
-- **PR-5.1.3**: Cookie consent management
-- **PR-5.1.4**: Data export capability for user requests
-
-### 5.2 Project Analytics
-**Priority: MEDIUM**
-
-#### Functional Requirements
-- **FR-5.2.1**: Track project-specific interactions (views, clicks)
-- **FR-5.2.2**: GitHub link click tracking
-- **FR-5.2.3**: Live demo access tracking
-- **FR-5.2.4**: Technology interest analysis
-- **FR-5.2.5**: Popular project identification
-
-### 5.3 Dashboard & Reporting
-**Priority: MEDIUM**
-
-#### Functional Requirements
-- **FR-5.3.1**: Admin dashboard with key metrics overview
-- **FR-5.3.2**: Customizable date range filtering
-- **FR-5.3.3**: Exportable reports (PDF, CSV)
-- **FR-5.3.4**: Trend analysis and growth indicators
-- **FR-5.3.5**: Alert system for significant changes
+- **FR-5.1.1**: Public endpoint serves latest resume PDF
+- **FR-5.1.2**: Resume can be uploaded via API
+- **FR-5.1.3**: Version history maintained for uploaded resumes
 
 ---
 
-## 6. SEO & Optimization
+## 6. Data Management & Backup
 
-### 6.1 Search Engine Optimization
+### 6.1 Data Integrity
 **Priority: HIGH**
 
 #### Functional Requirements
-- **FR-6.1.1**: Meta titles and descriptions for all pages
-- **FR-6.1.2**: Open Graph metadata for social sharing
-- **FR-6.1.3**: Structured data (JSON-LD) for rich snippets
-- **FR-6.1.4**: XML sitemap generation and submission
-- **FR-6.1.5**: Canonical URL management
+- **FR-6.1.1**: Database constraints enforce data integrity via Flyway migrations
+- **FR-6.1.2**: Foreign key relationships maintained with CASCADE deletes
+- **FR-6.1.3**: Data validation at multiple layers (DTO + entity)
 
-#### Technical Requirements
-- **TR-6.1.1**: Page load speeds under 3 seconds
-- **TR-6.1.2**: Mobile-responsive design (100% mobile score)
-- **TR-6.1.3**: Image optimization with alt text
-- **TR-6.1.4**: Clean URL structure with meaningful paths
-- **TR-6.1.5**: HTTPS enforcement across all pages
-
-### 6.2 Performance Optimization
+### 6.2 Backup & Recovery
 **Priority: HIGH**
 
 #### Functional Requirements
-- **FR-6.2.1**: Redis caching for frequently accessed data
-- **FR-6.2.2**: Image lazy loading and compression
-- **FR-6.2.3**: CDN integration for static assets
-- **FR-6.2.4**: Database query optimization
-- **FR-6.2.5**: API response caching strategies
-
----
-
-## 7. User Authentication & Authorization
-
-### 7.1 Admin Authentication
-**Priority: HIGH**
-
-#### Functional Requirements
-- **FR-7.1.1**: Secure login with username/password
-- **FR-7.1.2**: JWT token-based session management
-- **FR-7.1.3**: Role-based access control (ADMIN, EDITOR, VIEWER)
-- **FR-7.1.4**: Password reset functionality
-- **FR-7.1.5**: Session timeout and renewal
-
-#### Security Requirements
-- **SR-7.1.1**: Password hashing with BCrypt
-- **SR-7.1.2**: JWT token expiration (24 hours)
-- **SR-7.1.3**: Failed login attempt limiting
-- **SR-7.1.4**: Secure password requirements (8+ chars, mixed case, numbers)
-- **SR-7.1.5**: Two-factor authentication (future enhancement)
-
----
-
-## 8. Data Management & Backup
-
-### 8.1 Data Integrity
-**Priority: HIGH**
-
-#### Functional Requirements
-- **FR-8.1.1**: Database constraints enforce data integrity
-- **FR-8.1.2**: Foreign key relationships maintained
-- **FR-8.1.3**: Cascade deletes handled appropriately
-- **FR-8.1.4**: Audit logs for sensitive operations
-- **FR-8.1.5**: Data validation at multiple layers
-
-### 8.2 Backup & Recovery
-**Priority: HIGH**
-
-#### Functional Requirements
-- **FR-8.2.1**: Daily automated database backups
-- **FR-8.2.2**: Point-in-time recovery capability
-- **FR-8.2.3**: Image and media file backup
-- **FR-8.2.4**: Configuration backup and versioning
-- **FR-8.2.5**: Disaster recovery procedures
+- **FR-6.2.1**: Daily automated database backups
+- **FR-6.2.2**: Point-in-time recovery capability
+- **FR-6.2.3**: Configuration backup and versioning
 
 ---
 
 ## Implementation Priority Matrix
 
-### Phase 1 (Weeks 1-2): Core Foundation ✅
+### Phase 1: Portfolio Foundation (Done)
 - [x] Project entity and CRUD operations
 - [x] Technology management
-- [x] Basic admin authentication
-- [x] Database schema implementation
+- [x] Flyway database migrations (V1)
+- [x] DAO pattern with Spring Retry
+- [x] Exception hierarchy with ErrorCode enum
 
-### Phase 2 (Weeks 3-4): Essential Features 🔄
-- [ ] Contact form processing
-- [ ] Basic analytics tracking
-- [ ] SEO metadata implementation
-- [ ] ProjectImage upload functionality
-  - [ ] ProjectImage entity implementation
-  - [ ] Image upload API endpoints
-  - [ ] File validation and storage
-  - [ ] Primary image management
-  - [ ] Image gallery display
+### Phase 2: Portfolio Enhancement (Next)
+- [ ] ProjectImage upload endpoints
+- [ ] Redis caching implementation
+- [ ] Project filtering and pagination improvements
 
-### Phase 3 (Weeks 5-6): Content Management
-- [ ] Blog post creation and management
-- [ ] Category and tag systems
-- [ ] Advanced project filtering
-- [ ] Dashboard analytics
+### Phase 3: Blog System
+- [ ] Blog post CRUD endpoints
+- [ ] Category and tag management
+- [ ] Content filtering and search
 
-### Phase 4 (Weeks 7-8): Optimization & Polish
+### Phase 4: Contact & Resume
+- [ ] Contact form processing with email notifications
+- [ ] Rate limiting implementation
+- [ ] Resume upload and download
+
+### Phase 5: Production & Polish
 - [ ] Performance optimization
-- [ ] Advanced SEO features
-- [ ] Email notification system
-- [ ] Comprehensive testing
-
-### Phase 5 (Future Enhancements)
-- [ ] Two-factor authentication
-- [ ] Advanced analytics dashboard
-- [ ] API rate limiting
-- [ ] CDN integration
-- [ ] Microservices architecture
+- [ ] Email notification system (Resend)
+- [ ] Comprehensive testing suite
+- [ ] CI/CD pipeline and deployment
 
 ---
 
@@ -446,7 +322,6 @@ Feature: Contact Form Submission
 ### Security
 - OWASP Top 10 compliance
 - Input validation and sanitization
-- Secure authentication mechanisms
 - Data encryption in transit and at rest
 
 ### Scalability
@@ -456,9 +331,8 @@ Feature: Contact Form Submission
 - Load balancing ready
 
 ### Usability
-- Intuitive admin interface
 - Mobile-responsive design
 - Accessibility compliance (WCAG 2.1)
 - Cross-browser compatibility
 
-This comprehensive specification provides the foundation for systematic development and testing of all system features.
+This specification provides the foundation for systematic development and testing of all system features.
