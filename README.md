@@ -51,13 +51,12 @@ src/main/java/com/caseyquinn/personal_website/
 ```
 BaseException (abstract)
 ├── BusinessException
-│   ├── ProjectValidationException
-│   ├── DuplicateProjectException
-│   └── ProjectBusinessRuleException
-└── DataAccessException
-    ├── EntityNotFoundException
-    ├── DatabaseConnectionException
-    └── DataIntegrityException
+│   ├── ValidationException
+│   └── DuplicateResourceException
+├── NotFoundException
+└── Data Access (Spring's DataAccessException hierarchy)
+    └── Handled by GlobalExceptionHandler → 500
+        └── Transient failures retried via @RetryableDataAccess
 ```
 
 ## 🚀 Features
@@ -165,11 +164,11 @@ mvn verify                  # Full test suite
 ## 📈 Future Enhancements
 
 ### Planned Features
-- **Authentication**: JWT-based security
 - **Caching**: Redis-based response caching
 - **Rate Limiting**: API throttling and protection
-- **Audit Logging**: Entity change tracking
-- **Database Migrations**: Flyway integration
+- **Email Notifications**: Resend.com for contact form
+- **Blog System**: Full blog CRUD with categories and tags
+- **Resume Management**: Upload and download via API
 
 ### Performance Optimizations
 - **Connection Pooling**: HikariCP configuration
