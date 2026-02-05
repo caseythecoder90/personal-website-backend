@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -155,16 +156,7 @@ public class TechnologyService {
         if (technologyDao.existsByName(technology.getName())) {
             throw new DuplicateResourceException("Technology", "name", technology.getName());
         }
-
-        if (technology.getYearsExperience() != null && technology.getYearsExperience() < 0) {
-            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
-                    "Years of experience cannot be negative");
-        }
-
-        if (technology.getYearsExperience() != null && technology.getYearsExperience() > 50) {
-            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
-                    "Years of experience seems unrealistic (max 50 years)");
-        }
+        validateYearsExperience(technology.getYearsExperience());
     }
 
     private void validateTechnologyUpdate(Technology technologyUpdate, Technology existingTechnology) {
@@ -172,13 +164,16 @@ public class TechnologyService {
             technologyDao.existsByName(technologyUpdate.getName())) {
             throw new DuplicateResourceException("Technology", "name", technologyUpdate.getName());
         }
+        validateYearsExperience(technologyUpdate.getYearsExperience());
+    }
 
-        if (technologyUpdate.getYearsExperience() != null && technologyUpdate.getYearsExperience() < 0) {
+    private void validateYearsExperience(BigDecimal yearsExperience) {
+        if (yearsExperience == null) return;
+        if (yearsExperience.compareTo(BigDecimal.ZERO) < 0) {
             throw new ValidationException(ErrorCode.VALIDATION_FAILED,
                     "Years of experience cannot be negative");
         }
-
-        if (technologyUpdate.getYearsExperience() != null && technologyUpdate.getYearsExperience() > 50) {
+        if (yearsExperience.compareTo(BigDecimal.valueOf(50)) > 0) {
             throw new ValidationException(ErrorCode.VALIDATION_FAILED,
                     "Years of experience seems unrealistic (max 50 years)");
         }

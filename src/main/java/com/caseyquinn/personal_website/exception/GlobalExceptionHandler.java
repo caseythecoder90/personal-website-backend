@@ -29,6 +29,13 @@ public class GlobalExceptionHandler {
                 .body(Response.error(ex.getErrorCode().getCode(), ex.getMessage()));
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Response<Void>> handleForbiddenException(ForbiddenException ex) {
+        log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Response.error(ex.getErrorCode().getCode(), ex.getMessage()));
+    }
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Response<Void>> handleBusinessException(BusinessException ex) {
         log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());

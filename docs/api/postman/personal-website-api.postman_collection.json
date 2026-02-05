@@ -1,0 +1,244 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Personal Website API",
+    "description": "API collection for the Personal Website backend. Set the `baseUrl` variable to match your environment.\n\nActive endpoints: Operations (health, encrypt, decrypt) and Projects (CRUD + filter by technology).\n\nTechnology CRUD endpoints are pending controller implementation — sample request bodies are in `docs/api/sample-requests/technologies/`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "description": "Base URL for all API requests. Change for staging/production."
+    },
+    {
+      "key": "projectId",
+      "value": "1",
+      "description": "Project ID used in single-resource endpoints. Update after creating a project."
+    },
+    {
+      "key": "technology",
+      "value": "Java",
+      "description": "Technology name for the filter-by-technology endpoint."
+    }
+  ],
+  "item": [
+    {
+      "name": "Operations",
+      "description": "Service health and utility operations",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Returns service health status including version and active environment."
+          },
+          "response": []
+        },
+        {
+          "name": "Encrypt Text",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"my-secret-password\"\n}",
+              "options": {
+                "language": "json"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/encrypt",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "encrypt"]
+            },
+            "description": "Encrypts plaintext into an ENC(...) wrapped value suitable for use in Spring property files. Not available in production."
+          },
+          "response": []
+        },
+        {
+          "name": "Decrypt Text",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"ENC(abc123encryptedvalue)\"\n}",
+              "options": {
+                "language": "json"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/decrypt",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "decrypt"]
+            },
+            "description": "Decrypts an ENC(...) wrapped ciphertext back to plaintext. Accepts input with or without the ENC() wrapper. Not available in production."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "description": "Project portfolio management",
+      "item": [
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            },
+            "description": "Retrieve all projects. No pagination — returns the full list."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Projects (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/paginated?page=0&size=10&sort=createdAt,desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "paginated"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "description": "Zero-based page index"
+                },
+                {
+                  "key": "size",
+                  "value": "10",
+                  "description": "Number of items per page (default 10)"
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt,desc",
+                  "description": "Sort field and direction"
+                }
+              ]
+            },
+            "description": "Retrieve projects with Spring Data pagination. Adjust page, size, and sort query params as needed."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            },
+            "description": "Retrieve a single project by its ID. Returns 404 if not found."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Personal Website Portfolio\",\n  \"shortDescription\": \"Full-stack personal website showcasing projects and technical skills\",\n  \"fullDescription\": \"A comprehensive personal portfolio website built with enterprise-grade patterns. Features project management, blog, and contact form. Built with Spring Boot, React, and PostgreSQL.\",\n  \"type\": \"PERSONAL\",\n  \"status\": \"IN_PROGRESS\",\n  \"difficultyLevel\": \"ADVANCED\",\n  \"githubUrl\": \"https://github.com/caseyquinn/personal-website\",\n  \"demoUrl\": \"https://caseyquinn.com\",\n  \"documentationUrl\": \"https://docs.caseyquinn.com\",\n  \"startDate\": \"2024-01-01T00:00:00\",\n  \"published\": true,\n  \"featured\": true,\n  \"displayOrder\": 1\n}",
+              "options": {
+                "language": "json"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
+            },
+            "description": "Create a new project. `name` and `shortDescription` are required. `type` is required (PERSONAL, PROFESSIONAL, OPEN_SOURCE, LEARNING, FREELANCE). Slug is auto-generated from name if omitted. To associate technologies, provide `technologyIds` once technologies exist."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Personal Website Portfolio\",\n  \"shortDescription\": \"Full-stack portfolio site — now with blog and contact form\",\n  \"fullDescription\": \"Updated full description reflecting the current state of the project.\",\n  \"type\": \"PERSONAL\",\n  \"status\": \"MAINTAINED\",\n  \"difficultyLevel\": \"ADVANCED\",\n  \"githubUrl\": \"https://github.com/caseyquinn/personal-website\",\n  \"demoUrl\": \"https://caseyquinn.com\",\n  \"published\": true,\n  \"featured\": true,\n  \"displayOrder\": 1\n}",
+              "options": {
+                "language": "json"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            },
+            "description": "Update an existing project. Same required fields as create. Published projects cannot be deleted — archive them instead."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}"]
+            },
+            "description": "Delete a project by ID. Published projects cannot be deleted — set status to ARCHIVED first."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Projects by Technology",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/technology/{{technology}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "technology", "{{technology}}"]
+            },
+            "description": "Filter projects by technology name. Case-insensitive search. Update the `technology` collection variable to change the filter value."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

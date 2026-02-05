@@ -41,6 +41,11 @@ management:
     health:
       show-details: always
 
+# Jasypt encryption
+jasypt:
+  encryptor:
+    password: ${JASYPT_ENCRYPTOR_PASSWORD:dev-local-key}
+
 # Custom app properties
 app:
   version: 1.0.0

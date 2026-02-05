@@ -16,7 +16,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.net.InetAddress;
 import java.time.LocalDateTime;
 
 @Entity
@@ -51,7 +50,7 @@ public class ContactSubmission {
     @Builder.Default
     private SubmissionStatus status = SubmissionStatus.NEW;
     
-    @Column(name = "ip_address")
+    @Column(name = "ip_address", columnDefinition = "inet")
     private String ipAddress;
     
     @Column(name = "user_agent", columnDefinition = "TEXT")
