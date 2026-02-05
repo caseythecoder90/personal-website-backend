@@ -19,9 +19,16 @@ public enum ErrorCode {
     // Data Access
     DB_CONNECTION_ERROR("DB_CONNECTION", "Database connection failed"),
     DB_INTEGRITY_ERROR("DB_INTEGRITY", "Data integrity violation"),
+    DB_ACCESS_ERROR("DB_ACCESS", "A data access error occurred"),
+
+    // Security
+    FORBIDDEN("FORBIDDEN", "Access denied"),
 
     // Rate Limiting
-    RATE_LIMIT_EXCEEDED("RATE_LIMIT", "Too many requests");
+    RATE_LIMIT_EXCEEDED("RATE_LIMIT", "Too many requests"),
+
+    // Generic
+    INTERNAL_ERROR("INTERNAL_ERROR", "An unexpected error occurred");
 
     private final String code;
     private final String defaultMessage;
