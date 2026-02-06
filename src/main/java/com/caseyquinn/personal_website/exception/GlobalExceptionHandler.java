@@ -18,6 +18,10 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Global exception handler for all REST controllers.
+ * Translates exceptions to standardized error responses with appropriate HTTP status codes.
+ */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -26,6 +30,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Response<Void>> handleNotFoundException(NotFoundException ex) {
         log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Response.error(ex.getErrorCode().getCode(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Response<Void>> handleForbiddenException(ForbiddenException ex) {
+        log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Response.error(ex.getErrorCode().getCode(), ex.getMessage()));
     }
 

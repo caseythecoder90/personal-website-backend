@@ -59,9 +59,13 @@ public class Project {
     private String techStack;
     
     // Project Links
+    @Column(length = 500)
     private String githubUrl;
-    private String liveUrl; // Live demo/deployment
-    private String dockerUrl; // Docker Hub link if applicable
+    @Column(length = 500)
+    private String liveUrl;
+    @Column(length = 500)
+    private String dockerUrl;
+    @Column(length = 500)
     private String documentationUrl;
     
     // Project Classification

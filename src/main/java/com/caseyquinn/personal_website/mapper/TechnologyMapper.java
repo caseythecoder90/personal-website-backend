@@ -47,7 +47,7 @@ public interface TechnologyMapper {
             technology.setFeatured(false);
         }
         if (technology.getYearsExperience() == null) {
-            technology.setYearsExperience(0.0);
+            technology.setYearsExperience(java.math.BigDecimal.ZERO);
         }
     }
 }

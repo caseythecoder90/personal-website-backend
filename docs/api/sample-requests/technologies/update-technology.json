@@ -1,0 +1,30 @@
+{
+  "comment": "PUT {{baseUrl}}/technologies/{id} — Technology controller not yet implemented. Same required fields as create (name, category). All fields overwrite stored values.",
+
+  "examples": [
+    {
+      "label": "Bump version and proficiency",
+      "name": "Spring Boot",
+      "version": "3.5",
+      "category": "FRAMEWORK",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg",
+      "color": "#6db33f",
+      "documentationUrl": "https://docs.spring.io/spring-boot/",
+      "proficiencyLevel": "EXPERT",
+      "yearsExperience": 5,
+      "featured": true
+    },
+    {
+      "label": "Unfeature a technology",
+      "name": "Redis",
+      "version": "7",
+      "category": "DATABASE",
+      "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg",
+      "color": "#d63031",
+      "documentationUrl": "https://redis.io/docs/",
+      "proficiencyLevel": "FAMILIAR",
+      "yearsExperience": 1,
+      "featured": false
+    }
+  ]
+}

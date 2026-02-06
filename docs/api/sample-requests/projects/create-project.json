@@ -1,0 +1,73 @@
+{
+  "comment": "POST {{baseUrl}}/projects — Creates a new project. Required: name, shortDescription, type. Slug auto-generates from name if omitted. technologyIds associates existing technologies (add once tech CRUD is live).",
+
+  "minimal": {
+    "name": "Task Management API",
+    "shortDescription": "RESTful task management API with role-based access control",
+    "type": "LEARNING"
+  },
+
+  "full": {
+    "name": "Personal Website Portfolio",
+    "shortDescription": "Full-stack personal website showcasing projects and technical skills",
+    "fullDescription": "A comprehensive personal portfolio website built with enterprise-grade patterns. Features project management, a blog system, contact form, and resume uploads. Built with Spring Boot backend, React frontend, and PostgreSQL database.",
+    "type": "PERSONAL",
+    "status": "IN_PROGRESS",
+    "difficultyLevel": "ADVANCED",
+    "githubUrl": "https://github.com/caseyquinn/personal-website",
+    "demoUrl": "https://caseyquinn.com",
+    "documentationUrl": "https://docs.caseyquinn.com",
+    "startDate": "2024-01-01T00:00:00",
+    "endDate": null,
+    "estimatedCompletion": "2024-12-31T00:00:00",
+    "published": true,
+    "featured": true,
+    "displayOrder": 1,
+    "technologyIds": [1, 2, 3]
+  },
+
+  "examples": [
+    {
+      "label": "Open Source project",
+      "name": "Spring Boot Starter Toolkit",
+      "shortDescription": "Reusable Spring Boot starter with common enterprise utilities",
+      "fullDescription": "A collection of reusable auto-configurations and utilities for Spring Boot apps: centralized exception handling, Jasypt encryption helpers, Flyway migration scaffolding, and standardized API response wrappers.",
+      "type": "OPEN_SOURCE",
+      "status": "MAINTAINED",
+      "difficultyLevel": "INTERMEDIATE",
+      "githubUrl": "https://github.com/caseyquinn/spring-starter-toolkit",
+      "published": true,
+      "featured": false,
+      "displayOrder": 5
+    },
+    {
+      "label": "Professional / freelance project",
+      "name": "E-Commerce Platform",
+      "shortDescription": "Scalable microservices-based e-commerce solution",
+      "fullDescription": "Full-featured e-commerce platform using Spring Boot microservices. Includes product catalog, shopping cart, Stripe payment processing, order management, and admin APIs. Deployed on AWS with Redis caching.",
+      "type": "PROFESSIONAL",
+      "status": "COMPLETED",
+      "difficultyLevel": "EXPERT",
+      "githubUrl": "https://github.com/caseyquinn/ecommerce-platform",
+      "demoUrl": "https://demo-shop.caseyquinn.com",
+      "startDate": "2023-06-01T00:00:00",
+      "endDate": "2023-12-15T00:00:00",
+      "published": true,
+      "featured": true,
+      "displayOrder": 2
+    },
+    {
+      "label": "Learning / side project",
+      "name": "Weather Dashboard",
+      "shortDescription": "Real-time weather monitoring with data visualization",
+      "type": "LEARNING",
+      "status": "COMPLETED",
+      "difficultyLevel": "BEGINNER",
+      "githubUrl": "https://github.com/caseyquinn/weather-dashboard",
+      "demoUrl": "https://weather.caseyquinn.com",
+      "published": true,
+      "featured": false,
+      "displayOrder": 6
+    }
+  ]
+}

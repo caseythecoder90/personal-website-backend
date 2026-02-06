@@ -71,7 +71,10 @@ public class ProjectResponse {
     
     @Schema(description = "Technologies used in this project")
     private List<TechnologyResponse> technologies;
-    
+
+    @Schema(description = "Project images")
+    private List<ProjectImageResponse> images;
+
     @Schema(description = "Legacy tech stack field (deprecated)")
     @Deprecated
     private String techStack;

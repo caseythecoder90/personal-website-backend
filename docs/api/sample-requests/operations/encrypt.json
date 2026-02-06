@@ -1,0 +1,18 @@
+{
+  "comment": "POST {{baseUrl}}/operations/encrypt — Encrypts plaintext for use in application property files. Returns ENC(...) wrapped ciphertext. Blocked in production profile.",
+
+  "examples": [
+    {
+      "label": "Database password",
+      "text": "my-super-secret-db-password"
+    },
+    {
+      "label": "Redis password",
+      "text": "redis-secret-key-here"
+    },
+    {
+      "label": "API key",
+      "text": "sk-live-1234567890abcdef"
+    }
+  ]
+}
