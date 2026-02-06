@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementation of ProjectDao with automatic retry on transient data access failures.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j

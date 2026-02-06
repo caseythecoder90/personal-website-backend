@@ -29,6 +29,13 @@ spring:
       port: 6379
       password: vHZBDJUzyG}1AE6dBMZY
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2MB
+
 server:
   port: 8080
 
@@ -45,6 +52,14 @@ management:
 jasypt:
   encryptor:
     password: ${JASYPT_ENCRYPTOR_PASSWORD:dev-local-key}
+
+# Cloudinary configuration
+cloudinary:
+  cloud-name: dwdaehpml
+  api-key: 582556696859121
+  api-secret: ENC(dEBKyzGMzvPAdhbR+Yuz/x3eJ8yj1u5Zkz3LJvTbfss/0TY1pKXzVnjQuw7D9GVfTbSv4pg+ra+aIBY1U/aIFA==)
+  folder: portfolio-images
+  secure: true
 
 # Custom app properties
 app:
