@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+/**
+ * Service providing operational utilities including health checks and encryption operations.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,6 +32,11 @@ public class OperationsService {
     @Value("${app.version:1.0.0}")
     private String version;
 
+    /**
+     * Retrieves the current health status of the application.
+     *
+     * @return health response containing status, version, and environment information
+     */
     public HealthResponse getHealth() {
         return HealthResponse.builder()
                 .status("UP")
@@ -39,6 +47,12 @@ public class OperationsService {
                 .build();
     }
 
+    /**
+     * Encrypts plaintext using Jasypt encryption (non-production environments only).
+     *
+     * @param plaintext the text to encrypt
+     * @return encryption response containing the encrypted text
+     */
     public EncryptionResponse encrypt(String plaintext) {
         requireNonProductionProfile();
         log.info("Encrypting text");
@@ -48,6 +62,12 @@ public class OperationsService {
                 .build();
     }
 
+    /**
+     * Decrypts ciphertext using Jasypt decryption (non-production environments only).
+     *
+     * @param ciphertext the encrypted text to decrypt
+     * @return encryption response containing the decrypted text
+     */
     public EncryptionResponse decrypt(String ciphertext) {
         requireNonProductionProfile();
         log.info("Decrypting text");

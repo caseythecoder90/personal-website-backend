@@ -6,7 +6,6 @@ import com.caseyquinn.personal_website.dto.response.EncryptionResponse;
 import com.caseyquinn.personal_website.dto.response.HealthResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.OperationsService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for operational and utility endpoints including health checks and encryption utilities.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -23,24 +25,36 @@ public class OperationsController {
 
     private final OperationsService operationsService;
 
+    /**
+     * Retrieves the health status of the application.
+     *
+     * @return response entity containing health status information
+     */
     @OperationsApiResponses.Health
-    @Operation(summary = "Health check", description = "Get service health status")
     @GetMapping("/health")
     public ResponseEntity<Response<HealthResponse>> health() {
         return ResponseEntity.ok(Response.success(operationsService.getHealth(), "Service is healthy"));
     }
 
+    /**
+     * Encrypts the provided text using Jasypt encryption.
+     *
+     * @param request the encryption request containing text to encrypt
+     * @return response entity containing encrypted text
+     */
     @OperationsApiResponses.Encrypt
-    @Operation(summary = "Encrypt text",
-            description = "Encrypt plaintext for use in property files. Returns an ENC(...) wrapped value. Not available in production.")
     @PostMapping("/operations/encrypt")
     public ResponseEntity<Response<EncryptionResponse>> encrypt(@Valid @RequestBody EncryptionRequest request) {
         return ResponseEntity.ok(Response.success(operationsService.encrypt(request.getText()), "Text encrypted successfully"));
     }
 
+    /**
+     * Decrypts the provided encrypted text using Jasypt decryption.
+     *
+     * @param request the decryption request containing text to decrypt
+     * @return response entity containing decrypted text
+     */
     @OperationsApiResponses.Decrypt
-    @Operation(summary = "Decrypt text",
-            description = "Decrypt an ENC(...) wrapped ciphertext back to plaintext. Not available in production.")
     @PostMapping("/operations/decrypt")
     public ResponseEntity<Response<EncryptionResponse>> decrypt(@Valid @RequestBody EncryptionRequest request) {
         return ResponseEntity.ok(Response.success(operationsService.decrypt(request.getText()), "Text decrypted successfully"));

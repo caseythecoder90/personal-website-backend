@@ -239,6 +239,149 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Project Images",
+      "description": "Project image upload and management",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Image file (JPEG, PNG, GIF, WebP - max 10MB)"
+                },
+                {
+                  "key": "imageType",
+                  "value": "SCREENSHOT",
+                  "type": "text",
+                  "description": "Image type: SCREENSHOT, DIAGRAM, or LOGO"
+                },
+                {
+                  "key": "altText",
+                  "value": "Homepage screenshot",
+                  "type": "text",
+                  "description": "Alt text for accessibility"
+                },
+                {
+                  "key": "caption",
+                  "value": "Main landing page",
+                  "type": "text",
+                  "description": "Image caption"
+                },
+                {
+                  "key": "displayOrder",
+                  "value": "0",
+                  "type": "text",
+                  "description": "Display order (default 0)"
+                },
+                {
+                  "key": "isPrimary",
+                  "value": "true",
+                  "type": "text",
+                  "description": "Set as primary image (unsets previous primary)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/images",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}", "images"]
+            },
+            "description": "Upload an image to a project. Images are stored in Cloudinary CDN. Max 20 images per project."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project Images",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/images",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}", "images"]
+            },
+            "description": "Get all images for a project, ordered by display order."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Image by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/images/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}", "images", "1"]
+            },
+            "description": "Get a specific image by its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Image Metadata",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"altText\": \"Updated homepage screenshot\",\n  \"caption\": \"Updated caption\",\n  \"displayOrder\": 1,\n  \"isPrimary\": false\n}",
+              "options": {
+                "language": "json"
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/images/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}", "images", "1"]
+            },
+            "description": "Update image metadata (does not replace the image file). All fields are optional."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Image",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/images/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}", "images", "1"]
+            },
+            "description": "Delete an image from a project. Removes from both database and Cloudinary."
+          },
+          "response": []
+        },
+        {
+          "name": "Set Primary Image",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/{{projectId}}/images/1/set-primary",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects", "{{projectId}}", "images", "1", "set-primary"]
+            },
+            "description": "Set an image as the primary image for a project. Unsets the previous primary image."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

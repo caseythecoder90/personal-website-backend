@@ -42,7 +42,10 @@ public class ProjectImage {
     
     @Column(nullable = false, length = 1000)
     private String url;
-    
+
+    @Column(name = "cloudinary_public_id", length = 500)
+    private String cloudinaryPublicId;
+
     @Column(name = "alt_text")
     private String altText;
     

@@ -1,5 +1,6 @@
 package com.caseyquinn.personal_website.annotations;
 
+import com.caseyquinn.personal_website.dto.response.ProjectImageResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,18 +14,50 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Reusable Swagger response annotations for ProjectController endpoints.
+ * Reusable Swagger response annotations for ProjectImageController endpoints.
  * Each inner interface documents the expected HTTP status codes and response models.
  */
-public class ProjectApiResponses {
+public class ProjectImageApiResponses {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Get all projects", description = "Retrieve a list of all projects")
+    @Operation(summary = "Upload project image", description = "Upload a new image for a project with metadata")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Image uploaded successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid file or request data",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Project not found",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            )
+    })
+    public @interface Upload {}
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "Get project images", description = "Get all images for a specific project")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Projects retrieved successfully",
+                    description = "Images retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Project not found",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -37,33 +70,16 @@ public class ProjectApiResponses {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Get projects with pagination", description = "Retrieve projects with pagination support")
+    @Operation(summary = "Get image by ID", description = "Get a specific image by its ID")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Paginated projects retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            )
-    })
-    public @interface GetPaginated {}
-
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Get project by ID", description = "Retrieve a specific project by its ID")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Project retrieved successfully",
+                    description = "Image retrieved successfully",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Project not found",
+                    description = "Project or image not found",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -76,48 +92,21 @@ public class ProjectApiResponses {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Create new project", description = "Create a new project")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Project created successfully",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "Duplicate project name",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            )
-    })
-    public @interface Create {}
-
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Update project", description = "Update an existing project")
+    @Operation(summary = "Update image metadata", description = "Update metadata for an existing image (does not replace the image file)")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Project updated successfully",
+                    description = "Image metadata updated successfully",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Validation failed",
+                    description = "Invalid request data",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Project not found",
+                    description = "Project or image not found",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -130,16 +119,16 @@ public class ProjectApiResponses {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Delete project", description = "Delete a project by ID")
+    @Operation(summary = "Delete project image", description = "Delete an image from a project")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Project deleted successfully",
+                    description = "Image deleted successfully",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Project not found",
+                    description = "Project or image not found",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -152,11 +141,16 @@ public class ProjectApiResponses {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Get projects by technology", description = "Retrieve projects that use a specific technology")
+    @Operation(summary = "Set primary image", description = "Set an image as the primary image for a project (unsets previous primary)")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Projects filtered by technology",
+                    description = "Primary image set successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Project or image not found",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -165,5 +159,5 @@ public class ProjectApiResponses {
                     content = @Content(schema = @Schema(implementation = Response.class))
             )
     })
-    public @interface GetByTechnology {}
+    public @interface SetPrimary {}
 }
