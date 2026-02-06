@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
+import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
@@ -296,8 +297,7 @@ public class ProjectService {
         Technology technology = technologyDao.findByIdOrThrow(technologyId);
 
         if (project.getTechnologies().contains(technology)) {
-            throw new ValidationException(ErrorCode.DUPLICATE_TECH_ASSOCIATION,
-                    "Technology is already associated with this project");
+            throw new ValidationException(ErrorCode.DUPLICATE_TECH_ASSOCIATION, TECHNOLOGY_ALREADY_ASSOCIATED);
         }
 
         project.addTechnology(technology);
@@ -322,8 +322,7 @@ public class ProjectService {
         Technology technology = technologyDao.findByIdOrThrow(technologyId);
 
         if (!project.getTechnologies().contains(technology)) {
-            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
-                    "Technology is not associated with this project");
+            throw new ValidationException(ErrorCode.VALIDATION_FAILED, TECHNOLOGY_NOT_ASSOCIATED);
         }
 
         project.removeTechnology(technology);
@@ -381,8 +380,7 @@ public class ProjectService {
 
         long activeProjects = projectDao.count();
         if (activeProjects >= 10) {
-            throw new ValidationException(ErrorCode.MAX_PROJECTS_EXCEEDED,
-                    "Maximum number of projects (10) reached");
+            throw new ValidationException(ErrorCode.MAX_PROJECTS_EXCEEDED, MAX_PROJECTS_EXCEEDED);
         }
     }
 
@@ -400,8 +398,7 @@ public class ProjectService {
 
     private void validateProjectDeletion(Project project) {
         if (isTrue(project.getPublished())) {
-            throw new ValidationException(ErrorCode.CANNOT_DELETE_PUBLISHED,
-                    "Cannot delete published projects. Unpublish first.");
+            throw new ValidationException(ErrorCode.CANNOT_DELETE_PUBLISHED, CANNOT_DELETE_PUBLISHED);
         }
     }
 

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
 
+import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static java.util.Objects.isNull;
 
 /**
@@ -79,7 +80,7 @@ public class FileValidationService {
      */
     private void validateFileNotEmpty(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new ValidationException(ErrorCode.FILE_UPLOAD_ERROR, "File is empty");
+            throw new ValidationException(ErrorCode.FILE_UPLOAD_ERROR, FILE_EMPTY);
         }
     }
 
@@ -93,8 +94,7 @@ public class FileValidationService {
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new ValidationException(
                 ErrorCode.FILE_SIZE_EXCEEDED,
-                String.format("File size (%d bytes) exceeds maximum allowed (%d bytes)",
-                    file.getSize(), MAX_FILE_SIZE)
+                String.format(FILE_SIZE_EXCEEDED_FORMAT, file.getSize(), MAX_FILE_SIZE)
             );
         }
     }
@@ -111,7 +111,7 @@ public class FileValidationService {
         if (isNull(contentType) || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
             throw new ValidationException(
                 ErrorCode.INVALID_FILE_TYPE,
-                String.format("Invalid file type: %s. Allowed types: %s", contentType, ALLOWED_CONTENT_TYPES)
+                String.format(INVALID_FILE_TYPE_FORMAT, contentType, ALLOWED_CONTENT_TYPES)
             );
         }
         return contentType;
@@ -130,12 +130,12 @@ public class FileValidationService {
             if (!isValidImageMagicBytes(fileBytes, contentType)) {
                 throw new ValidationException(
                     ErrorCode.INVALID_FILE_TYPE,
-                    "File content does not match declared content type"
+                    FILE_CONTENT_MISMATCH
                 );
             }
         } catch (IOException e) {
             log.error("Failed to read file bytes for validation", e);
-            throw new ValidationException(ErrorCode.FILE_UPLOAD_ERROR, "Failed to read file: " + e.getMessage());
+            throw new ValidationException(ErrorCode.FILE_UPLOAD_ERROR, String.format(FILE_READ_ERROR, e.getMessage()));
         }
     }
 }

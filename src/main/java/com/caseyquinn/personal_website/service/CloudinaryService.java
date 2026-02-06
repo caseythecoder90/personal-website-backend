@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -67,7 +68,7 @@ public class CloudinaryService {
 
         } catch (IOException e) {
             log.error("Failed to upload image to Cloudinary", e);
-            throw new ValidationException(ErrorCode.CLOUDINARY_ERROR, "Failed to upload image: " + e.getMessage());
+            throw new ValidationException(ErrorCode.CLOUDINARY_ERROR, String.format(IMAGE_UPLOAD_FAILED, e.getMessage()));
         }
     }
 
