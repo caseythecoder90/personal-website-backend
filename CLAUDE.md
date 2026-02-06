@@ -153,6 +153,14 @@ curl http://localhost:8080/api/v1/projects
 - **Null Safety**: Proper null checks and Optional usage
 - **Resource Management**: Proper cleanup and connection handling
 
+### API Documentation Standards
+- **Custom Annotation Pattern**: All controller endpoints must use custom `@ApiResponses` annotation classes (e.g., `@ProjectApiResponses.GetAll`)
+- **Annotation Structure**: Create a `<ResourceName>ApiResponses` class in the `annotations` package for each controller
+- **Annotation Contents**: Each inner annotation interface documents the expected HTTP status codes and includes the `@Operation` annotation with summary and description
+- **Response Models**: All annotations must reference specific models for success and failure responses using `@Content` and `@Schema`
+- **Pattern Example**: See `ProjectApiResponses.java` as the reference implementation
+- **Endpoint Documentation**: Controllers use `@<Resource>ApiResponses.<Action>` instead of inline `@ApiResponses`
+
 ### Architecture Principles
 - **Single Responsibility**: Each class has one clear purpose
 - **Dependency Inversion**: Depend on abstractions, not concretions

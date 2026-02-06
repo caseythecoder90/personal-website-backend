@@ -8,12 +8,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration for OpenAPI/Swagger documentation.
+ */
 @Configuration
 public class OpenApiConfig {
-    
+
     @Value("${app.version:1.0.0}")
     private String version;
 
+    /**
+     * Creates custom OpenAPI configuration with application metadata.
+     *
+     * @return configured OpenAPI instance
+     */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()

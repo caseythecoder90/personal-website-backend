@@ -1,0 +1,14 @@
+{
+  "comment": "POST {{baseUrl}}/operations/decrypt — Decrypts ciphertext back to plaintext. Accepts input with or without the ENC() wrapper. Blocked in production profile.",
+
+  "examples": [
+    {
+      "label": "With ENC() wrapper (copy-paste from property file)",
+      "text": "ENC(abc123encryptedvaluefromEncrypt)"
+    },
+    {
+      "label": "Raw ciphertext without wrapper",
+      "text": "abc123encryptedvaluefromEncrypt"
+    }
+  ]
+}

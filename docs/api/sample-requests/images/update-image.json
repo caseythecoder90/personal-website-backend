@@ -1,0 +1,65 @@
+{
+  "description": "Update project image metadata",
+  "endpoint": "PUT /api/v1/projects/{projectId}/images/{imageId}",
+  "examples": [
+    {
+      "name": "Update alt text and caption",
+      "request": {
+        "altText": "Updated homepage screenshot with new features",
+        "caption": "Homepage redesign - January 2024"
+      }
+    },
+    {
+      "name": "Update display order",
+      "request": {
+        "displayOrder": 2
+      }
+    },
+    {
+      "name": "Set as primary image",
+      "request": {
+        "isPrimary": true
+      }
+    },
+    {
+      "name": "Change image type",
+      "request": {
+        "imageType": "DIAGRAM"
+      }
+    },
+    {
+      "name": "Update multiple fields",
+      "request": {
+        "imageType": "SCREENSHOT",
+        "altText": "Dashboard view showing analytics",
+        "caption": "Admin dashboard with real-time metrics",
+        "displayOrder": 1,
+        "isPrimary": false
+      }
+    }
+  ],
+  "curl_example": "curl -X PUT http://localhost:8080/api/v1/projects/1/images/1 \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"altText\": \"Updated homepage screenshot\",\n    \"caption\": \"New caption\",\n    \"isPrimary\": true\n  }'",
+  "response": {
+    "status": "success",
+    "data": {
+      "id": 1,
+      "projectId": 1,
+      "projectName": "E-Commerce Platform",
+      "url": "https://res.cloudinary.com/dwdaehpml/image/upload/v1234567890/portfolio-images/e-commerce-platform/screenshot.png",
+      "cloudinaryPublicId": "portfolio-images/e-commerce-platform/screenshot",
+      "altText": "Updated homepage screenshot",
+      "caption": "New caption",
+      "imageType": "SCREENSHOT",
+      "displayOrder": 0,
+      "isPrimary": true,
+      "createdAt": "2024-01-15T10:30:00"
+    },
+    "message": "Image metadata updated successfully"
+  },
+  "notes": [
+    "This endpoint updates metadata only - it does not replace the image file",
+    "To replace the image file, delete and re-upload",
+    "All fields are optional - only provided fields will be updated",
+    "Setting isPrimary=true will unset the previous primary image"
+  ]
+}

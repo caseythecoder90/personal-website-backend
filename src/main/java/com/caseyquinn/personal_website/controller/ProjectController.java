@@ -6,7 +6,6 @@ import com.caseyquinn.personal_website.dto.request.UpdateProjectRequest;
 import com.caseyquinn.personal_website.dto.response.ProjectResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.ProjectService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for managing portfolio projects.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -29,11 +31,15 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Projects", description = "Project management APIs")
 public class ProjectController {
-    
+
     private final ProjectService projectService;
 
+    /**
+     * Retrieves all projects without pagination.
+     *
+     * @return response entity containing list of all projects
+     */
     @ProjectApiResponses.GetAll
-    @Operation(summary = "Get all projects", description = "Retrieve a list of all projects")
     @GetMapping("/projects")
     public ResponseEntity<Response<List<ProjectResponse>>> getAllProjects() {
         log.info("Fetching all projects");
@@ -41,8 +47,13 @@ public class ProjectController {
         return ResponseEntity.ok(Response.success(projects, "Projects retrieved successfully"));
     }
     
+    /**
+     * Retrieves projects with pagination support.
+     *
+     * @param pageable pagination parameters (default size: 10)
+     * @return response entity containing paginated projects
+     */
     @ProjectApiResponses.GetPaginated
-    @Operation(summary = "Get projects with pagination", description = "Retrieve projects with pagination support")
     @GetMapping("/projects/paginated")
     public ResponseEntity<Response<Page<ProjectResponse>>> getProjectsPaginated(
             @PageableDefault(size = 10) Pageable pageable) {
@@ -51,8 +62,13 @@ public class ProjectController {
         return ResponseEntity.ok(Response.success(projects, "Projects retrieved successfully"));
     }
     
+    /**
+     * Retrieves a specific project by its ID.
+     *
+     * @param id the project ID
+     * @return response entity containing the project
+     */
     @ProjectApiResponses.GetById
-    @Operation(summary = "Get project by ID", description = "Retrieve a specific project by its ID")
     @GetMapping("/projects/{id}")
     public ResponseEntity<Response<ProjectResponse>> getProject(
             @Parameter(description = "Project ID") @PathVariable Long id) {
@@ -61,8 +77,13 @@ public class ProjectController {
         return ResponseEntity.ok(Response.success(project, "Project retrieved successfully"));
     }
     
+    /**
+     * Creates a new project.
+     *
+     * @param request the project creation request
+     * @return response entity containing the created project with HTTP 201 status
+     */
     @ProjectApiResponses.Create
-    @Operation(summary = "Create new project", description = "Create a new project")
     @PostMapping("/projects")
     public ResponseEntity<Response<ProjectResponse>> createProject(
             @Valid @RequestBody CreateProjectRequest request) {
@@ -72,8 +93,14 @@ public class ProjectController {
                 .body(Response.success(project, "Project created successfully"));
     }
     
+    /**
+     * Updates an existing project.
+     *
+     * @param id the project ID
+     * @param request the project update request
+     * @return response entity containing the updated project
+     */
     @ProjectApiResponses.Update
-    @Operation(summary = "Update project", description = "Update an existing project")
     @PutMapping("/projects/{id}")
     public ResponseEntity<Response<ProjectResponse>> updateProject(
             @Parameter(description = "Project ID") @PathVariable Long id,
@@ -83,8 +110,13 @@ public class ProjectController {
         return ResponseEntity.ok(Response.success(project, "Project updated successfully"));
     }
     
+    /**
+     * Deletes a project by its ID.
+     *
+     * @param id the project ID
+     * @return response entity with success message
+     */
     @ProjectApiResponses.Delete
-    @Operation(summary = "Delete project", description = "Delete a project by ID")
     @DeleteMapping("/projects/{id}")
     public ResponseEntity<Response<Void>> deleteProject(
             @Parameter(description = "Project ID") @PathVariable Long id) {
@@ -93,8 +125,13 @@ public class ProjectController {
         return ResponseEntity.ok(Response.success(null, "Project deleted successfully"));
     }
     
+    /**
+     * Retrieves projects that use a specific technology.
+     *
+     * @param technology the technology name to filter by
+     * @return response entity containing list of matching projects
+     */
     @ProjectApiResponses.GetByTechnology
-    @Operation(summary = "Get projects by technology", description = "Retrieve projects that use a specific technology")
     @GetMapping("/projects/technology/{technology}")
     public ResponseEntity<Response<List<ProjectResponse>>> getProjectsByTechnology(
             @Parameter(description = "Technology name") @PathVariable String technology) {

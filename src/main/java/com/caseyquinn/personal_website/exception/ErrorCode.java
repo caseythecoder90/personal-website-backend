@@ -2,13 +2,22 @@ package com.caseyquinn.personal_website.exception;
 
 import lombok.Getter;
 
+/**
+ * Enumeration of all error codes used across the application.
+ * Each error code has a unique code string and default message.
+ */
 @Getter
 public enum ErrorCode {
 
-    // Not Found
     NOT_FOUND("NOT_FOUND", "Resource not found"),
+    IMAGE_NOT_FOUND("IMAGE_NOT_FOUND", "Image not found"),
 
-    // Business / Validation
+    FILE_UPLOAD_ERROR("FILE_UPLOAD", "File upload failed"),
+    FILE_SIZE_EXCEEDED("FILE_TOO_LARGE", "File size exceeds maximum allowed"),
+    INVALID_FILE_TYPE("INVALID_FILE", "Invalid file type"),
+    MAX_IMAGES_EXCEEDED("MAX_IMAGES", "Maximum number of images per project reached"),
+    CLOUDINARY_ERROR("CLOUDINARY_ERROR", "Cloud storage service error"),
+
     DUPLICATE_RESOURCE("DUPLICATE_RESOURCE", "A resource with that value already exists"),
     VALIDATION_FAILED("VALIDATION_FAILED", "Validation failed"),
     MAX_PROJECTS_EXCEEDED("MAX_PROJECTS", "Maximum number of projects reached"),
@@ -16,18 +25,14 @@ public enum ErrorCode {
     TECHNOLOGY_IN_USE("TECH_IN_USE", "Technology is in use by one or more projects"),
     DUPLICATE_TECH_ASSOCIATION("DUPLICATE_TECH_ASSOC", "Technology is already associated with this project"),
 
-    // Data Access
     DB_CONNECTION_ERROR("DB_CONNECTION", "Database connection failed"),
     DB_INTEGRITY_ERROR("DB_INTEGRITY", "Data integrity violation"),
     DB_ACCESS_ERROR("DB_ACCESS", "A data access error occurred"),
 
-    // Security
     FORBIDDEN("FORBIDDEN", "Access denied"),
 
-    // Rate Limiting
     RATE_LIMIT_EXCEEDED("RATE_LIMIT", "Too many requests"),
 
-    // Generic
     INTERNAL_ERROR("INTERNAL_ERROR", "An unexpected error occurred");
 
     private final String code;

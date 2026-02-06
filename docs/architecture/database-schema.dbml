@@ -287,7 +287,7 @@ Table contact_submissions {
   indexes {
     status [name: 'idx_contact_submissions_status']
     created_at [name: 'idx_contact_submissions_created_at']
-    inquiry_type [name: 'idx_contact_submissions_inquiry_type']
+    inquiry_type [name: 'idx_contact_submissions_inquiry']
     email [name: 'idx_contact_submissions_email']
   }
 
