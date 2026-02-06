@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static java.util.Objects.isNull;
 
 /**
@@ -269,8 +270,7 @@ public class TechnologyService {
     private void validateTechnologyDeletion(Technology technology) {
         if (!technology.getProjects().isEmpty()) {
             throw new ValidationException(ErrorCode.TECHNOLOGY_IN_USE,
-                    "Cannot delete technology '" + technology.getName() +
-                    "' because it is used in " + technology.getProjects().size() + " project(s)");
+                    String.format(TECHNOLOGY_IN_USE_FORMAT, technology.getProjects().size()));
         }
     }
 }

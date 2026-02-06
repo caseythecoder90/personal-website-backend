@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
+import static org.apache.commons.lang3.BooleanUtils.isNotTrue;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 /**
@@ -108,7 +110,7 @@ public class ProjectImageService {
         ProjectImage image = projectImageDao.findByIdOrThrow(imageId);
         validateImageOwnership(image, projectId);
 
-        if (isTrue(request.getIsPrimary()) && !isTrue(image.getIsPrimary())) {
+        if (isTrue(request.getIsPrimary()) && isNotTrue(image.getIsPrimary())) {
             projectImageDao.unsetPrimaryForProject(projectId);
         }
 
@@ -175,7 +177,7 @@ public class ProjectImageService {
         if (imageCount >= MAX_IMAGES_PER_PROJECT) {
             throw new ValidationException(
                 ErrorCode.MAX_IMAGES_EXCEEDED,
-                String.format("Project already has maximum allowed images (%d)", MAX_IMAGES_PER_PROJECT)
+                String.format(MAX_IMAGES_EXCEEDED_FORMAT, MAX_IMAGES_PER_PROJECT)
             );
         }
     }
@@ -191,7 +193,7 @@ public class ProjectImageService {
         if (!image.getProject().getId().equals(projectId)) {
             throw new ValidationException(
                 ErrorCode.VALIDATION_FAILED,
-                "Image does not belong to specified project"
+                IMAGE_OWNERSHIP_MISMATCH
             );
         }
     }
