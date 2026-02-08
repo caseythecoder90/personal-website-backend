@@ -1,6 +1,6 @@
 package com.caseyquinn.personal_website.entity;
 
-import com.caseyquinn.personal_website.entity.enums.ImageType;
+import com.caseyquinn.personal_website.entity.enums.LinkType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -23,53 +23,46 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents a link associated with a project (GitHub, demo, docs, etc.).
+ * Allows multiple links of the same type per project.
+ */
 @Entity
-@Table(name = "project_images")
+@Table(name = "project_links")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(exclude = "project")
 @ToString(exclude = "project")
-public class ProjectImage {
-    
+public class ProjectLink {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
-    
+
     @Column(nullable = false, length = 1000)
     private String url;
 
-    @Column(name = "cloudinary_public_id", length = 500)
-    private String cloudinaryPublicId;
-
-    @Column(name = "alt_text")
-    private String altText;
-    
-    @Column(length = 500)
-    private String caption;
-    
     @Enumerated
     @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(name = "image_type", columnDefinition = "image_type")
-    @Builder.Default
-    private ImageType imageType = ImageType.SCREENSHOT;
-    
+    @Column(name = "link_type", nullable = false, columnDefinition = "link_type")
+    private LinkType linkType;
+
+    @Column(length = 100)
+    private String label;
+
     @Column(name = "display_order")
     @Builder.Default
     private Integer displayOrder = 0;
-    
-    @Column(name = "is_primary")
-    @Builder.Default
-    private Boolean isPrimary = false;
-    
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-    
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

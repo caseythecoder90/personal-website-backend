@@ -1,10 +1,9 @@
 package com.caseyquinn.personal_website.entity;
 
-import com.caseyquinn.personal_website.entity.enums.TechnologyCategory;
 import com.caseyquinn.personal_website.entity.enums.ProficiencyLevel;
+import com.caseyquinn.personal_website.entity.enums.TechnologyCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -19,6 +18,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -45,7 +46,9 @@ public class Technology {
     @Column(length = 50)
     private String version;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(columnDefinition = "technology_category")
     private TechnologyCategory category;
 
     @Column(length = 500)
@@ -54,10 +57,11 @@ public class Technology {
     private String color;
     @Column(length = 500)
     private String documentationUrl;
-    
-    @Column(name = "proficiency_level")
-    @Enumerated(EnumType.STRING)
-    private ProficiencyLevel proficiencyLevel; // LEARNING, FAMILIAR, PROFICIENT, EXPERT
+
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "proficiency_level", columnDefinition = "proficiency_level")
+    private ProficiencyLevel proficiencyLevel;
     
     @Column(name = "years_experience", precision = 3, scale = 1)
     private BigDecimal yearsExperience;

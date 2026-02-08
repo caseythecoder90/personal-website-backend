@@ -13,40 +13,28 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Reusable Swagger response annotations for OperationsController endpoints.
+ * Reusable Swagger response annotations for ProjectLinkController endpoints.
  * Each inner interface documents the expected HTTP status codes and response models.
  */
-public class OperationsApiResponses {
+public class ProjectLinkApiResponses {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Health check", description = "Check service health and status")
+    @Operation(summary = "Create project link", description = "Create a new link for a project (GitHub, demo, docs, etc.)")
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "200",
-                    description = "Service is healthy",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            )
-    })
-    public @interface Health {}
-
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Encrypt text", description = "Encrypt text using Jasypt encryption (non-production only)")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Text encrypted successfully",
+                    responseCode = "201",
+                    description = "Link created successfully",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid or blank input",
+                    description = "Invalid request data",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
-                    responseCode = "403",
-                    description = "Not available in production",
+                    responseCode = "404",
+                    description = "Project not found",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -55,25 +43,20 @@ public class OperationsApiResponses {
                     content = @Content(schema = @Schema(implementation = Response.class))
             )
     })
-    public @interface Encrypt {}
+    public @interface Create {}
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Decrypt text", description = "Decrypt text using Jasypt encryption (non-production only)")
+    @Operation(summary = "Get project links", description = "Get all links for a specific project")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Text decrypted successfully",
+                    description = "Links retrieved successfully",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid or blank input",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Not available in production",
+                    responseCode = "404",
+                    description = "Project not found",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -82,25 +65,20 @@ public class OperationsApiResponses {
                     content = @Content(schema = @Schema(implementation = Response.class))
             )
     })
-    public @interface Decrypt {}
+    public @interface GetAll {}
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Hash password", description = "Generate BCrypt hash for a password (non-production only)")
+    @Operation(summary = "Get link by ID", description = "Get a specific link by its ID")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Password hashed successfully",
+                    description = "Link retrieved successfully",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid or blank input",
-                    content = @Content(schema = @Schema(implementation = Response.class))
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Not available in production",
+                    responseCode = "404",
+                    description = "Project or link not found",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -109,5 +87,54 @@ public class OperationsApiResponses {
                     content = @Content(schema = @Schema(implementation = Response.class))
             )
     })
-    public @interface HashPassword {}
+    public @interface GetById {}
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "Update project link", description = "Update an existing link")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Link updated successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request data",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Project or link not found",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            )
+    })
+    public @interface Update {}
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "Delete project link", description = "Delete a link from a project")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Link deleted successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Project or link not found",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            )
+    })
+    public @interface Delete {}
 }

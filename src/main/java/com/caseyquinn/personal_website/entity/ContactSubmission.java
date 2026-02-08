@@ -4,7 +4,6 @@ import com.caseyquinn.personal_website.entity.enums.InquiryType;
 import com.caseyquinn.personal_website.entity.enums.SubmissionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,6 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 
@@ -41,12 +42,15 @@ public class ContactSubmission {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "inquiry_type")
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "inquiry_type", columnDefinition = "inquiry_type")
     @Builder.Default
     private InquiryType inquiryType = InquiryType.GENERAL;
     
-    @Enumerated(EnumType.STRING)
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(columnDefinition = "submission_status")
     @Builder.Default
     private SubmissionStatus status = SubmissionStatus.NEW;
     
