@@ -38,4 +38,20 @@ public final class ErrorMessages {
 
     // Technology Messages
     public static final String TECHNOLOGY_IN_USE_FORMAT = "Technology is currently associated with %d project(s) and cannot be deleted";
+
+    // Blog Messages
+    public static final String BLOG_POST_TITLE_EXISTS = "A blog post with this title already exists";
+    public static final String BLOG_CATEGORY_NAME_EXISTS = "A category with this name already exists";
+    public static final String BLOG_TAG_NAME_EXISTS = "A tag with this name already exists";
+    public static final String BLOG_CATEGORY_IN_USE = "Category is associated with blog posts and cannot be deleted";
+    public static final String BLOG_TAG_IN_USE = "Tag is associated with blog posts and cannot be deleted";
+    public static final String BLOG_CATEGORY_ALREADY_ASSOCIATED = "Category is already associated with this post";
+    public static final String BLOG_CATEGORY_NOT_ASSOCIATED = "Category is not associated with this post";
+    public static final String BLOG_TAG_ALREADY_ASSOCIATED = "Tag is already associated with this post";
+    public static final String BLOG_TAG_NOT_ASSOCIATED = "Tag is not associated with this post";
+    public static final String CANNOT_DELETE_PUBLISHED_POST = "Cannot delete published blog posts. Unpublish first.";
+
+    // Blog Image Messages
+    public static final String BLOG_IMAGE_OWNERSHIP_MISMATCH = "Image does not belong to specified blog post";
+    public static final String MAX_BLOG_IMAGES_EXCEEDED_FORMAT = "Blog post already has maximum allowed images (%d)";
 }
