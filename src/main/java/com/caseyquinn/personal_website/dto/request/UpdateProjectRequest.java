@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Min;
-import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -46,28 +45,17 @@ public class UpdateProjectRequest {
     
     @Schema(description = "Project difficulty level")
     private DifficultyLevel difficultyLevel;
-    
-    @URL(message = "Must be a valid URL")
-    @Schema(description = "GitHub repository URL", example = "https://github.com/user/repo")
-    private String githubUrl;
-    
-    @URL(message = "Must be a valid URL")
-    @Schema(description = "Live demo URL", example = "https://myproject.com")
-    private String demoUrl;
-    
-    @URL(message = "Must be a valid URL")
-    @Schema(description = "Documentation URL")
-    private String documentationUrl;
-    
+
     @Schema(description = "Project start date")
     private LocalDateTime startDate;
-    
-    @Schema(description = "Project end date")
-    private LocalDateTime endDate;
-    
-    @Schema(description = "Estimated completion date")
-    private LocalDateTime estimatedCompletion;
-    
+
+    @Schema(description = "Project completion date")
+    private LocalDateTime completionDate;
+
+    @Min(value = 0, message = "Estimated hours cannot be negative")
+    @Schema(description = "Estimated hours to complete", example = "100")
+    private Integer estimatedHours;
+
     @Schema(description = "Whether the project should be published", example = "false")
     private Boolean published;
     
@@ -80,9 +68,4 @@ public class UpdateProjectRequest {
     
     @Schema(description = "Set of technology IDs to associate with this project")
     private Set<Long> technologyIds;
-    
-    @Size(max = 200, message = "Tech stack cannot exceed 200 characters")
-    @Schema(description = "Legacy technology stack field (deprecated)", example = "Java, Spring Boot, React")
-    @Deprecated
-    private String techStack;
 }

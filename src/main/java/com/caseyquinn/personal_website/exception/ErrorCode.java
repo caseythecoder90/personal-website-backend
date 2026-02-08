@@ -9,6 +9,10 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
+    // Authentication errors
+    AUTHENTICATION_FAILED("AUTHENTICATION_FAILED", "Invalid username or password"),
+
+    // Resource errors
     NOT_FOUND("NOT_FOUND", "Resource not found"),
     IMAGE_NOT_FOUND("IMAGE_NOT_FOUND", "Image not found"),
 
@@ -24,6 +28,7 @@ public enum ErrorCode {
     CANNOT_DELETE_PUBLISHED("DELETE_PUBLISHED", "Cannot delete a published resource"),
     TECHNOLOGY_IN_USE("TECH_IN_USE", "Technology is in use by one or more projects"),
     DUPLICATE_TECH_ASSOCIATION("DUPLICATE_TECH_ASSOC", "Technology is already associated with this project"),
+    DUPLICATE_CERT_TECH_ASSOCIATION("DUPLICATE_CERT_TECH_ASSOC", "Technology is already associated with this certification"),
 
     DB_CONNECTION_ERROR("DB_CONNECTION", "Database connection failed"),
     DB_INTEGRITY_ERROR("DB_INTEGRITY", "Data integrity violation"),

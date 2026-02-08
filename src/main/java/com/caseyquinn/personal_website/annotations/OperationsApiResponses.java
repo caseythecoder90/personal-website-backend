@@ -83,4 +83,31 @@ public class OperationsApiResponses {
             )
     })
     public @interface Decrypt {}
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "Hash password", description = "Generate BCrypt hash for a password (non-production only)")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Password hashed successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid or blank input",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not available in production",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            )
+    })
+    public @interface HashPassword {}
 }

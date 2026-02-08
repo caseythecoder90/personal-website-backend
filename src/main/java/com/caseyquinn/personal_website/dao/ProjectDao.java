@@ -103,14 +103,6 @@ public interface ProjectDao {
     boolean existsById(Long id);
 
     /**
-     * Finds projects containing the specified technology in their tech stack.
-     *
-     * @param technology the technology name
-     * @return list of matching projects
-     */
-    List<Project> findByTechStackContaining(String technology);
-
-    /**
      * Finds projects associated with a technology by name.
      *
      * @param technologyName the technology name

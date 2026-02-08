@@ -23,11 +23,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     boolean existsByName(String name);
     
     boolean existsBySlug(String slug);
-    
-    // Legacy method for tech stack string - will be deprecated
-    List<Project> findByTechStackContainingIgnoreCase(String technology);
-    
-    // New methods for technology relationships
+
+    // Technology relationship queries
     @Query("SELECT p FROM Project p JOIN p.technologies t WHERE t.name = :technologyName")
     List<Project> findByTechnologyName(@Param("technologyName") String technologyName);
     
@@ -68,8 +65,4 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Modifying
     @Query("UPDATE Project p SET p.viewCount = p.viewCount + 1 WHERE p.id = :id")
     void incrementViewCount(@Param("id") Long id);
-    
-    // Legacy method - will be deprecated
-    @Query("SELECT DISTINCT p.techStack FROM Project p WHERE p.techStack IS NOT NULL")
-    List<String> findAllTechStacks();
 }

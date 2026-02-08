@@ -136,7 +136,7 @@ public class ProjectController {
     public ResponseEntity<Response<List<ProjectResponse>>> getProjectsByTechnology(
             @Parameter(description = "Technology name") @PathVariable String technology) {
         log.info("Fetching projects by technology: {}", technology);
-        List<ProjectResponse> projects = projectService.getProjectsByTechnology(technology);
+        List<ProjectResponse> projects = projectService.getProjectsByTechnologyName(technology);
         return ResponseEntity.ok(Response.success(projects, "Projects retrieved successfully"));
     }
 }

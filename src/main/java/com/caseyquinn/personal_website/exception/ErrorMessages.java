@@ -22,11 +22,19 @@ public final class ErrorMessages {
     public static final String MAX_IMAGES_EXCEEDED_FORMAT = "Project already has maximum allowed images (%d)";
     public static final String IMAGE_OWNERSHIP_MISMATCH = "Image does not belong to specified project";
 
+    // Project Link Messages
+    public static final String LINK_OWNERSHIP_MISMATCH = "Link does not belong to specified project";
+
     // Project Messages
     public static final String MAX_PROJECTS_EXCEEDED = "Maximum number of projects (10) reached";
     public static final String CANNOT_DELETE_PUBLISHED = "Cannot delete published projects. Unpublish first.";
     public static final String TECHNOLOGY_ALREADY_ASSOCIATED = "Technology is already associated with this project";
     public static final String TECHNOLOGY_NOT_ASSOCIATED = "Technology is not associated with this project";
+
+    // Certification Messages
+    public static final String CERT_TECHNOLOGY_ALREADY_ASSOCIATED = "Technology is already associated with this certification";
+    public static final String CERT_TECHNOLOGY_NOT_ASSOCIATED = "Technology is not associated with this certification";
+    public static final String CANNOT_DELETE_PUBLISHED_CERTIFICATION = "Cannot delete published certifications. Unpublish first.";
 
     // Technology Messages
     public static final String TECHNOLOGY_IN_USE_FORMAT = "Technology is currently associated with %d project(s) and cannot be deleted";

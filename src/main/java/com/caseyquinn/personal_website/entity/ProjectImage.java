@@ -3,7 +3,6 @@ package com.caseyquinn.personal_website.entity;
 import com.caseyquinn.personal_website.entity.enums.ImageType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -19,6 +18,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 
@@ -52,8 +53,9 @@ public class ProjectImage {
     @Column(length = 500)
     private String caption;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "image_type")
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "image_type", columnDefinition = "image_type")
     @Builder.Default
     private ImageType imageType = ImageType.SCREENSHOT;
     

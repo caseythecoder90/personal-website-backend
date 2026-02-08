@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/casquinn_personal_website_test
     username: casquinn
-    password: Ku^a4MoADdqLf4n>ka,d
+    password: ENC(jKrP8/WK5x4RqQYN2my8DHWv0xVqual7eZQKG9zdxwsMzR6tgKisOQurEadZdBinJYjcyrzedMWzt4pxy9O7Dg==)
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -28,7 +28,7 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: vHZBDJUzyG}1AE6dBMZY
+      password: ENC(5EcSLd6C++fsxj9ErDjYNlUNYGTNcAupTubUrlAVmdqqSJhrQxETIQe6H4WbU0Pd6EeGOtk8ETn2ulGpBVZDWA==)
 
 logging:
   level:
