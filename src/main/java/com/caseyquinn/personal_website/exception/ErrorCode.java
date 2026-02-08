@@ -29,6 +29,9 @@ public enum ErrorCode {
     TECHNOLOGY_IN_USE("TECH_IN_USE", "Technology is in use by one or more projects"),
     DUPLICATE_TECH_ASSOCIATION("DUPLICATE_TECH_ASSOC", "Technology is already associated with this project"),
     DUPLICATE_CERT_TECH_ASSOCIATION("DUPLICATE_CERT_TECH_ASSOC", "Technology is already associated with this certification"),
+    DUPLICATE_BLOG_CATEGORY_ASSOCIATION("DUPLICATE_BLOG_CAT_ASSOC", "Category is already associated with this blog post"),
+    DUPLICATE_BLOG_TAG_ASSOCIATION("DUPLICATE_BLOG_TAG_ASSOC", "Tag is already associated with this blog post"),
+    MAX_BLOG_IMAGES_EXCEEDED("MAX_BLOG_IMAGES", "Maximum number of images per blog post reached"),
 
     DB_CONNECTION_ERROR("DB_CONNECTION", "Database connection failed"),
     DB_INTEGRITY_ERROR("DB_INTEGRITY", "Data integrity violation"),
