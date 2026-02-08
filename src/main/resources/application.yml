@@ -1,33 +1,37 @@
 spring:
   application:
-    name: personal-website
-  
+    name: personal-website-backend
+    version: @project.version@
+
+  jackson:
+    default-property-inclusion: non_null
+
   datasource:
     url: jdbc:postgresql://localhost:5432/casquinn_personal_website
     username: casquinn
     password: Ku^a4MoADdqLf4n>ka,d
     driver-class-name: org.postgresql.Driver
-  
+    hikari:
+      pool-name: PersonalWebsitePool
+      minimum-idle: 2
+      maximum-pool-size: 10
+      idle-timeout: 300000        # 5 minutes
+      max-lifetime: 1800000       # 30 minutes
+      connection-timeout: 20000   # 20 seconds
+
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        globally_quoted_identifiers: true
-        globally_quoted_identifiers_skip_column_definitions: true
-        jdbc:
-          time_zone: UTC
-        type:
-          json_format_mapper: jsonb
-  
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: vHZBDJUzyG}1AE6dBMZY
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
 
   servlet:
     multipart:
@@ -36,45 +40,39 @@ spring:
       max-request-size: 10MB
       file-size-threshold: 2MB
 
-server:
-  port: 8080
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: always
-
-# Jasypt encryption
-jasypt:
-  encryptor:
-    password: ${JASYPT_ENCRYPTOR_PASSWORD:dev-local-key}
-
 # Cloudinary configuration
 cloudinary:
   cloud-name: dwdaehpml
   api-key: 582556696859121
-  api-secret: ENC(dEBKyzGMzvPAdhbR+Yuz/x3eJ8yj1u5Zkz3LJvTbfss/0TY1pKXzVnjQuw7D9GVfTbSv4pg+ra+aIBY1U/aIFA==)
+  api-secret: BtaCljW-rB1J_T8l7iWMoTMc5tg
   folder: portfolio-images
   secure: true
 
-# Custom app properties
-app:
-  version: 1.0.0
+# JWT configuration
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production-minimum-32-characters}
+  expiration: 86400000  # 24 hours in milliseconds
+  refresh-expiration: 604800000  # 7 days in milliseconds
 
-# OpenAPI/Swagger configuration
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
+# Jasypt encryption
+jasypt:
+  encryptor:
+    password: ${JASYPT_ENCRYPTOR_PASSWORD:default-dev-password-change-in-prod}
+    algorithm: PBEWithHMACSHA512AndAES_256
+    iv-generator-classname: org.jasypt.iv.RandomIvGenerator
 
+# Server configuration
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# Logging configuration
 logging:
   level:
-    com.caseyquinn.personal_website: DEBUG
-    org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
+    com.caseyquinn.personal_website: INFO
+    org.springframework.security: INFO
+    org.hibernate.orm.connections.pooling: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%16.16thread] %36.36logger{36} - %msg%n"

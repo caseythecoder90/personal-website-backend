@@ -9,6 +9,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,6 +39,18 @@ public class GlobalExceptionHandler {
         log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Response.error(ex.getErrorCode().getCode(), ex.getMessage()));
+    }
+
+    /**
+     * Handles authentication failures (bad credentials, user not found, etc.).
+     * Returns a generic message to prevent username enumeration attacks.
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Response<Void>> handleAuthenticationException(AuthenticationException ex) {
+        log.warn("[AUTHENTICATION_FAILED] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Response.error(ErrorCode.AUTHENTICATION_FAILED.getCode(),
+                        ErrorCode.AUTHENTICATION_FAILED.getDefaultMessage()));
     }
 
     @ExceptionHandler(BusinessException.class)

@@ -2,14 +2,17 @@ package com.caseyquinn.personal_website.service;
 
 import com.caseyquinn.personal_website.dao.ProjectDao;
 import com.caseyquinn.personal_website.dao.ProjectImageDao;
+import com.caseyquinn.personal_website.dao.ProjectLinkDao;
 import com.caseyquinn.personal_website.dao.TechnologyDao;
 import com.caseyquinn.personal_website.dto.request.CreateProjectRequest;
 import com.caseyquinn.personal_website.dto.request.UpdateProjectRequest;
 import com.caseyquinn.personal_website.dto.response.ProjectResponse;
 import com.caseyquinn.personal_website.entity.Project;
 import com.caseyquinn.personal_website.entity.ProjectImage;
+import com.caseyquinn.personal_website.entity.ProjectLink;
 import com.caseyquinn.personal_website.entity.Technology;
 import com.caseyquinn.personal_website.mapper.ProjectImageMapper;
+import com.caseyquinn.personal_website.mapper.ProjectLinkMapper;
 import com.caseyquinn.personal_website.entity.enums.ProjectType;
 import com.caseyquinn.personal_website.entity.enums.ProjectStatus;
 import com.caseyquinn.personal_website.entity.enums.DifficultyLevel;
@@ -44,8 +47,11 @@ public class ProjectService {
     private final ProjectDao projectDao;
     private final TechnologyDao technologyDao;
     private final ProjectImageDao projectImageDao;
+    private final ProjectLinkDao projectLinkDao;
+    private final ProjectLinkService projectLinkService;
     private final ProjectMapper projectMapper;
     private final ProjectImageMapper projectImageMapper;
+    private final ProjectLinkMapper projectLinkMapper;
     
     /**
      * Retrieves all projects without pagination.
@@ -79,11 +85,7 @@ public class ProjectService {
     public ProjectResponse getProjectById(Long id) {
         log.info("Service: Fetching project with id: {}", id);
         Project project = projectDao.findByIdOrThrow(id);
-        List<ProjectImage> images = projectImageDao.findByProjectId(id);
-
-        ProjectResponse response = projectMapper.toResponse(project);
-        response.setImages(projectImageMapper.toResponseList(images));
-        return response;
+        return buildProjectResponseWithDetails(project);
     }
     
     /**
@@ -103,8 +105,10 @@ public class ProjectService {
         associateTechnologies(project, request.getTechnologyIds());
 
         Project savedProject = projectDao.save(project);
+        projectLinkService.createLinks(savedProject, request.getLinks());
+
         log.info("Service: Successfully created project with id: {}", savedProject.getId());
-        return projectMapper.toResponse(savedProject);
+        return buildProjectResponseWithDetails(savedProject);
     }
     
     /**
@@ -146,18 +150,6 @@ public class ProjectService {
     }
 
     /**
-     * Retrieves projects that use a specific technology in their tech stack.
-     *
-     * @param technology the technology name to search for
-     * @return list of matching project responses
-     */
-    public List<ProjectResponse> getProjectsByTechnology(String technology) {
-        log.info("Service: Fetching projects by technology: {}", technology);
-        List<Project> projects = projectDao.findByTechStackContaining(technology);
-        return projectMapper.toResponseList(projects);
-    }
-    
-    /**
      * Retrieves a project by its URL slug including associated images.
      *
      * @param slug the project slug
@@ -167,11 +159,7 @@ public class ProjectService {
         log.info("Service: Fetching project with slug: {}", slug);
         Project project = projectDao.findBySlug(slug)
                 .orElseThrow(() -> new NotFoundException("Project", "slug", slug));
-        List<ProjectImage> images = projectImageDao.findByProjectId(project.getId());
-
-        ProjectResponse response = projectMapper.toResponse(project);
-        response.setImages(projectImageMapper.toResponseList(images));
-        return response;
+        return buildProjectResponseWithDetails(project);
     }
     
     /**
@@ -373,6 +361,22 @@ public class ProjectService {
         return projectDao.countByType();
     }
     
+    /**
+     * Builds a complete project response including images and links.
+     *
+     * @param project the project entity
+     * @return project response with images and links populated
+     */
+    private ProjectResponse buildProjectResponseWithDetails(Project project) {
+        List<ProjectImage> images = projectImageDao.findByProjectId(project.getId());
+        List<ProjectLink> links = projectLinkDao.findByProjectId(project.getId());
+
+        ProjectResponse response = projectMapper.toResponse(project);
+        response.setImages(projectImageMapper.toResponseList(images));
+        response.setLinks(projectLinkMapper.toResponseList(links));
+        return response;
+    }
+
     private void validateProjectCreation(CreateProjectRequest request) {
         if (projectDao.existsByName(request.getName())) {
             throw new DuplicateResourceException("Project", "name", request.getName());

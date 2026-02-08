@@ -1,12 +1,11 @@
 package com.caseyquinn.personal_website.entity;
 
-import com.caseyquinn.personal_website.entity.enums.ProjectType;
-import com.caseyquinn.personal_website.entity.enums.ProjectStatus;
 import com.caseyquinn.personal_website.entity.enums.DifficultyLevel;
+import com.caseyquinn.personal_website.entity.enums.ProjectStatus;
+import com.caseyquinn.personal_website.entity.enums.ProjectType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +23,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -54,32 +55,23 @@ public class Project {
     
     @Column(columnDefinition = "TEXT")
     private String fullDescription; // Detailed markdown description
-    
-    // Legacy field - will be migrated to many-to-many relationship
-    private String techStack;
-    
-    // Project Links
-    @Column(length = 500)
-    private String githubUrl;
-    @Column(length = 500)
-    private String liveUrl;
-    @Column(length = 500)
-    private String dockerUrl;
-    @Column(length = 500)
-    private String documentationUrl;
-    
+
     // Project Classification
-    @Enumerated(EnumType.STRING)
-    @Column(name = "project_type")
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "project_type", columnDefinition = "project_type")
     @Builder.Default
     private ProjectType projectType = ProjectType.PERSONAL;
-    
-    @Enumerated(EnumType.STRING)
-    private ProjectStatus status; // IN_PROGRESS, COMPLETED, MAINTAINED, ARCHIVED
-    
-    @Column(name = "difficulty_level")
-    @Enumerated(EnumType.STRING)
-    private DifficultyLevel difficultyLevel; // BEGINNER, INTERMEDIATE, ADVANCED
+
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(columnDefinition = "project_status")
+    private ProjectStatus status;
+
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "difficulty_level", columnDefinition = "difficulty_level")
+    private DifficultyLevel difficultyLevel;
     
     // Timeline Information
     @Column(name = "start_date")
