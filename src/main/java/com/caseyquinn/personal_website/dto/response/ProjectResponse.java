@@ -38,24 +38,15 @@ public class ProjectResponse {
     
     @Schema(description = "Project difficulty level")
     private DifficultyLevel difficultyLevel;
-    
-    @Schema(description = "GitHub repository URL")
-    private String githubUrl;
-    
-    @Schema(description = "Live demo URL")
-    private String demoUrl;
-    
-    @Schema(description = "Documentation URL")
-    private String documentationUrl;
-    
+
     @Schema(description = "Project start date")
     private LocalDateTime startDate;
-    
-    @Schema(description = "Project end date")
-    private LocalDateTime endDate;
-    
-    @Schema(description = "Estimated completion date")
-    private LocalDateTime estimatedCompletion;
+
+    @Schema(description = "Project completion date")
+    private LocalDateTime completionDate;
+
+    @Schema(description = "Estimated hours to complete")
+    private Integer estimatedHours;
     
     @Schema(description = "Whether the project is published", example = "true")
     private Boolean published;
@@ -75,10 +66,9 @@ public class ProjectResponse {
     @Schema(description = "Project images")
     private List<ProjectImageResponse> images;
 
-    @Schema(description = "Legacy tech stack field (deprecated)")
-    @Deprecated
-    private String techStack;
-    
+    @Schema(description = "Project links (GitHub, demo, docs, etc.)")
+    private List<ProjectLinkResponse> links;
+
     @Schema(description = "Project creation timestamp")
     private LocalDateTime createdAt;
     

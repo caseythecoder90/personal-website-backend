@@ -59,4 +59,17 @@ public class OperationsController {
     public ResponseEntity<Response<EncryptionResponse>> decrypt(@Valid @RequestBody EncryptionRequest request) {
         return ResponseEntity.ok(Response.success(operationsService.decrypt(request.getText()), "Text decrypted successfully"));
     }
+
+    /**
+     * Generates a BCrypt hash for the provided password.
+     * Temporary utility endpoint for generating password hashes.
+     *
+     * @param request the request containing the password to hash
+     * @return response entity containing BCrypt hash
+     */
+    @OperationsApiResponses.HashPassword
+    @PostMapping("/operations/hash-password")
+    public ResponseEntity<Response<EncryptionResponse>> hashPassword(@Valid @RequestBody EncryptionRequest request) {
+        return ResponseEntity.ok(Response.success(operationsService.hashPassword(request.getText()), "Password hashed successfully"));
+    }
 }

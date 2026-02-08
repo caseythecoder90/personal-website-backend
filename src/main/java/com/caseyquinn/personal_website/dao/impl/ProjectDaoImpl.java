@@ -89,12 +89,6 @@ public class ProjectDaoImpl implements ProjectDao {
     }
 
     @Override
-    public List<Project> findByTechStackContaining(String technology) {
-        log.info("DAO: Fetching projects containing technology: {}", technology);
-        return projectRepository.findByTechStackContainingIgnoreCase(technology);
-    }
-
-    @Override
     public Optional<Project> findBySlug(String slug) {
         log.info("DAO: Fetching project with slug: {}", slug);
         return projectRepository.findBySlug(slug);
