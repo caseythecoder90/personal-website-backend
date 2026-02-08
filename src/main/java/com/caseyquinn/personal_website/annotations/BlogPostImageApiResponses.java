@@ -69,11 +69,11 @@ public class BlogPostImageApiResponses {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(summary = "Create image for blog post", description = "Create a new image for a blog post")
+    @Operation(summary = "Upload image for blog post", description = "Upload a new image file with metadata for a blog post")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "201",
-                    description = "Image created successfully",
+                    description = "Image uploaded successfully",
                     content = @Content(schema = @Schema(implementation = Response.class))
             ),
             @ApiResponse(
@@ -92,7 +92,7 @@ public class BlogPostImageApiResponses {
                     content = @Content(schema = @Schema(implementation = Response.class))
             )
     })
-    public @interface Create {}
+    public @interface Upload {}
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)

@@ -12,21 +12,25 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 /**
- * REST controller for managing blog post images.
+ * REST controller for managing blog post images and their metadata.
  */
 @RestController
 @RequestMapping("/api/v1/blog/posts/{postId}/images")
@@ -37,6 +41,27 @@ import java.util.List;
 public class BlogPostImageController {
 
     private final BlogPostImageService blogPostImageService;
+
+    /**
+     * Uploads a new image for a blog post.
+     *
+     * @param postId the blog post ID
+     * @param file the image file to upload
+     * @param request the image metadata
+     * @return response entity containing the uploaded image details with HTTP 201 status
+     */
+    @BlogPostImageApiResponses.Upload
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Response<BlogPostImageResponse>> uploadImage(
+            @Parameter(description = "Blog post ID") @PathVariable Long postId,
+            @Parameter(description = "Image file to upload") @RequestParam("file") MultipartFile file,
+            @Parameter(description = "Image metadata") @Valid @ModelAttribute CreateBlogPostImageRequest request) {
+
+        log.info("Uploading image for blog post id: {}", postId);
+        BlogPostImageResponse response = blogPostImageService.uploadImage(postId, file, request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.success(response, "Blog post image uploaded successfully"));
+    }
 
     /**
      * Retrieves all images for a blog post.
@@ -68,24 +93,6 @@ public class BlogPostImageController {
         log.info("Fetching image with id: {} for blog post id: {}", imageId, postId);
         BlogPostImageResponse image = blogPostImageService.getImageById(postId, imageId);
         return ResponseEntity.ok(Response.success(image, "Blog post image retrieved successfully"));
-    }
-
-    /**
-     * Creates a new image for a blog post.
-     *
-     * @param postId the blog post ID
-     * @param request the image creation request
-     * @return response entity containing the created image with HTTP 201 status
-     */
-    @BlogPostImageApiResponses.Create
-    @PostMapping
-    public ResponseEntity<Response<BlogPostImageResponse>> createImage(
-            @Parameter(description = "Blog post ID") @PathVariable Long postId,
-            @Valid @RequestBody CreateBlogPostImageRequest request) {
-        log.info("Creating image for blog post id: {}", postId);
-        BlogPostImageResponse image = blogPostImageService.createImage(postId, request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(image, "Blog post image created successfully"));
     }
 
     /**
