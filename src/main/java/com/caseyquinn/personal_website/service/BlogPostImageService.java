@@ -5,6 +5,7 @@ import com.caseyquinn.personal_website.dao.BlogPostImageDao;
 import com.caseyquinn.personal_website.dto.request.CreateBlogPostImageRequest;
 import com.caseyquinn.personal_website.dto.request.UpdateBlogPostImageRequest;
 import com.caseyquinn.personal_website.dto.response.BlogPostImageResponse;
+import com.caseyquinn.personal_website.dto.response.CloudinaryUploadResult;
 import com.caseyquinn.personal_website.entity.BlogPost;
 import com.caseyquinn.personal_website.entity.BlogPostImage;
 import com.caseyquinn.personal_website.entity.enums.BlogImageType;
@@ -15,17 +16,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.BLOG_IMAGE_OWNERSHIP_MISMATCH;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.MAX_BLOG_IMAGES_EXCEEDED_FORMAT;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.BooleanUtils.isNotTrue;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 /**
- * Service layer for managing blog post images and their business logic.
+ * Service layer for managing blog post images including upload, retrieval, and deletion.
  */
 @Service
 @RequiredArgsConstructor
@@ -37,7 +39,33 @@ public class BlogPostImageService {
 
     private final BlogPostImageDao blogPostImageDao;
     private final BlogPostDao blogPostDao;
+    private final CloudinaryService cloudinaryService;
+    private final FileValidationService fileValidationService;
     private final BlogPostImageMapper blogPostImageMapper;
+
+    /**
+     * Uploads a new image for a blog post with validation and compensating transaction handling.
+     *
+     * @param postId the blog post ID
+     * @param file the image file to upload
+     * @param request the image creation request containing metadata
+     * @return the uploaded image response
+     */
+    @Transactional
+    public BlogPostImageResponse uploadImage(Long postId, MultipartFile file, CreateBlogPostImageRequest request) {
+        log.info("Uploading image for blog post id: {}", postId);
+
+        BlogPost post = blogPostDao.findByIdOrThrow(postId);
+        fileValidationService.validateImageFile(file);
+        validateImageLimit(postId);
+
+        CloudinaryUploadResult uploadResult = uploadToCloudinary(file, post.getSlug(), postId);
+        BlogPostImage image = buildBlogPostImage(request, post, uploadResult);
+
+        handlePrimaryImageFlag(postId, request.getIsPrimary());
+
+        return saveImageWithCompensation(image, uploadResult.getPublicId(), postId);
+    }
 
     /**
      * Retrieves all images for a blog post ordered by display order.
@@ -67,34 +95,6 @@ public class BlogPostImageService {
     }
 
     /**
-     * Creates a new image for a blog post.
-     *
-     * @param postId the blog post ID
-     * @param request the image creation request
-     * @return the created image response
-     */
-    @Transactional
-    public BlogPostImageResponse createImage(Long postId, CreateBlogPostImageRequest request) {
-        log.info("Service: Creating image for blog post id: {}", postId);
-
-        BlogPost post = blogPostDao.findByIdOrThrow(postId);
-        validateImageLimit(postId);
-
-        BlogPostImage image = blogPostImageMapper.toEntity(request);
-        image.setBlogPost(post);
-        applyDefaults(image, request);
-
-        if (isTrue(request.getIsPrimary())) {
-            blogPostImageDao.clearPrimaryFlag(postId);
-            image.setIsPrimary(true);
-        }
-
-        BlogPostImage saved = blogPostImageDao.save(image);
-        log.info("Service: Successfully created image with id: {}", saved.getId());
-        return blogPostImageMapper.toResponse(saved);
-    }
-
-    /**
      * Updates an existing image metadata.
      *
      * @param postId the blog post ID
@@ -108,6 +108,11 @@ public class BlogPostImageService {
 
         BlogPostImage image = blogPostImageDao.findByIdOrThrow(imageId);
         validateImageOwnership(image, postId);
+
+        if (isTrue(request.getIsPrimary()) && isNotTrue(image.getIsPrimary())) {
+            blogPostImageDao.clearPrimaryFlag(postId);
+        }
+
         blogPostImageMapper.updateEntityFromRequest(request, image);
 
         BlogPostImage updated = blogPostImageDao.save(image);
@@ -116,7 +121,8 @@ public class BlogPostImageService {
     }
 
     /**
-     * Deletes an image from a blog post.
+     * Deletes an image from a blog post with ownership validation.
+     * Performs best-effort deletion from Cloudinary.
      *
      * @param postId the blog post ID
      * @param imageId the image ID
@@ -128,12 +134,17 @@ public class BlogPostImageService {
         BlogPostImage image = blogPostImageDao.findByIdOrThrow(imageId);
         validateImageOwnership(image, postId);
 
+        String cloudinaryPublicId = image.getCloudinaryPublicId();
+
         blogPostImageDao.deleteById(imageId);
-        log.info("Service: Successfully deleted image with id: {}", imageId);
+        log.info("Service: Image deleted from database: imageId={}", imageId);
+
+        deleteFromCloudinaryBestEffort(cloudinaryPublicId);
     }
 
     /**
      * Sets an image as the primary image for a blog post.
+     * Unsets any existing primary image first.
      *
      * @param postId the blog post ID
      * @param imageId the image ID
@@ -168,12 +179,12 @@ public class BlogPostImageService {
         return blogPostImageMapper.toResponseList(images);
     }
 
-    private void validateImageOwnership(BlogPostImage image, Long postId) {
-        if (!image.getBlogPost().getId().equals(postId)) {
-            throw new ValidationException(ErrorCode.VALIDATION_FAILED, BLOG_IMAGE_OWNERSHIP_MISMATCH);
-        }
-    }
-
+    /**
+     * Validates that an image count does not exceed the maximum allowed per post.
+     *
+     * @param postId the blog post ID to check
+     * @throws ValidationException if the maximum image count is exceeded
+     */
     private void validateImageLimit(Long postId) {
         long currentCount = blogPostImageDao.countByBlogPostId(postId);
         if (currentCount >= MAX_IMAGES_PER_POST) {
@@ -182,15 +193,105 @@ public class BlogPostImageService {
         }
     }
 
-    private void applyDefaults(BlogPostImage image, CreateBlogPostImageRequest request) {
-        if (isNull(image.getImageType())) {
-            image.setImageType(BlogImageType.INLINE);
+    /**
+     * Validates that an image belongs to the specified blog post.
+     *
+     * @param image the image to validate
+     * @param postId the expected blog post ID
+     * @throws ValidationException if the image does not belong to the post
+     */
+    private void validateImageOwnership(BlogPostImage image, Long postId) {
+        if (!image.getBlogPost().getId().equals(postId)) {
+            throw new ValidationException(ErrorCode.VALIDATION_FAILED, BLOG_IMAGE_OWNERSHIP_MISMATCH);
         }
-        if (isNull(image.getDisplayOrder())) {
-            image.setDisplayOrder(0);
+    }
+
+    /**
+     * Uploads an image file to Cloudinary with error handling.
+     *
+     * @param file the file to upload
+     * @param subFolder the subfolder path in Cloudinary (blog post slug)
+     * @param postId the blog post ID for logging
+     * @return the upload result containing URL and public ID
+     * @throws ValidationException if upload fails
+     */
+    private CloudinaryUploadResult uploadToCloudinary(MultipartFile file, String subFolder, Long postId) {
+        try {
+            return cloudinaryService.uploadImage(file, "blog/" + subFolder);
+        } catch (ValidationException e) {
+            log.error("Failed to upload image to Cloudinary for blog post id: {}", postId, e);
+            throw e;
         }
-        if (isNull(image.getIsPrimary())) {
-            image.setIsPrimary(false);
+    }
+
+    /**
+     * Builds a BlogPostImage entity from the request and upload result.
+     *
+     * @param request the creation request containing metadata
+     * @param post the blog post to associate with
+     * @param uploadResult the Cloudinary upload result
+     * @return the constructed BlogPostImage entity
+     */
+    private BlogPostImage buildBlogPostImage(CreateBlogPostImageRequest request, BlogPost post,
+                                              CloudinaryUploadResult uploadResult) {
+        return BlogPostImage.builder()
+                .blogPost(post)
+                .url(uploadResult.getSecureUrl())
+                .cloudinaryPublicId(uploadResult.getPublicId())
+                .altText(request.getAltText())
+                .caption(request.getCaption())
+                .imageType(isNull(request.getImageType()) ? BlogImageType.INLINE : request.getImageType())
+                .displayOrder(isNull(request.getDisplayOrder()) ? 0 : request.getDisplayOrder())
+                .isPrimary(isTrue(request.getIsPrimary()))
+                .build();
+    }
+
+    /**
+     * Handles the primary image flag by unsetting any existing primary image if needed.
+     *
+     * @param postId the blog post ID
+     * @param isPrimary whether the new image should be primary
+     */
+    private void handlePrimaryImageFlag(Long postId, Boolean isPrimary) {
+        if (isTrue(isPrimary)) {
+            blogPostImageDao.clearPrimaryFlag(postId);
+        }
+    }
+
+    /**
+     * Saves an image with compensating transaction support.
+     * If database save fails, deletes the uploaded image from Cloudinary.
+     *
+     * @param image the image to save
+     * @param cloudinaryPublicId the Cloudinary public ID for rollback
+     * @param postId the blog post ID for logging
+     * @return the saved image response
+     */
+    private BlogPostImageResponse saveImageWithCompensation(BlogPostImage image, String cloudinaryPublicId,
+                                                             Long postId) {
+        try {
+            BlogPostImage savedImage = blogPostImageDao.save(image);
+            log.info("Image saved successfully: imageId={}, postId={}", savedImage.getId(), postId);
+            return blogPostImageMapper.toResponse(savedImage);
+
+        } catch (Exception e) {
+            log.error("Failed to save image to database, rolling back Cloudinary upload", e);
+            cloudinaryService.deleteImage(cloudinaryPublicId);
+            throw e;
+        }
+    }
+
+    /**
+     * Attempts to delete an image from Cloudinary with best-effort error handling.
+     * Logs errors but does not throw exceptions.
+     *
+     * @param cloudinaryPublicId the Cloudinary public ID to delete
+     */
+    private void deleteFromCloudinaryBestEffort(String cloudinaryPublicId) {
+        try {
+            cloudinaryService.deleteImage(cloudinaryPublicId);
+        } catch (Exception e) {
+            log.error("Failed to delete image from Cloudinary (continuing): publicId={}", cloudinaryPublicId, e);
         }
     }
 }

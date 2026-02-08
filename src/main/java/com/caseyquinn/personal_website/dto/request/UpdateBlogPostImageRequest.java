@@ -27,4 +27,7 @@ public class UpdateBlogPostImageRequest {
     @Min(value = 0, message = "Display order cannot be negative")
     @Schema(description = "Display order for sorting", example = "0")
     private Integer displayOrder;
+
+    @Schema(description = "Set as primary image (unsets previous primary)", example = "false")
+    private Boolean isPrimary;
 }
