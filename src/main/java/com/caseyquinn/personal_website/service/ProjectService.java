@@ -23,6 +23,8 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.ProjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,6 +60,7 @@ public class ProjectService {
      *
      * @return list of all project responses
      */
+    @Cacheable(value = "projects", key = "'all'")
     public List<ProjectResponse> getAllProjects() {
         log.info("Service: Fetching all projects");
         List<Project> projects = projectDao.findAll();
@@ -82,6 +85,7 @@ public class ProjectService {
      * @param id the project ID
      * @return project response with images
      */
+    @Cacheable(value = "projects", key = "'id:' + #id")
     public ProjectResponse getProjectById(Long id) {
         log.info("Service: Fetching project with id: {}", id);
         Project project = projectDao.findByIdOrThrow(id);
@@ -94,6 +98,7 @@ public class ProjectService {
      * @param request the project creation request
      * @return the created project response
      */
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public ProjectResponse createProject(CreateProjectRequest request) {
         log.info("Service: Creating new project: {}", request.getName());
@@ -118,6 +123,7 @@ public class ProjectService {
      * @param request the project update request
      * @return the updated project response
      */
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public ProjectResponse updateProject(Long id, UpdateProjectRequest request) {
         log.info("Service: Updating project with id: {}", id);
@@ -137,6 +143,7 @@ public class ProjectService {
      *
      * @param id the project ID
      */
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public void deleteProject(Long id) {
         log.info("Service: Deleting project with id: {}", id);
@@ -155,6 +162,7 @@ public class ProjectService {
      * @param slug the project slug
      * @return project response with images
      */
+    @Cacheable(value = "projects", key = "'slug:' + #slug")
     public ProjectResponse getProjectBySlug(String slug) {
         log.info("Service: Fetching project with slug: {}", slug);
         Project project = projectDao.findBySlug(slug)
@@ -194,6 +202,7 @@ public class ProjectService {
      *
      * @return list of published project responses in display order
      */
+    @Cacheable(value = "projects", key = "'published-ordered'")
     public List<ProjectResponse> getPublishedProjectsOrderedByDisplay() {
         log.info("Service: Fetching published projects ordered by display");
         List<Project> projects = projectDao.findPublishedProjectsOrderedByDisplay();
@@ -205,6 +214,7 @@ public class ProjectService {
      *
      * @return list of featured published project responses
      */
+    @Cacheable(value = "projects", key = "'featured-published'")
     public List<ProjectResponse> getFeaturedPublishedProjects() {
         log.info("Service: Fetching featured published projects");
         List<Project> projects = projectDao.findFeaturedPublishedProjects();
@@ -277,6 +287,7 @@ public class ProjectService {
      * @param technologyId the technology ID
      * @return the updated project response
      */
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public ProjectResponse addTechnologyToProject(Long projectId, Long technologyId) {
         log.info("Service: Adding technology {} to project {}", technologyId, projectId);
@@ -302,6 +313,7 @@ public class ProjectService {
      * @param technologyId the technology ID
      * @return the updated project response
      */
+    @CacheEvict(value = "projects", allEntries = true)
     @Transactional
     public ProjectResponse removeTechnologyFromProject(Long projectId, Long technologyId) {
         log.info("Service: Removing technology {} from project {}", technologyId, projectId);
