@@ -145,6 +145,19 @@
 			<version>1.39.0</version>
 		</dependency>
 
+		<!-- Resend for email notifications -->
+		<dependency>
+			<groupId>com.resend</groupId>
+			<artifactId>resend-java</artifactId>
+			<version>4.11.0</version>
+		</dependency>
+
+		<!-- Thymeleaf for email templates -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
 		<!-- Spring Security for authentication -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
