@@ -61,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/technologies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/certifications/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/blog/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/resume/**").permitAll()
 
                         // Protected WRITE operations - require ADMIN role
                         .requestMatchers(HttpMethod.POST, "/api/v1/projects/**").hasRole("ADMIN")
@@ -72,6 +73,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/certifications/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/certifications/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/certifications/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/resume/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/resume/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/resume/**").hasRole("ADMIN")
 
                         // All other requests require authentication
                         .anyRequest().authenticated()

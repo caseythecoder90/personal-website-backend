@@ -54,4 +54,9 @@ public final class ErrorMessages {
     // Blog Image Messages
     public static final String BLOG_IMAGE_OWNERSHIP_MISMATCH = "Image does not belong to specified blog post";
     public static final String MAX_BLOG_IMAGES_EXCEEDED_FORMAT = "Blog post already has maximum allowed images (%d)";
+
+    // Resume Messages
+    public static final String RESUME_UPLOAD_FAILED = "Failed to upload resume: %s";
+    public static final String INVALID_PDF_FILE = "File must be a valid PDF document";
+    public static final String NO_ACTIVE_RESUME = "No active resume found";
 }

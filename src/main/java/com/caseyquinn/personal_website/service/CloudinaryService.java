@@ -73,6 +73,77 @@ public class CloudinaryService {
     }
 
     /**
+     * Uploads a raw file (e.g., PDF) to Cloudinary with optional subfolder organization.
+     *
+     * @param file the file to upload
+     * @param subFolder optional subfolder within the main folder
+     * @return upload result with URL and metadata
+     */
+    public CloudinaryUploadResult uploadRawFile(MultipartFile file, String subFolder) {
+        log.info("Uploading raw file to Cloudinary: {} bytes", file.getSize());
+
+        try {
+            String uploadFolder = nonNull(subFolder) ? folder + "/" + subFolder : folder;
+
+            Map<String, Object> uploadParams = ObjectUtils.asMap(
+                "folder", uploadFolder,
+                "resource_type", "raw",
+                "use_filename", true,
+                "unique_filename", true
+            );
+
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
+
+            CloudinaryUploadResult result = CloudinaryUploadResult.builder()
+                .url((String) uploadResult.get("url"))
+                .secureUrl((String) uploadResult.get("secure_url"))
+                .publicId((String) uploadResult.get("public_id"))
+                .format((String) uploadResult.get("format"))
+                .bytes(((Number) uploadResult.get("bytes")).longValue())
+                .build();
+
+            log.info("Raw file uploaded successfully to Cloudinary: publicId={}", result.getPublicId());
+            return result;
+
+        } catch (IOException e) {
+            log.error("Failed to upload raw file to Cloudinary", e);
+            throw new ValidationException(ErrorCode.CLOUDINARY_ERROR, String.format(RESUME_UPLOAD_FAILED, e.getMessage()));
+        }
+    }
+
+    /**
+     * Deletes a raw file from Cloudinary by its public ID.
+     * This is a best-effort operation that does not throw exceptions on failure.
+     *
+     * @param publicId the Cloudinary public ID of the file to delete
+     */
+    public void deleteRawFile(String publicId) {
+        if (isBlank(publicId)) {
+            log.warn("Attempted to delete raw file with null or blank publicId");
+            return;
+        }
+
+        log.info("Deleting raw file from Cloudinary: publicId={}", publicId);
+
+        try {
+            Map<String, Object> params = ObjectUtils.asMap("resource_type", "raw");
+            Map<?, ?> deleteResult = cloudinary.uploader().destroy(publicId, params);
+            String result = (String) deleteResult.get("result");
+
+            if ("ok".equals(result)) {
+                log.info("Raw file deleted successfully from Cloudinary: publicId={}", publicId);
+            } else if ("not found".equals(result)) {
+                log.warn("Raw file not found in Cloudinary: publicId={}", publicId);
+            } else {
+                log.error("Unexpected result from Cloudinary delete: {}", result);
+            }
+
+        } catch (IOException e) {
+            log.error("Failed to delete raw file from Cloudinary: publicId={}", publicId, e);
+        }
+    }
+
+    /**
      * Deletes an image from Cloudinary by its public ID.
      * This is a best-effort operation that does not throw exceptions on failure.
      *

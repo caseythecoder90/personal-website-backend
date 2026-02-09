@@ -32,6 +32,45 @@ public class FileValidationService {
     private static final byte[] PNG_MAGIC = {(byte) 0x89, 0x50, 0x4E, 0x47};
     private static final byte[] GIF_MAGIC = {0x47, 0x49, 0x46};
     private static final byte[] WEBP_MAGIC = {0x52, 0x49, 0x46, 0x46};
+    private static final byte[] PDF_MAGIC = {0x25, 0x50, 0x44, 0x46};
+
+    /**
+     * Validates a PDF file for size, content type, and magic bytes.
+     *
+     * @param file the file to validate
+     * @param maxFileSize the maximum allowed file size in bytes
+     * @throws ValidationException if validation fails
+     */
+    public void validatePdfFile(MultipartFile file, long maxFileSize) {
+        log.debug("Validating PDF file: name={}, size={}, contentType={}",
+            file.getOriginalFilename(), file.getSize(), file.getContentType());
+
+        validateFileNotEmpty(file);
+
+        if (file.getSize() > maxFileSize) {
+            throw new ValidationException(
+                ErrorCode.FILE_SIZE_EXCEEDED,
+                String.format(FILE_SIZE_EXCEEDED_FORMAT, file.getSize(), maxFileSize)
+            );
+        }
+
+        String contentType = file.getContentType();
+        if (isNull(contentType) || !"application/pdf".equalsIgnoreCase(contentType)) {
+            throw new ValidationException(ErrorCode.INVALID_FILE_TYPE, INVALID_PDF_FILE);
+        }
+
+        try {
+            byte[] fileBytes = file.getBytes();
+            if (isNull(fileBytes) || fileBytes.length < 4 || !startsWith(fileBytes, PDF_MAGIC)) {
+                throw new ValidationException(ErrorCode.INVALID_FILE_TYPE, INVALID_PDF_FILE);
+            }
+        } catch (IOException e) {
+            log.error("Failed to read PDF file bytes for validation", e);
+            throw new ValidationException(ErrorCode.FILE_UPLOAD_ERROR, String.format(FILE_READ_ERROR, e.getMessage()));
+        }
+
+        log.debug("PDF file validation successful");
+    }
 
     /**
      * Validates an image file for size, content type, and magic bytes.
