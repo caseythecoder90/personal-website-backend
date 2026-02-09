@@ -24,6 +24,13 @@ spring:
   flyway:
     enabled: true
 
+# Application-specific configuration
+app:
+  images:
+    max-per-project: 20
+    max-per-blog-post: 20
+
+spring:
   data:
     redis:
       host: localhost
