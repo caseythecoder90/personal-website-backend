@@ -61,6 +61,12 @@ jasypt:
     algorithm: PBEWithHMACSHA512AndAES_256
     iv-generator-classname: org.jasypt.iv.RandomIvGenerator
 
+# Application-specific configuration
+app:
+  images:
+    max-per-project: 20
+    max-per-blog-post: 20
+
 # Server configuration
 server:
   port: 8080

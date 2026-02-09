@@ -11,8 +11,8 @@ import com.caseyquinn.personal_website.entity.ProjectImage;
 import com.caseyquinn.personal_website.exception.ErrorCode;
 import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.ProjectImageMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,17 +28,40 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
  */
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
 @Slf4j
 public class ProjectImageService {
 
-    private static final int MAX_IMAGES_PER_PROJECT = 20;
-
+    private final int maxImagesPerProject;
     private final ProjectDao projectDao;
     private final ProjectImageDao projectImageDao;
     private final CloudinaryService cloudinaryService;
     private final FileValidationService fileValidationService;
     private final ProjectImageMapper projectImageMapper;
+
+    /**
+     * Constructs the ProjectImageService with required dependencies.
+     *
+     * @param maxImagesPerProject the maximum number of images allowed per project
+     * @param projectDao the project data access object
+     * @param projectImageDao the project image data access object
+     * @param cloudinaryService the Cloudinary upload service
+     * @param fileValidationService the file validation service
+     * @param projectImageMapper the project image mapper
+     */
+    public ProjectImageService(
+            @Value("${app.images.max-per-project}") int maxImagesPerProject,
+            ProjectDao projectDao,
+            ProjectImageDao projectImageDao,
+            CloudinaryService cloudinaryService,
+            FileValidationService fileValidationService,
+            ProjectImageMapper projectImageMapper) {
+        this.maxImagesPerProject = maxImagesPerProject;
+        this.projectDao = projectDao;
+        this.projectImageDao = projectImageDao;
+        this.cloudinaryService = cloudinaryService;
+        this.fileValidationService = fileValidationService;
+        this.projectImageMapper = projectImageMapper;
+    }
 
     /**
      * Uploads a new image for a project with validation and compensating transaction handling.
@@ -174,10 +197,10 @@ public class ProjectImageService {
      */
     private void validateImageCount(Long projectId) {
         long imageCount = projectImageDao.countByProjectId(projectId);
-        if (imageCount >= MAX_IMAGES_PER_PROJECT) {
+        if (imageCount >= maxImagesPerProject) {
             throw new ValidationException(
                 ErrorCode.MAX_IMAGES_EXCEEDED,
-                String.format(MAX_IMAGES_EXCEEDED_FORMAT, MAX_IMAGES_PER_PROJECT)
+                String.format(MAX_IMAGES_EXCEEDED_FORMAT, maxImagesPerProject)
             );
         }
     }

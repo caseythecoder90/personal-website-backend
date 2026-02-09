@@ -12,8 +12,8 @@ import com.caseyquinn.personal_website.entity.enums.BlogImageType;
 import com.caseyquinn.personal_website.exception.ErrorCode;
 import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.BlogPostImageMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,18 +30,41 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
  * Service layer for managing blog post images including upload, retrieval, and deletion.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
 public class BlogPostImageService {
 
-    private static final int MAX_IMAGES_PER_POST = 20;
-
+    private final int maxImagesPerPost;
     private final BlogPostImageDao blogPostImageDao;
     private final BlogPostDao blogPostDao;
     private final CloudinaryService cloudinaryService;
     private final FileValidationService fileValidationService;
     private final BlogPostImageMapper blogPostImageMapper;
+
+    /**
+     * Constructs the BlogPostImageService with required dependencies.
+     *
+     * @param maxImagesPerPost the maximum number of images allowed per blog post
+     * @param blogPostImageDao the blog post image data access object
+     * @param blogPostDao the blog post data access object
+     * @param cloudinaryService the Cloudinary upload service
+     * @param fileValidationService the file validation service
+     * @param blogPostImageMapper the blog post image mapper
+     */
+    public BlogPostImageService(
+            @Value("${app.images.max-per-blog-post}") int maxImagesPerPost,
+            BlogPostImageDao blogPostImageDao,
+            BlogPostDao blogPostDao,
+            CloudinaryService cloudinaryService,
+            FileValidationService fileValidationService,
+            BlogPostImageMapper blogPostImageMapper) {
+        this.maxImagesPerPost = maxImagesPerPost;
+        this.blogPostImageDao = blogPostImageDao;
+        this.blogPostDao = blogPostDao;
+        this.cloudinaryService = cloudinaryService;
+        this.fileValidationService = fileValidationService;
+        this.blogPostImageMapper = blogPostImageMapper;
+    }
 
     /**
      * Uploads a new image for a blog post with validation and compensating transaction handling.
@@ -187,9 +210,9 @@ public class BlogPostImageService {
      */
     private void validateImageLimit(Long postId) {
         long currentCount = blogPostImageDao.countByBlogPostId(postId);
-        if (currentCount >= MAX_IMAGES_PER_POST) {
+        if (currentCount >= maxImagesPerPost) {
             throw new ValidationException(ErrorCode.MAX_BLOG_IMAGES_EXCEEDED,
-                    String.format(MAX_BLOG_IMAGES_EXCEEDED_FORMAT, MAX_IMAGES_PER_POST));
+                    String.format(MAX_BLOG_IMAGES_EXCEEDED_FORMAT, maxImagesPerPost));
         }
     }
 
