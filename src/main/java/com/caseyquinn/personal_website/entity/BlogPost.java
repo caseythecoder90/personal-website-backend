@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -21,7 +23,9 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -30,8 +34,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"categories", "tags"})
-@ToString(exclude = {"categories", "tags"})
+@EqualsAndHashCode(exclude = {"categories", "tags", "images"})
+@ToString(exclude = {"categories", "tags", "images"})
 public class BlogPost {
     
     @Id
@@ -86,7 +90,12 @@ public class BlogPost {
     )
     @Builder.Default
     private Set<BlogTag> tags = new HashSet<>();
-    
+
+    @OneToMany(mappedBy = "blogPost", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderBy("displayOrder ASC")
+    @Builder.Default
+    private List<BlogPostImage> images = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
