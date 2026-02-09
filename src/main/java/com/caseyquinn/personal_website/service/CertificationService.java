@@ -15,6 +15,8 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.CertificationMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,7 @@ public class CertificationService {
      *
      * @return list of all certification responses
      */
+    @Cacheable(value = "certifications", key = "'all'")
     public List<CertificationResponse> getAllCertifications() {
         log.info("Service: Fetching all certifications");
         List<Certification> certifications = certificationDao.findAll();
@@ -56,6 +59,7 @@ public class CertificationService {
      * @param id the certification ID
      * @return certification response
      */
+    @Cacheable(value = "certifications", key = "'id:' + #id")
     public CertificationResponse getCertificationById(Long id) {
         log.info("Service: Fetching certification with id: {}", id);
         Certification certification = certificationDao.findByIdOrThrow(id);
@@ -68,6 +72,7 @@ public class CertificationService {
      * @param slug the certification slug
      * @return certification response
      */
+    @Cacheable(value = "certifications", key = "'slug:' + #slug")
     public CertificationResponse getCertificationBySlug(String slug) {
         log.info("Service: Fetching certification with slug: {}", slug);
         Certification certification = certificationDao.findBySlug(slug)
@@ -81,6 +86,7 @@ public class CertificationService {
      * @param request the certification creation request
      * @return the created certification response
      */
+    @CacheEvict(value = "certifications", allEntries = true)
     @Transactional
     public CertificationResponse createCertification(CreateCertificationRequest request) {
         log.info("Service: Creating new certification: {}", request.getName());
@@ -103,6 +109,7 @@ public class CertificationService {
      * @param request the certification update request
      * @return the updated certification response
      */
+    @CacheEvict(value = "certifications", allEntries = true)
     @Transactional
     public CertificationResponse updateCertification(Long id, UpdateCertificationRequest request) {
         log.info("Service: Updating certification with id: {}", id);
@@ -122,6 +129,7 @@ public class CertificationService {
      *
      * @param id the certification ID
      */
+    @CacheEvict(value = "certifications", allEntries = true)
     @Transactional
     public void deleteCertification(Long id) {
         log.info("Service: Deleting certification with id: {}", id);
@@ -162,6 +170,7 @@ public class CertificationService {
      *
      * @return list of published certification responses
      */
+    @Cacheable(value = "certifications", key = "'published'")
     public List<CertificationResponse> getPublishedCertifications() {
         log.info("Service: Fetching published certifications");
         List<Certification> certifications = certificationDao.findPublishedOrdered();
@@ -173,6 +182,7 @@ public class CertificationService {
      *
      * @return list of featured published certification responses
      */
+    @Cacheable(value = "certifications", key = "'featured'")
     public List<CertificationResponse> getFeaturedCertifications() {
         log.info("Service: Fetching featured certifications");
         List<Certification> certifications = certificationDao.findFeaturedPublished();
@@ -186,6 +196,7 @@ public class CertificationService {
      * @param technologyId the technology ID
      * @return the updated certification response
      */
+    @CacheEvict(value = "certifications", allEntries = true)
     @Transactional
     public CertificationResponse addTechnologyToCertification(Long certificationId, Long technologyId) {
         log.info("Service: Adding technology {} to certification {}", technologyId, certificationId);
@@ -211,6 +222,7 @@ public class CertificationService {
      * @param technologyId the technology ID
      * @return the updated certification response
      */
+    @CacheEvict(value = "certifications", allEntries = true)
     @Transactional
     public CertificationResponse removeTechnologyFromCertification(Long certificationId, Long technologyId) {
         log.info("Service: Removing technology {} from certification {}", technologyId, certificationId);

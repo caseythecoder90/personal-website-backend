@@ -138,6 +138,19 @@
 			<version>2.15.1</version>
 		</dependency>
 
+		<!-- Redis caching -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<!-- Bucket4j for rate limiting -->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j-core</artifactId>
+			<version>8.10.1</version>
+		</dependency>
+
 		<!-- Cloudinary for image storage -->
 		<dependency>
 			<groupId>com.cloudinary</groupId>

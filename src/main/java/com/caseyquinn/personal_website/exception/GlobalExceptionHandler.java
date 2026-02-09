@@ -53,6 +53,17 @@ public class GlobalExceptionHandler {
                         ErrorCode.AUTHENTICATION_FAILED.getDefaultMessage()));
     }
 
+    /**
+     * Handles rate limit exceeded responses with Retry-After header.
+     */
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<Response<Void>> handleRateLimitExceeded(RateLimitExceededException ex) {
+        log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", "60")
+                .body(Response.error(ex.getErrorCode().getCode(), ex.getMessage()));
+    }
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Response<Void>> handleBusinessException(BusinessException ex) {
         log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
