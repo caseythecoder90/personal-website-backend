@@ -62,6 +62,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/certifications/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/blog/**").permitAll()
 
+                        // Contact form - public submission, admin management
+                        .requestMatchers(HttpMethod.POST, "/api/v1/contact").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/contact/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/contact/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/contact/**").hasRole("ADMIN")
+
                         // Protected WRITE operations - require ADMIN role
                         .requestMatchers(HttpMethod.POST, "/api/v1/projects/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/projects/**").hasRole("ADMIN")
