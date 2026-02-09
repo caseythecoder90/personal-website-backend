@@ -14,6 +14,9 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.TechnologyMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,6 +45,7 @@ public class TechnologyService {
      *
      * @return list of all technology responses
      */
+    @Cacheable(value = "technologies", key = "'all'")
     public List<TechnologyResponse> getAllTechnologies() {
         log.info("Service: Fetching all technologies");
         List<Technology> technologies = technologyDao.findAll();
@@ -66,6 +70,7 @@ public class TechnologyService {
      * @param id the technology ID
      * @return technology response
      */
+    @Cacheable(value = "technologies", key = "'id:' + #id")
     public TechnologyResponse getTechnologyById(Long id) {
         log.info("Service: Fetching technology with id: {}", id);
         Technology technology = technologyDao.findByIdOrThrow(id);
@@ -91,6 +96,11 @@ public class TechnologyService {
      * @param request the technology creation request
      * @return the created technology response
      */
+    @Caching(evict = {
+            @CacheEvict(value = "technologies", allEntries = true),
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "certifications", allEntries = true)
+    })
     @Transactional
     public TechnologyResponse createTechnology(CreateTechnologyRequest request) {
         log.info("Service: Creating new technology: {}", request.getName());
@@ -111,6 +121,11 @@ public class TechnologyService {
      * @param request the technology update request
      * @return the updated technology response
      */
+    @Caching(evict = {
+            @CacheEvict(value = "technologies", allEntries = true),
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "certifications", allEntries = true)
+    })
     @Transactional
     public TechnologyResponse updateTechnology(Long id, UpdateTechnologyRequest request) {
         log.info("Service: Updating technology with id: {}", id);
@@ -134,6 +149,11 @@ public class TechnologyService {
      *
      * @param id the technology ID
      */
+    @Caching(evict = {
+            @CacheEvict(value = "technologies", allEntries = true),
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "certifications", allEntries = true)
+    })
     @Transactional
     public void deleteTechnology(Long id) {
         log.info("Service: Deleting technology with id: {}", id);
@@ -187,6 +207,7 @@ public class TechnologyService {
      *
      * @return list of featured technology responses
      */
+    @Cacheable(value = "technologies", key = "'featured'")
     public List<TechnologyResponse> getFeaturedTechnologies() {
         log.info("Service: Fetching featured technologies");
         List<Technology> technologies = technologyDao.findFeaturedTechnologies();
