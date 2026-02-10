@@ -8,8 +8,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/casquinn_personal_website
-    username: casquinn
-    password: Ku^a4MoADdqLf4n>ka,d
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: PersonalWebsitePool
@@ -29,13 +29,13 @@ spring:
     open-in-view: false
 
   thymeleaf:
-    enabled: false
+    enabled: true
 
   data:
     redis:
       host: localhost
       port: 6379
-      password: vHZBDJUzyG}1AE6dBMZY
+      password: ${REDIS_PASSWORD}
 
   cache:
     type: redis
@@ -56,30 +56,30 @@ spring:
 
 # Cloudinary configuration
 cloudinary:
-  cloud-name: dwdaehpml
-  api-key: 582556696859121
-  api-secret: BtaCljW-rB1J_T8l7iWMoTMc5tg
+  cloud-name: ${CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
   folder: portfolio-images
   secure: true
 
 # JWT configuration
 jwt:
-  secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production-minimum-32-characters}
+  secret: ${JWT_SECRET:default-dev-secret-key-change-in-production-min-32-chars}
   expiration: 86400000  # 24 hours in milliseconds
   refresh-expiration: 604800000  # 7 days in milliseconds
 
 # Jasypt encryption
 jasypt:
   encryptor:
-    password: ${JASYPT_ENCRYPTOR_PASSWORD:default-dev-password-change-in-prod}
+    password: ${JASYPT_ENCRYPTOR_PASSWORD}
     algorithm: PBEWithHMACSHA512AndAES_256
     iv-generator-classname: org.jasypt.iv.RandomIvGenerator
 
 # Resend email configuration
 resend:
-  api-key: ${RESEND_API_KEY:re_placeholder_change_in_prod}
+  api-key: ${RESEND_API_KEY}
   from-email: "Casey Quinn <noreply@caseyquinn.com>"
-  owner-email: ${OWNER_EMAIL:casey@caseyquinn.com}
+  owner-email: ${OWNER_EMAIL}
 
 # Application-specific configuration
 app:
