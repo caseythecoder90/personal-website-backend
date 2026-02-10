@@ -6,6 +6,16 @@ package com.caseyquinn.personal_website.exception;
 public class NotFoundException extends BaseException {
 
     /**
+     * Constructs a new NotFoundException with a custom message.
+     *
+     * @param errorCode the error code
+     * @param message the detail message
+     */
+    public NotFoundException(ErrorCode errorCode, String message) {
+        super(errorCode, message);
+    }
+
+    /**
      * Constructs a new NotFoundException for entity not found by ID.
      *
      * @param entityType the type of entity

@@ -75,6 +75,8 @@ app:
   images:
     max-per-project: 20
     max-per-blog-post: 20
+  resume:
+    max-file-size: 5242880
 
 # Server configuration
 server:
