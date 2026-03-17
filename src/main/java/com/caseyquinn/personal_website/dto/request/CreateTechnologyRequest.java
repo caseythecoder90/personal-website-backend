@@ -5,12 +5,14 @@ import com.caseyquinn.personal_website.entity.enums.ProficiencyLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
 import org.hibernate.validator.constraints.URL;
+
+import java.math.BigDecimal;
 
 @Data
 @Schema(description = "Request to create a new technology")
@@ -44,10 +46,10 @@ public class CreateTechnologyRequest {
     @Schema(description = "Proficiency level with this technology")
     private ProficiencyLevel proficiencyLevel;
     
-    @Min(value = 0, message = "Years of experience cannot be negative")
-    @Max(value = 50, message = "Years of experience cannot exceed 50")
-    @Schema(description = "Years of experience with this technology", example = "5")
-    private Integer yearsExperience;
+    @DecimalMin(value = "0.0", message = "Years of experience cannot be negative")
+    @DecimalMax(value = "50.0", message = "Years of experience cannot exceed 50")
+    @Schema(description = "Years of experience with this technology", example = "5.0")
+    private BigDecimal yearsExperience;
     
     @Schema(description = "Whether this technology should be featured", example = "true")
     private Boolean featured;

@@ -12,6 +12,9 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.BlogCategoryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,7 @@ public class BlogCategoryService {
      *
      * @return list of all blog category responses
      */
+    @Cacheable(value = "blog_categories", key = "'all'")
     public List<BlogCategoryResponse> getAllCategories() {
         log.info("Service: Fetching all blog categories");
         List<BlogCategory> categories = blogCategoryDao.findAll();
@@ -50,6 +54,7 @@ public class BlogCategoryService {
      * @param id the category ID
      * @return blog category response
      */
+    @Cacheable(value = "blog_categories", key = "'id:' + #id")
     public BlogCategoryResponse getCategoryById(Long id) {
         log.info("Service: Fetching blog category with id: {}", id);
         BlogCategory category = blogCategoryDao.findByIdOrThrow(id);
@@ -62,6 +67,7 @@ public class BlogCategoryService {
      * @param slug the category slug
      * @return blog category response
      */
+    @Cacheable(value = "blog_categories", key = "'slug:' + #slug")
     public BlogCategoryResponse getCategoryBySlug(String slug) {
         log.info("Service: Fetching blog category with slug: {}", slug);
         BlogCategory category = blogCategoryDao.findBySlug(slug)
@@ -75,6 +81,10 @@ public class BlogCategoryService {
      * @param request the category creation request
      * @return the created blog category response
      */
+    @Caching(evict = {
+            @CacheEvict(value = "blog_categories", allEntries = true),
+            @CacheEvict(value = "blog_posts", allEntries = true)
+    })
     @Transactional
     public BlogCategoryResponse createCategory(CreateBlogCategoryRequest request) {
         log.info("Service: Creating new blog category: {}", request.getName());
@@ -95,6 +105,10 @@ public class BlogCategoryService {
      * @param request the category update request
      * @return the updated blog category response
      */
+    @Caching(evict = {
+            @CacheEvict(value = "blog_categories", allEntries = true),
+            @CacheEvict(value = "blog_posts", allEntries = true)
+    })
     @Transactional
     public BlogCategoryResponse updateCategory(Long id, UpdateBlogCategoryRequest request) {
         log.info("Service: Updating blog category with id: {}", id);
@@ -113,6 +127,10 @@ public class BlogCategoryService {
      *
      * @param id the category ID
      */
+    @Caching(evict = {
+            @CacheEvict(value = "blog_categories", allEntries = true),
+            @CacheEvict(value = "blog_posts", allEntries = true)
+    })
     @Transactional
     public void deleteCategory(Long id) {
         log.info("Service: Deleting blog category with id: {}", id);

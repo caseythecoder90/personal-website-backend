@@ -23,6 +23,7 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.ProjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -54,6 +55,9 @@ public class ProjectService {
     private final ProjectMapper projectMapper;
     private final ProjectImageMapper projectImageMapper;
     private final ProjectLinkMapper projectLinkMapper;
+
+    @Value("${app.projects.max-count}")
+    private int maxProjectCount;
     
     /**
      * Retrieves all projects without pagination.
@@ -395,8 +399,9 @@ public class ProjectService {
         }
 
         long activeProjects = projectDao.count();
-        if (activeProjects >= 10) {
-            throw new ValidationException(ErrorCode.MAX_PROJECTS_EXCEEDED, MAX_PROJECTS_EXCEEDED);
+        if (activeProjects >= maxProjectCount) {
+            throw new ValidationException(ErrorCode.MAX_PROJECTS_EXCEEDED,
+                    String.format(MAX_PROJECTS_EXCEEDED_FORMAT, maxProjectCount));
         }
     }
 

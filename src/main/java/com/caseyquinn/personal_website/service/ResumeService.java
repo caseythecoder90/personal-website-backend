@@ -10,6 +10,8 @@ import com.caseyquinn.personal_website.mapper.ResumeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +41,7 @@ public class ResumeService {
      * @param file the PDF file to upload
      * @return the uploaded resume metadata
      */
+    @CacheEvict(value = "resume", allEntries = true)
     @Transactional
     public ResumeResponse uploadResume(MultipartFile file) {
         log.info("Service: Uploading new resume: {}", file.getOriginalFilename());
@@ -72,6 +75,7 @@ public class ResumeService {
      *
      * @return the active resume metadata
      */
+    @Cacheable(value = "resume", key = "'active'")
     public ResumeResponse getActiveResume() {
         log.info("Service: Fetching active resume");
         Resume resume = resumeDao.findActive()
@@ -84,6 +88,7 @@ public class ResumeService {
      *
      * @return the Cloudinary URL of the active resume
      */
+    @Cacheable(value = "resume", key = "'download-url'")
     public String getResumeDownloadUrl() {
         log.info("Service: Fetching resume download URL");
         Resume resume = resumeDao.findActive()
@@ -94,6 +99,7 @@ public class ResumeService {
     /**
      * Deletes the currently active resume from Cloudinary and the database.
      */
+    @CacheEvict(value = "resume", allEntries = true)
     @Transactional
     public void deleteResume() {
         log.info("Service: Deleting active resume");

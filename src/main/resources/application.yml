@@ -64,7 +64,7 @@ cloudinary:
 
 # JWT configuration
 jwt:
-  secret: ${JWT_SECRET:default-dev-secret-key-change-in-production-min-32-chars}
+  secret: ${JWT_SECRET}
   expiration: 86400000  # 24 hours in milliseconds
   refresh-expiration: 604800000  # 7 days in milliseconds
 
@@ -83,6 +83,8 @@ resend:
 
 # Application-specific configuration
 app:
+  projects:
+    max-count: 20
   images:
     max-per-project: 20
     max-per-blog-post: 20

@@ -22,11 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
-import static java.util.Objects.isNull;
 
 /**
  * Service layer for managing technologies and their associated business logic.
@@ -263,28 +261,12 @@ public class TechnologyService {
         if (technologyDao.existsByName(technology.getName())) {
             throw new DuplicateResourceException("Technology", "name", technology.getName());
         }
-        validateYearsExperience(technology.getYearsExperience());
     }
 
     private void validateTechnologyUpdate(Technology technologyUpdate, Technology existingTechnology) {
         if (technologyUpdate.getName() != null && !existingTechnology.getName().equals(technologyUpdate.getName()) &&
             technologyDao.existsByName(technologyUpdate.getName())) {
             throw new DuplicateResourceException("Technology", "name", technologyUpdate.getName());
-        }
-        validateYearsExperience(technologyUpdate.getYearsExperience());
-    }
-
-    private void validateYearsExperience(BigDecimal yearsExperience) {
-        if (isNull(yearsExperience)) {
-            return;
-        }
-        if (yearsExperience.compareTo(BigDecimal.ZERO) < 0) {
-            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
-                    "Years of experience cannot be negative");
-        }
-        if (yearsExperience.compareTo(BigDecimal.valueOf(50)) > 0) {
-            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
-                    "Years of experience seems unrealistic (max 50 years)");
         }
     }
 

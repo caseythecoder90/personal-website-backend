@@ -2,8 +2,10 @@ package com.caseyquinn.personal_website.dto.response;
 
 import com.caseyquinn.personal_website.entity.enums.CertificationStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +16,8 @@ import java.util.List;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Certification information")
 public class CertificationResponse {
 

@@ -12,6 +12,9 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.BlogTagMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,7 @@ public class BlogTagService {
      *
      * @return list of all blog tag responses
      */
+    @Cacheable(value = "blog_tags", key = "'all'")
     public List<BlogTagResponse> getAllTags() {
         log.info("Service: Fetching all blog tags");
         List<BlogTag> tags = blogTagDao.findAll();
@@ -49,6 +53,7 @@ public class BlogTagService {
      *
      * @return list of popular blog tag responses
      */
+    @Cacheable(value = "blog_tags", key = "'popular'")
     public List<BlogTagResponse> getPopularTags() {
         log.info("Service: Fetching popular blog tags");
         List<BlogTag> tags = blogTagDao.findPopular();
@@ -61,6 +66,7 @@ public class BlogTagService {
      * @param id the tag ID
      * @return blog tag response
      */
+    @Cacheable(value = "blog_tags", key = "'id:' + #id")
     public BlogTagResponse getTagById(Long id) {
         log.info("Service: Fetching blog tag with id: {}", id);
         BlogTag tag = blogTagDao.findByIdOrThrow(id);
@@ -73,6 +79,7 @@ public class BlogTagService {
      * @param slug the tag slug
      * @return blog tag response
      */
+    @Cacheable(value = "blog_tags", key = "'slug:' + #slug")
     public BlogTagResponse getTagBySlug(String slug) {
         log.info("Service: Fetching blog tag with slug: {}", slug);
         BlogTag tag = blogTagDao.findBySlug(slug)
@@ -86,6 +93,10 @@ public class BlogTagService {
      * @param request the tag creation request
      * @return the created blog tag response
      */
+    @Caching(evict = {
+            @CacheEvict(value = "blog_tags", allEntries = true),
+            @CacheEvict(value = "blog_posts", allEntries = true)
+    })
     @Transactional
     public BlogTagResponse createTag(CreateBlogTagRequest request) {
         log.info("Service: Creating new blog tag: {}", request.getName());
@@ -106,6 +117,10 @@ public class BlogTagService {
      * @param request the tag update request
      * @return the updated blog tag response
      */
+    @Caching(evict = {
+            @CacheEvict(value = "blog_tags", allEntries = true),
+            @CacheEvict(value = "blog_posts", allEntries = true)
+    })
     @Transactional
     public BlogTagResponse updateTag(Long id, UpdateBlogTagRequest request) {
         log.info("Service: Updating blog tag with id: {}", id);
@@ -124,6 +139,10 @@ public class BlogTagService {
      *
      * @param id the tag ID
      */
+    @Caching(evict = {
+            @CacheEvict(value = "blog_tags", allEntries = true),
+            @CacheEvict(value = "blog_posts", allEntries = true)
+    })
     @Transactional
     public void deleteTag(Long id) {
         log.info("Service: Deleting blog tag with id: {}", id);

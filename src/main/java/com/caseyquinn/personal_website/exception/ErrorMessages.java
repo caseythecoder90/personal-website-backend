@@ -26,7 +26,7 @@ public final class ErrorMessages {
     public static final String LINK_OWNERSHIP_MISMATCH = "Link does not belong to specified project";
 
     // Project Messages
-    public static final String MAX_PROJECTS_EXCEEDED = "Maximum number of projects (10) reached";
+    public static final String MAX_PROJECTS_EXCEEDED_FORMAT = "Maximum number of projects (%d) reached";
     public static final String CANNOT_DELETE_PUBLISHED = "Cannot delete published projects. Unpublish first.";
     public static final String TECHNOLOGY_ALREADY_ASSOCIATED = "Technology is already associated with this project";
     public static final String TECHNOLOGY_NOT_ASSOCIATED = "Technology is not associated with this project";
