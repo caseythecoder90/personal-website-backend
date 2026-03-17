@@ -1,13 +1,17 @@
 package com.caseyquinn.personal_website.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Validation error details")
 public class ValidationErrorResponse {
 
@@ -16,6 +20,8 @@ public class ValidationErrorResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "Single field validation error")
     public static class FieldError {
 

@@ -3,13 +3,18 @@ package com.caseyquinn.personal_website.dto.response;
 import com.caseyquinn.personal_website.entity.enums.TechnologyCategory;
 import com.caseyquinn.personal_website.entity.enums.ProficiencyLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Technology information")
 public class TechnologyResponse {
     
@@ -37,8 +42,8 @@ public class TechnologyResponse {
     @Schema(description = "Proficiency level with this technology")
     private ProficiencyLevel proficiencyLevel;
     
-    @Schema(description = "Years of experience with this technology", example = "5")
-    private Integer yearsExperience;
+    @Schema(description = "Years of experience with this technology", example = "5.0")
+    private BigDecimal yearsExperience;
     
     @Schema(description = "Whether this technology is featured", example = "true")
     private Boolean featured;

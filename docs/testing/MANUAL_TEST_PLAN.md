@@ -1718,6 +1718,127 @@ redis-cli -a $REDIS_PASSWORD TTL "certifications::all"
 
 ---
 
+### 14.7 Verify Blog Categories Caching
+```bash
+redis-cli -a $REDIS_PASSWORD FLUSHALL
+
+# Fetch blog categories (should hit DB)
+curl http://localhost:8080/api/v1/blog/categories
+
+# Check Redis for cached data
+redis-cli -a $REDIS_PASSWORD KEYS "*blog_categories*"
+
+# Fetch again - should be served from cache (no DB query in logs)
+curl http://localhost:8080/api/v1/blog/categories
+
+# Create a category (should evict cache)
+curl -X POST http://localhost:8080/api/v1/blog/categories \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"name": "Cache Test Category", "description": "Testing cache eviction"}'
+
+# Verify cache evicted
+redis-cli -a $REDIS_PASSWORD KEYS "*blog_categories*"
+```
+
+**Expected:**
+- First GET populates cache, second GET is served from cache
+- POST evicts the blog_categories cache
+
+---
+
+### 14.8 Verify Blog Tags Caching
+```bash
+redis-cli -a $REDIS_PASSWORD FLUSHALL
+
+# Fetch all tags and popular tags
+curl http://localhost:8080/api/v1/blog/tags
+curl http://localhost:8080/api/v1/blog/tags/popular
+
+# Check Redis
+redis-cli -a $REDIS_PASSWORD KEYS "*blog_tags*"
+```
+
+**Expected:**
+- Separate cache entries for `blog_tags::all` and `blog_tags::popular`
+
+---
+
+### 14.9 Verify Blog Posts Caching
+```bash
+redis-cli -a $REDIS_PASSWORD FLUSHALL
+
+# Fetch published posts (should hit DB)
+curl http://localhost:8080/api/v1/blog/posts/published
+
+# Check Redis
+redis-cli -a $REDIS_PASSWORD KEYS "*blog_posts*"
+
+# Fetch again - should be cache hit
+curl http://localhost:8080/api/v1/blog/posts/published
+
+# Create a blog post (should evict cache)
+curl -X POST http://localhost:8080/api/v1/blog/posts \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"title": "Cache Test Post", "content": "Testing blog cache eviction", "excerpt": "Cache test"}'
+
+# Verify cache evicted
+redis-cli -a $REDIS_PASSWORD KEYS "*blog_posts*"
+```
+
+**Expected:**
+- Published posts cached, POST evicts blog_posts cache
+- Blog post mutations should also evict blog_categories and blog_tags caches (cross-cache eviction for category/tag post counts)
+
+---
+
+### 14.10 Verify Resume Caching
+```bash
+redis-cli -a $REDIS_PASSWORD FLUSHALL
+
+# Fetch active resume (should hit DB)
+curl http://localhost:8080/api/v1/resume
+
+# Check Redis
+redis-cli -a $REDIS_PASSWORD KEYS "*resume*"
+
+# Fetch again - should be cache hit
+curl http://localhost:8080/api/v1/resume
+```
+
+**Expected:**
+- Resume metadata cached with long TTL (60 minutes)
+- Uploading a new resume evicts the resume cache
+
+---
+
+### 14.11 Verify Blog Post Cross-Cache Eviction
+```bash
+redis-cli -a $REDIS_PASSWORD FLUSHALL
+
+# Populate blog caches
+curl http://localhost:8080/api/v1/blog/posts/published
+curl http://localhost:8080/api/v1/blog/categories
+curl http://localhost:8080/api/v1/blog/tags
+
+# Verify all caches populated
+redis-cli -a $REDIS_PASSWORD KEYS "*blog*"
+
+# Publish/unpublish a blog post (should evict blog_posts cache)
+curl -X PUT http://localhost:8080/api/v1/blog/posts/1/publish \
+  -H "Authorization: Bearer $TOKEN"
+
+# Verify blog_posts cache evicted
+redis-cli -a $REDIS_PASSWORD KEYS "*blog*"
+```
+
+**Expected:**
+- Blog post publish/unpublish evicts blog_posts cache
+- Blog categories and tags caches may also need eviction if post counts are included in responses
+
+---
+
 ## 15. Rate Limiting Tests
 
 ### 15.1 Verify Rate Limit Headers on Normal Request
@@ -1767,18 +1888,19 @@ done
 
 ### 15.4 Admin API Rate Limit (30 requests/minute)
 ```bash
-# Send 31 rapid write requests
+# Send 31 rapid PUT requests to an existing project (avoids hitting max 10 projects limit)
+# Replace {projectId} with an actual project ID
 for i in $(seq 1 31); do
-  STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8080/api/v1/projects \
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PUT http://localhost:8080/api/v1/projects/{projectId} \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $TOKEN" \
-    -d "{\"name\":\"Rate Limit Test $i\",\"shortDescription\":\"Test\",\"type\":\"PERSONAL\"}")
+    -d "{\"name\":\"Rate Limit Test Project\",\"shortDescription\":\"Update $i\",\"type\":\"PERSONAL\"}")
   echo "Request $i: $STATUS"
 done
 ```
 
 **Expected:**
-- Requests 1-30: `201 Created` (or `409` for duplicates)
+- Requests 1-30: `200 OK`
 - Request 31: `429 Too Many Requests`
 
 ---
