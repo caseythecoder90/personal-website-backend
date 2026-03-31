@@ -50,8 +50,8 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 15MB
+      max-request-size: 15MB
       file-size-threshold: 2MB
 
 # Cloudinary configuration
@@ -64,7 +64,7 @@ cloudinary:
 
 # JWT configuration
 jwt:
-  secret: ${JWT_SECRET:default-dev-secret-key-change-in-production-min-32-chars}
+  secret: ${JWT_SECRET}
   expiration: 86400000  # 24 hours in milliseconds
   refresh-expiration: 604800000  # 7 days in milliseconds
 
@@ -78,14 +78,18 @@ jasypt:
 # Resend email configuration
 resend:
   api-key: ${RESEND_API_KEY}
-  from-email: "Casey Quinn <noreply@caseyquinn.com>"
+  from-email: "Casey Quinn <noreply@caseylovesyas.com>"
   owner-email: ${OWNER_EMAIL}
 
 # Application-specific configuration
 app:
+  projects:
+    max-count: 20
   images:
     max-per-project: 20
     max-per-blog-post: 20
+    max-file-size: 10485760
+    allowed-content-types: image/jpeg,image/png,image/gif,image/webp
   resume:
     max-file-size: 5242880
 

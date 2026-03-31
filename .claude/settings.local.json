@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mvn clean:*)"
+      "Bash(mvn clean:*)",
+      "Bash(gh issue:*)"
     ]
   }
 }

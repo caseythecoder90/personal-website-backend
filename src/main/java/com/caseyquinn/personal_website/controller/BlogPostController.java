@@ -6,11 +6,16 @@ import com.caseyquinn.personal_website.dto.request.UpdateBlogPostRequest;
 import com.caseyquinn.personal_website.dto.response.BlogPostResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.BlogPostService;
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -49,7 +54,7 @@ public class BlogPostController {
     public ResponseEntity<Response<List<BlogPostResponse>>> getAllPosts() {
         log.info("Fetching all blog posts");
         List<BlogPostResponse> posts = blogPostService.getAllPosts();
-        return ResponseEntity.ok(Response.success(posts, "Blog posts retrieved successfully"));
+        return ResponseEntity.ok(Response.success(posts, BLOG_POSTS_RETRIEVED));
     }
 
     /**
@@ -62,7 +67,22 @@ public class BlogPostController {
     public ResponseEntity<Response<List<BlogPostResponse>>> getPublishedPosts() {
         log.info("Fetching published blog posts");
         List<BlogPostResponse> posts = blogPostService.getPublishedPosts();
-        return ResponseEntity.ok(Response.success(posts, "Published blog posts retrieved successfully"));
+        return ResponseEntity.ok(Response.success(posts, PUBLISHED_BLOG_POSTS_RETRIEVED));
+    }
+
+    /**
+     * Retrieves published blog posts with pagination support.
+     *
+     * @param pageable pagination parameters (default size: 10)
+     * @return response entity containing paginated published posts
+     */
+    @BlogPostApiResponses.GetPublishedPaginated
+    @GetMapping("/published/paginated")
+    public ResponseEntity<Response<Page<BlogPostResponse>>> getPublishedPostsPaginated(
+            @PageableDefault(size = 10) Pageable pageable) {
+        log.info("Fetching published blog posts with pagination: {}", pageable);
+        Page<BlogPostResponse> posts = blogPostService.getPublishedPostsPaginated(pageable);
+        return ResponseEntity.ok(Response.success(posts, PUBLISHED_BLOG_POSTS_RETRIEVED));
     }
 
     /**
@@ -77,7 +97,7 @@ public class BlogPostController {
             @Parameter(description = "Post ID") @PathVariable Long id) {
         log.info("Fetching blog post with id: {}", id);
         BlogPostResponse post = blogPostService.getPostById(id);
-        return ResponseEntity.ok(Response.success(post, "Blog post retrieved successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_RETRIEVED));
     }
 
     /**
@@ -92,7 +112,7 @@ public class BlogPostController {
             @Parameter(description = "Post slug") @PathVariable String slug) {
         log.info("Fetching blog post with slug: {}", slug);
         BlogPostResponse post = blogPostService.getPostBySlug(slug);
-        return ResponseEntity.ok(Response.success(post, "Blog post retrieved successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_RETRIEVED));
     }
 
     /**
@@ -108,7 +128,7 @@ public class BlogPostController {
         log.info("Creating new blog post: {}", request.getTitle());
         BlogPostResponse post = blogPostService.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(post, "Blog post created successfully"));
+                .body(Response.success(post, BLOG_POST_CREATED));
     }
 
     /**
@@ -125,7 +145,7 @@ public class BlogPostController {
             @Valid @RequestBody UpdateBlogPostRequest request) {
         log.info("Updating blog post with id: {}", id);
         BlogPostResponse post = blogPostService.updatePost(id, request);
-        return ResponseEntity.ok(Response.success(post, "Blog post updated successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_UPDATED));
     }
 
     /**
@@ -140,7 +160,7 @@ public class BlogPostController {
             @Parameter(description = "Post ID") @PathVariable Long id) {
         log.info("Deleting blog post with id: {}", id);
         blogPostService.deletePost(id);
-        return ResponseEntity.ok(Response.success(null, "Blog post deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, BLOG_POST_DELETED));
     }
 
     /**
@@ -155,7 +175,7 @@ public class BlogPostController {
             @Parameter(description = "Post ID") @PathVariable Long id) {
         log.info("Publishing blog post with id: {}", id);
         BlogPostResponse post = blogPostService.publishPost(id);
-        return ResponseEntity.ok(Response.success(post, "Blog post published successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_PUBLISHED));
     }
 
     /**
@@ -170,7 +190,7 @@ public class BlogPostController {
             @Parameter(description = "Post ID") @PathVariable Long id) {
         log.info("Unpublishing blog post with id: {}", id);
         BlogPostResponse post = blogPostService.unpublishPost(id);
-        return ResponseEntity.ok(Response.success(post, "Blog post unpublished successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_UNPUBLISHED));
     }
 
     /**
@@ -185,7 +205,7 @@ public class BlogPostController {
             @Parameter(description = "Category slug") @PathVariable String slug) {
         log.info("Fetching blog posts by category slug: {}", slug);
         List<BlogPostResponse> posts = blogPostService.getPostsByCategorySlug(slug);
-        return ResponseEntity.ok(Response.success(posts, "Blog posts retrieved successfully"));
+        return ResponseEntity.ok(Response.success(posts, BLOG_POSTS_RETRIEVED));
     }
 
     /**
@@ -200,7 +220,7 @@ public class BlogPostController {
             @Parameter(description = "Tag slug") @PathVariable String slug) {
         log.info("Fetching blog posts by tag slug: {}", slug);
         List<BlogPostResponse> posts = blogPostService.getPostsByTagSlug(slug);
-        return ResponseEntity.ok(Response.success(posts, "Blog posts retrieved successfully"));
+        return ResponseEntity.ok(Response.success(posts, BLOG_POSTS_RETRIEVED));
     }
 
     /**
@@ -215,7 +235,7 @@ public class BlogPostController {
             @Parameter(description = "Search query") @RequestParam String q) {
         log.info("Searching blog posts with query: {}", q);
         List<BlogPostResponse> posts = blogPostService.searchPosts(q);
-        return ResponseEntity.ok(Response.success(posts, "Search results retrieved successfully"));
+        return ResponseEntity.ok(Response.success(posts, BLOG_POST_SEARCH_RESULTS));
     }
 
     /**
@@ -232,7 +252,7 @@ public class BlogPostController {
             @Parameter(description = "Category ID") @PathVariable Long categoryId) {
         log.info("Adding category {} to blog post {}", categoryId, id);
         BlogPostResponse post = blogPostService.addCategoryToPost(id, categoryId);
-        return ResponseEntity.ok(Response.success(post, "Category added to blog post successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_CATEGORY_ADDED));
     }
 
     /**
@@ -249,7 +269,7 @@ public class BlogPostController {
             @Parameter(description = "Category ID") @PathVariable Long categoryId) {
         log.info("Removing category {} from blog post {}", categoryId, id);
         BlogPostResponse post = blogPostService.removeCategoryFromPost(id, categoryId);
-        return ResponseEntity.ok(Response.success(post, "Category removed from blog post successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_CATEGORY_REMOVED));
     }
 
     /**
@@ -266,7 +286,7 @@ public class BlogPostController {
             @Parameter(description = "Tag ID") @PathVariable Long tagId) {
         log.info("Adding tag {} to blog post {}", tagId, id);
         BlogPostResponse post = blogPostService.addTagToPost(id, tagId);
-        return ResponseEntity.ok(Response.success(post, "Tag added to blog post successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_TAG_ADDED));
     }
 
     /**
@@ -283,6 +303,6 @@ public class BlogPostController {
             @Parameter(description = "Tag ID") @PathVariable Long tagId) {
         log.info("Removing tag {} from blog post {}", tagId, id);
         BlogPostResponse post = blogPostService.removeTagFromPost(id, tagId);
-        return ResponseEntity.ok(Response.success(post, "Tag removed from blog post successfully"));
+        return ResponseEntity.ok(Response.success(post, BLOG_POST_TAG_REMOVED));
     }
 }

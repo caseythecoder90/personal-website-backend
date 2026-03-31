@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.caseyquinn.personal_website.constants.SecurityConstants.*;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -69,9 +70,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @return JWT token or null
      */
     private String getJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        String bearerToken = request.getHeader(HEADER_AUTHORIZATION);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(BEARER_PREFIX_LENGTH);
         }
         return null;
     }

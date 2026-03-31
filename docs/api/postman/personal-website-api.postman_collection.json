@@ -2,27 +2,89 @@
 	"info": {
 		"_postman_id": "1eaf7fff-2bd2-4806-80f1-350d97093403",
 		"name": "Personal Website API",
-		"description": "API collection for the Personal Website backend. Set the `baseUrl` variable to match your environment.\n\nActive endpoints: Operations (health, encrypt, decrypt), Projects (CRUD + filter by technology), and Project Images (upload and management).",
+		"description": "Complete API collection for the Personal Website backend.\n\nSetup:\n1. Set `baseUrl` variable to your environment\n2. Run 'Login' request first to get a JWT token\n3. The token is auto-saved to the `token` variable\n4. All protected endpoints use Bearer auth from the `token` variable\n\nEndpoint groups: Auth, Operations, Projects, Project Links, Project Images, Technologies, Certifications, Blog (Posts, Categories, Tags, Images), Contact Submissions, Resume.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "43584912"
 	},
 	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.collectionVariables.set('token', jsonData.data.token);",
+									"        console.log('Token saved to collection variable');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Authenticate and receive a JWT token. Token is automatically saved to the `token` collection variable for use in protected endpoints."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Invalid Credentials",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"wrongpassword\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Test invalid credentials. Expected: 401 Unauthorized."
+					},
+					"response": []
+				}
+			],
+			"description": "JWT authentication endpoints"
+		},
 		{
 			"name": "Operations",
 			"item": [
 				{
 					"name": "Health Check",
 					"request": {
+						"auth": { "type": "noauth" },
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/health",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"health"
-							]
+							"raw": "{{baseUrl}}/operations/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["operations", "health"]
 						},
 						"description": "Returns service health status including version and active environment."
 					},
@@ -33,10 +95,7 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
+							{ "key": "Content-Type", "value": "application/json" }
 						],
 						"body": {
 							"mode": "raw",
@@ -44,15 +103,10 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/operations/encrypt",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"operations",
-								"encrypt"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["operations", "encrypt"]
 						},
-						"description": "Encrypts plaintext into an ENC(...) wrapped value suitable for use in Spring property files. Not available in production."
+						"description": "Encrypts plaintext into an ENC(...) wrapped value. Requires ADMIN auth. Not available in production."
 					},
 					"response": []
 				},
@@ -61,10 +115,7 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
+							{ "key": "Content-Type", "value": "application/json" }
 						],
 						"body": {
 							"mode": "raw",
@@ -72,15 +123,30 @@
 						},
 						"url": {
 							"raw": "{{baseUrl}}/operations/decrypt",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"operations",
-								"decrypt"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["operations", "decrypt"]
 						},
-						"description": "Decrypts an ENC(...) wrapped ciphertext back to plaintext. Accepts input with or without the ENC() wrapper. Not available in production."
+						"description": "Decrypts an ENC(...) wrapped ciphertext back to plaintext. Requires ADMIN auth. Not available in production."
+					},
+					"response": []
+				},
+				{
+					"name": "Hash Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/operations/hash-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["operations", "hash-password"]
+						},
+						"description": "Generate a BCrypt password hash. Requires ADMIN auth."
 					},
 					"response": []
 				}
@@ -93,73 +159,65 @@
 				{
 					"name": "Get All Projects",
 					"request": {
+						"auth": { "type": "noauth" },
 						"method": "GET",
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/projects",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["projects"]
 						},
-						"description": "Retrieve all projects. No pagination — returns the full list."
+						"description": "Retrieve all projects. Public endpoint."
 					},
 					"response": []
 				},
 				{
 					"name": "Get Projects (Paginated)",
 					"request": {
+						"auth": { "type": "noauth" },
 						"method": "GET",
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/projects/paginated?page=0&size=10&sort=createdAt,desc",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"paginated"
-							],
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "paginated"],
 							"query": [
-								{
-									"key": "page",
-									"value": "0",
-									"description": "Zero-based page index"
-								},
-								{
-									"key": "size",
-									"value": "10",
-									"description": "Number of items per page (default 10)"
-								},
-								{
-									"key": "sort",
-									"value": "createdAt,desc",
-									"description": "Sort field and direction"
-								}
+								{ "key": "page", "value": "0", "description": "Zero-based page index" },
+								{ "key": "size", "value": "10", "description": "Items per page" },
+								{ "key": "sort", "value": "createdAt,desc", "description": "Sort field and direction" }
 							]
 						},
-						"description": "Retrieve projects with Spring Data pagination. Adjust page, size, and sort query params as needed."
+						"description": "Retrieve projects with pagination. Public endpoint."
 					},
 					"response": []
 				},
 				{
 					"name": "Get Project by ID",
 					"request": {
+						"auth": { "type": "noauth" },
 						"method": "GET",
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}"]
 						},
-						"description": "Retrieve a single project by its ID. Returns 404 if not found."
+						"description": "Retrieve a single project by ID. Returns 404 if not found. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Projects by Technology",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/technology/{{technologyName}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "technology", "{{technologyName}}"]
+						},
+						"description": "Filter projects by technology name. Public endpoint."
 					},
 					"response": []
 				},
@@ -168,25 +226,18 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
+							{ "key": "Content-Type", "value": "application/json" }
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Personal Website Portfolio\",\n  \"shortDescription\": \"Full-stack personal website showcasing projects and technical skills\",\n  \"fullDescription\": \"A comprehensive personal portfolio website built with enterprise-grade patterns. Features project management, blog, and contact form. Built with Spring Boot, React, and PostgreSQL.\",\n  \"type\": \"PERSONAL\",\n  \"status\": \"IN_PROGRESS\",\n  \"difficultyLevel\": \"ADVANCED\",\n  \"githubUrl\": \"https://github.com/caseyquinn/personal-website\",\n  \"demoUrl\": \"https://caseyquinn.com\",\n  \"documentationUrl\": \"https://docs.caseyquinn.com\",\n  \"startDate\": \"2024-01-01T00:00:00\",\n  \"published\": true,\n  \"featured\": true,\n  \"displayOrder\": 1\n}"
+							"raw": "{\n  \"name\": \"Test Project Alpha\",\n  \"shortDescription\": \"A test project for manual testing\",\n  \"fullDescription\": \"A comprehensive test project with all optional fields populated.\",\n  \"type\": \"PERSONAL\",\n  \"status\": \"IN_PROGRESS\",\n  \"difficultyLevel\": \"ADVANCED\",\n  \"startDate\": \"2024-01-01T00:00:00\",\n  \"published\": false,\n  \"featured\": false,\n  \"displayOrder\": 1\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/projects",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["projects"]
 						},
-						"description": "Create a new project. `name` and `shortDescription` are required. `type` is required (PERSONAL, PROFESSIONAL, OPEN_SOURCE, LEARNING, FREELANCE). Slug is auto-generated from name if omitted. To associate technologies, provide `technologyIds` once technologies exist."
+						"description": "Create a new project. Required: name, shortDescription, type. Slug auto-generated from name. Requires ADMIN auth."
 					},
 					"response": []
 				},
@@ -195,26 +246,18 @@
 					"request": {
 						"method": "PUT",
 						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
+							{ "key": "Content-Type", "value": "application/json" }
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Personal Website Portfolio\",\n  \"shortDescription\": \"Full-stack portfolio site — now with blog and contact form\",\n  \"fullDescription\": \"Updated full description reflecting the current state of the project.\",\n  \"type\": \"PERSONAL\",\n  \"status\": \"MAINTAINED\",\n  \"difficultyLevel\": \"ADVANCED\",\n  \"githubUrl\": \"https://github.com/caseyquinn/personal-website\",\n  \"demoUrl\": \"https://caseyquinn.com\",\n  \"published\": true,\n  \"featured\": true,\n  \"displayOrder\": 1\n}"
+							"raw": "{\n  \"name\": \"Test Project Alpha\",\n  \"shortDescription\": \"Updated description\",\n  \"type\": \"PERSONAL\",\n  \"status\": \"IN_PROGRESS\",\n  \"published\": true,\n  \"featured\": true,\n  \"displayOrder\": 1\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}"]
 						},
-						"description": "Update an existing project. Same required fields as create. Published projects cannot be deleted — archive them instead."
+						"description": "Update an existing project. Requires ADMIN auth."
 					},
 					"response": []
 				},
@@ -225,35 +268,10 @@
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}"]
 						},
-						"description": "Delete a project by ID. Published projects cannot be deleted — set status to ARCHIVED first."
-					},
-					"response": []
-				},
-				{
-					"name": "Get Projects by Technology",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/projects/technology/{{technology}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"technology",
-								"{{technology}}"
-							]
-						},
-						"description": "Filter projects by technology name. Case-insensitive search. Update the `technology` collection variable to change the filter value."
+						"description": "Delete a project by ID. Published projects cannot be deleted (unpublish first). Requires ADMIN auth."
 					},
 					"response": []
 				}
@@ -261,8 +279,128 @@
 			"description": "Project portfolio management"
 		},
 		{
+			"name": "Project Links",
+			"item": [
+				{
+					"name": "Get All Project Links",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/links",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "links"]
+						},
+						"description": "Get all links for a project. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Link by ID",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/links/{{linkId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "links", "{{linkId}}"]
+						},
+						"description": "Get a specific project link. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Project Link",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"url\": \"https://github.com/caseythecoder90/example\",\n  \"linkType\": \"GITHUB\",\n  \"displayOrder\": 0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/links",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "links"]
+						},
+						"description": "Create a link for a project. LinkType: GITHUB, LIVE, DEMO, DOCUMENTATION, VIDEO, OTHER. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Project Link",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"url\": \"https://github.com/caseythecoder90/updated-repo\",\n  \"linkType\": \"GITHUB\",\n  \"displayOrder\": 0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/links/{{linkId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "links", "{{linkId}}"]
+						},
+						"description": "Update a project link. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Project Link",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/links/{{linkId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "links", "{{linkId}}"]
+						},
+						"description": "Delete a project link. Requires ADMIN auth."
+					},
+					"response": []
+				}
+			],
+			"description": "External links per project (GitHub, demo, docs, etc.)"
+		},
+		{
 			"name": "Project Images",
 			"item": [
+				{
+					"name": "Get Project Images",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/images",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "images"]
+						},
+						"description": "Get all images for a project. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Image by ID",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/images/{{imageId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "images", "{{imageId}}"]
+						},
+						"description": "Get a specific project image. Public endpoint."
+					},
+					"response": []
+				},
 				{
 					"name": "Upload Image",
 					"request": {
@@ -271,97 +409,20 @@
 						"body": {
 							"mode": "formdata",
 							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": [],
-									"description": "Image file (JPEG, PNG, GIF, WebP - max 10MB)"
-								},
-								{
-									"key": "imageType",
-									"value": "SCREENSHOT",
-									"type": "text",
-									"description": "Image type: SCREENSHOT, DIAGRAM, or LOGO"
-								},
-								{
-									"key": "altText",
-									"value": "Homepage screenshot",
-									"type": "text",
-									"description": "Alt text for accessibility"
-								},
-								{
-									"key": "caption",
-									"value": "Main landing page",
-									"type": "text",
-									"description": "Image caption"
-								},
-								{
-									"key": "displayOrder",
-									"value": "0",
-									"type": "text",
-									"description": "Display order (default 0)"
-								},
-								{
-									"key": "isPrimary",
-									"value": "true",
-									"type": "text",
-									"description": "Set as primary image (unsets previous primary)"
-								}
+								{ "key": "file", "type": "file", "src": [], "description": "Image file (JPEG, PNG, GIF, WebP - max 10MB)" },
+								{ "key": "imageType", "value": "SCREENSHOT", "type": "text", "description": "SCREENSHOT, DIAGRAM, or LOGO" },
+								{ "key": "altText", "value": "Homepage screenshot", "type": "text", "description": "Alt text for accessibility" },
+								{ "key": "caption", "value": "Main landing page", "type": "text", "description": "Image caption" },
+								{ "key": "displayOrder", "value": "0", "type": "text", "description": "Display order" },
+								{ "key": "isPrimary", "value": "true", "type": "text", "description": "Set as primary image" }
 							]
 						},
 						"url": {
 							"raw": "{{baseUrl}}/projects/{{projectId}}/images",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}",
-								"images"
-							]
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "images"]
 						},
-						"description": "Upload an image to a project. Images are stored in Cloudinary CDN. Max 20 images per project."
-					},
-					"response": []
-				},
-				{
-					"name": "Get Project Images",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/projects/{{projectId}}/images",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}",
-								"images"
-							]
-						},
-						"description": "Get all images for a project, ordered by display order."
-					},
-					"response": []
-				},
-				{
-					"name": "Get Image by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/projects/{{projectId}}/images/1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}",
-								"images",
-								"1"
-							]
-						},
-						"description": "Get a specific image by its ID."
+						"description": "Upload an image to a project via Cloudinary. Max 20 images per project. Requires ADMIN auth."
 					},
 					"response": []
 				},
@@ -370,49 +431,18 @@
 					"request": {
 						"method": "PUT",
 						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
+							{ "key": "Content-Type", "value": "application/json" }
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"altText\": \"Updated homepage screenshot\",\n  \"caption\": \"Updated caption\",\n  \"displayOrder\": 1,\n  \"isPrimary\": false\n}"
+							"raw": "{\n  \"altText\": \"Updated alt text\",\n  \"caption\": \"Updated caption\",\n  \"displayOrder\": 1\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/projects/{{projectId}}/images/1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}",
-								"images",
-								"1"
-							]
+							"raw": "{{baseUrl}}/projects/{{projectId}}/images/{{imageId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "images", "{{imageId}}"]
 						},
-						"description": "Update image metadata (does not replace the image file). All fields are optional."
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Image",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/projects/{{projectId}}/images/1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}",
-								"images",
-								"1"
-							]
-						},
-						"description": "Delete an image from a project. Removes from both database and Cloudinary."
+						"description": "Update image metadata (not the file). Requires ADMIN auth."
 					},
 					"response": []
 				},
@@ -422,41 +452,840 @@
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/projects/{{projectId}}/images/1/set-primary",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"projects",
-								"{{projectId}}",
-								"images",
-								"1",
-								"set-primary"
-							]
+							"raw": "{{baseUrl}}/projects/{{projectId}}/images/{{imageId}}/set-primary",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "images", "{{imageId}}", "set-primary"]
 						},
-						"description": "Set an image as the primary image for a project. Unsets the previous primary image."
+						"description": "Set an image as primary. Unsets previous primary. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Image",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/images/{{imageId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "images", "{{imageId}}"]
+						},
+						"description": "Delete a project image from DB and Cloudinary. Requires ADMIN auth."
 					},
 					"response": []
 				}
 			],
-			"description": "Project image upload and management"
+			"description": "Project image upload and management via Cloudinary"
+		},
+		{
+			"name": "Technologies",
+			"item": [
+				{
+					"name": "Get All Technologies",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Technologies (Paginated)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies/paginated?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "paginated"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" }
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Technology by ID",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "{{technologyId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Technology by Name",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies/name/{{technologyName}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "name", "{{technologyName}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Technologies by Category",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies/category/LANGUAGE",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "category", "LANGUAGE"]
+						},
+						"description": "Categories: LANGUAGE, FRAMEWORK, DATABASE, DEVOPS, CLOUD, TOOL, LIBRARY, OTHER"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Technologies by Proficiency",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies/proficiency/EXPERT",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "proficiency", "EXPERT"]
+						},
+						"description": "Proficiency levels: BEGINNER, INTERMEDIATE, PROFICIENT, EXPERT"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Featured Technologies",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies/featured",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "featured"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Most Used Technologies",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies/most-used",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "most-used"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Technology",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Java\",\n  \"category\": \"LANGUAGE\",\n  \"proficiencyLevel\": \"EXPERT\",\n  \"yearsExperience\": 8.5,\n  \"featured\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/technologies",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies"]
+						},
+						"description": "Create a new technology. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Technology",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Java\",\n  \"category\": \"LANGUAGE\",\n  \"proficiencyLevel\": \"EXPERT\",\n  \"yearsExperience\": 9.0,\n  \"featured\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "{{technologyId}}"]
+						},
+						"description": "Update a technology. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Technology",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["technologies", "{{technologyId}}"]
+						},
+						"description": "Delete a technology. Fails if technology is in use by projects. Requires ADMIN auth."
+					},
+					"response": []
+				}
+			],
+			"description": "Technology skills with proficiency tracking"
+		},
+		{
+			"name": "Certifications",
+			"item": [
+				{
+					"name": "Get All Certifications",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Certification by ID",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/{{certificationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "{{certificationId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Certification by Slug",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/slug/{{certificationSlug}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "slug", "{{certificationSlug}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Certifications by Status",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/status/EARNED",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "status", "EARNED"]
+						},
+						"description": "Statuses: EARNED, IN_PROGRESS, EXPIRED"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Certifications by Organization",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/organization/Amazon Web Services",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "organization", "Amazon Web Services"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Published Certifications",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/published",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "published"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Featured Certifications",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/featured",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "featured"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Certification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"AWS Solutions Architect Associate\",\n  \"issuingOrganization\": \"Amazon Web Services\",\n  \"description\": \"Cloud architecture certification\",\n  \"certificationStatus\": \"EARNED\",\n  \"issueDate\": \"2024-06-15\",\n  \"expirationDate\": \"2027-06-15\",\n  \"credentialUrl\": \"https://aws.amazon.com/verification/12345\",\n  \"published\": true,\n  \"featured\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/certifications",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications"]
+						},
+						"description": "Create a certification. Slug auto-generated from name. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Certification",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"AWS Solutions Architect Associate\",\n  \"issuingOrganization\": \"Amazon Web Services\",\n  \"certificationStatus\": \"EARNED\",\n  \"published\": true,\n  \"featured\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/certifications/{{certificationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "{{certificationId}}"]
+						},
+						"description": "Update a certification. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Certification",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/{{certificationId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "{{certificationId}}"]
+						},
+						"description": "Delete a certification. Published certifications cannot be deleted. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Link Technology to Certification",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/{{certificationId}}/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "{{certificationId}}", "technologies", "{{technologyId}}"]
+						},
+						"description": "Associate a technology with a certification. Requires ADMIN auth."
+					},
+					"response": []
+				},
+				{
+					"name": "Unlink Technology from Certification",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/certifications/{{certificationId}}/technologies/{{technologyId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["certifications", "{{certificationId}}", "technologies", "{{technologyId}}"]
+						},
+						"description": "Remove a technology association from a certification. Requires ADMIN auth."
+					},
+					"response": []
+				}
+			],
+			"description": "Professional certifications with status tracking"
+		},
+		{
+			"name": "Blog Posts",
+			"item": [
+				{
+					"name": "Get All Posts",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts", "host": ["{{baseUrl}}"], "path": ["blog", "posts"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Published Posts",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/published", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "published"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Post by ID",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Post by Slug",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/slug/{{postSlug}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "slug", "{{postSlug}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Posts by Category",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/category/{{categorySlug}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "category", "{{categorySlug}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Posts by Tag",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/tag/{{tagSlug}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "tag", "{{tagSlug}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Search Posts",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": {
+							"raw": "{{baseUrl}}/blog/posts/search?query=enterprise",
+							"host": ["{{baseUrl}}"],
+							"path": ["blog", "posts", "search"],
+							"query": [{ "key": "query", "value": "enterprise" }]
+						}
+					}, "response": []
+				},
+				{
+					"name": "Create Post",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Building Enterprise APIs with Spring Boot\",\n  \"content\": \"In this post, we explore best practices for building enterprise-grade REST APIs using Spring Boot...\",\n  \"excerpt\": \"A deep dive into enterprise API patterns\",\n  \"metaDescription\": \"Learn enterprise Spring Boot API patterns\"\n}"
+						},
+						"url": { "raw": "{{baseUrl}}/blog/posts", "host": ["{{baseUrl}}"], "path": ["blog", "posts"] },
+						"description": "Create a blog post. Starts unpublished. Requires ADMIN auth."
+					}, "response": []
+				},
+				{
+					"name": "Update Post",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Building Enterprise APIs with Spring Boot\",\n  \"content\": \"Updated content with more examples...\",\n  \"excerpt\": \"Updated excerpt\"\n}"
+						},
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Publish Post",
+					"request": {
+						"method": "PUT", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/publish", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "publish"] }
+					}, "response": []
+				},
+				{
+					"name": "Unpublish Post",
+					"request": {
+						"method": "PUT", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/unpublish", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "unpublish"] }
+					}, "response": []
+				},
+				{
+					"name": "Add Category to Post",
+					"request": {
+						"method": "POST", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "categories", "{{categoryId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Remove Category from Post",
+					"request": {
+						"method": "DELETE", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "categories", "{{categoryId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Add Tag to Post",
+					"request": {
+						"method": "POST", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/tags/{{tagId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "tags", "{{tagId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Remove Tag from Post",
+					"request": {
+						"method": "DELETE", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/tags/{{tagId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "tags", "{{tagId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Delete Post",
+					"request": {
+						"method": "DELETE", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}"] },
+						"description": "Delete a blog post. Published posts cannot be deleted. Requires ADMIN auth."
+					}, "response": []
+				}
+			],
+			"description": "Blog post management with publish workflow"
+		},
+		{
+			"name": "Blog Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/categories", "host": ["{{baseUrl}}"], "path": ["blog", "categories"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Category by ID",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["blog", "categories", "{{categoryId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Category by Slug",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/categories/slug/{{categorySlug}}", "host": ["{{baseUrl}}"], "path": ["blog", "categories", "slug", "{{categorySlug}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Software Engineering\",\n  \"description\": \"Posts about software development practices\"\n}" },
+						"url": { "raw": "{{baseUrl}}/blog/categories", "host": ["{{baseUrl}}"], "path": ["blog", "categories"] }
+					}, "response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Software Engineering\",\n  \"description\": \"Updated description\"\n}" },
+						"url": { "raw": "{{baseUrl}}/blog/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["blog", "categories", "{{categoryId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["blog", "categories", "{{categoryId}}"] },
+						"description": "Delete a category. Fails if category has associated posts."
+					}, "response": []
+				}
+			],
+			"description": "Blog post categorization"
+		},
+		{
+			"name": "Blog Tags",
+			"item": [
+				{
+					"name": "Get All Tags",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/tags", "host": ["{{baseUrl}}"], "path": ["blog", "tags"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Popular Tags",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/tags/popular", "host": ["{{baseUrl}}"], "path": ["blog", "tags", "popular"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Tag by ID",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/tags/{{tagId}}", "host": ["{{baseUrl}}"], "path": ["blog", "tags", "{{tagId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Tag by Slug",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/tags/slug/{{tagSlug}}", "host": ["{{baseUrl}}"], "path": ["blog", "tags", "slug", "{{tagSlug}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Create Tag",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Spring Boot\"\n}" },
+						"url": { "raw": "{{baseUrl}}/blog/tags", "host": ["{{baseUrl}}"], "path": ["blog", "tags"] }
+					}, "response": []
+				},
+				{
+					"name": "Update Tag",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"Spring Framework\"\n}" },
+						"url": { "raw": "{{baseUrl}}/blog/tags/{{tagId}}", "host": ["{{baseUrl}}"], "path": ["blog", "tags", "{{tagId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Delete Tag",
+					"request": {
+						"method": "DELETE", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/tags/{{tagId}}", "host": ["{{baseUrl}}"], "path": ["blog", "tags", "{{tagId}}"] },
+						"description": "Delete a tag. Fails if tag has associated posts."
+					}, "response": []
+				}
+			],
+			"description": "Blog post tagging"
+		},
+		{
+			"name": "Blog Post Images",
+			"item": [
+				{
+					"name": "Get Post Images",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/images", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "images"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Post Image by ID",
+					"request": { "auth": { "type": "noauth" }, "method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/images/{{blogImageId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "images", "{{blogImageId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Upload Post Image",
+					"request": {
+						"method": "POST", "header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "file", "type": "file", "src": [], "description": "Image file (JPEG, PNG, GIF, WebP - max 10MB)" },
+								{ "key": "imageType", "value": "SCREENSHOT", "type": "text" },
+								{ "key": "altText", "value": "Blog post header image", "type": "text" },
+								{ "key": "caption", "value": "Main blog illustration", "type": "text" },
+								{ "key": "isPrimary", "value": "true", "type": "text" },
+								{ "key": "displayOrder", "value": "0", "type": "text" }
+							]
+						},
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/images", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "images"] },
+						"description": "Upload image to a blog post via Cloudinary. Max 20 images per post. Requires ADMIN auth."
+					}, "response": []
+				},
+				{
+					"name": "Update Post Image Metadata",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"altText\": \"Updated alt text\",\n  \"caption\": \"Updated caption\",\n  \"displayOrder\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/images/{{blogImageId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "images", "{{blogImageId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Set Primary Post Image",
+					"request": {
+						"method": "PUT", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/images/{{blogImageId}}/primary", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "images", "{{blogImageId}}", "primary"] }
+					}, "response": []
+				},
+				{
+					"name": "Delete Post Image",
+					"request": {
+						"method": "DELETE", "header": [],
+						"url": { "raw": "{{baseUrl}}/blog/posts/{{postId}}/images/{{blogImageId}}", "host": ["{{baseUrl}}"], "path": ["blog", "posts", "{{postId}}", "images", "{{blogImageId}}"] }
+					}, "response": []
+				}
+			],
+			"description": "Blog post image upload and management via Cloudinary"
+		},
+		{
+			"name": "Contact Submissions",
+			"item": [
+				{
+					"name": "Submit Contact Form (Public)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"subject\": \"Project Inquiry\",\n  \"message\": \"Hi Casey, I am interested in collaborating on a project. I have a Spring Boot application that needs architecture improvements.\",\n  \"inquiryType\": \"COLLABORATION\"\n}"
+						},
+						"url": { "raw": "{{baseUrl}}/contact", "host": ["{{baseUrl}}"], "path": ["contact"] },
+						"description": "Submit a contact form. No auth required. InquiryType: GENERAL, JOB_OPPORTUNITY, COLLABORATION, FREELANCE, FEEDBACK, OTHER"
+					}, "response": []
+				},
+				{
+					"name": "Get All Submissions (Admin)",
+					"request": {
+						"method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/contact", "host": ["{{baseUrl}}"], "path": ["contact"] },
+						"description": "Get all contact submissions. Requires ADMIN auth."
+					}, "response": []
+				},
+				{
+					"name": "Get Submission by ID (Admin)",
+					"request": {
+						"method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/contact/{{submissionId}}", "host": ["{{baseUrl}}"], "path": ["contact", "{{submissionId}}"] }
+					}, "response": []
+				},
+				{
+					"name": "Get Submissions by Status (Admin)",
+					"request": {
+						"method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/contact/status/NEW", "host": ["{{baseUrl}}"], "path": ["contact", "status", "NEW"] },
+						"description": "Statuses: NEW, READ, REPLIED, ARCHIVED"
+					}, "response": []
+				},
+				{
+					"name": "Get Submissions by Inquiry Type (Admin)",
+					"request": {
+						"method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/contact/inquiry-type/COLLABORATION", "host": ["{{baseUrl}}"], "path": ["contact", "inquiry-type", "COLLABORATION"] }
+					}, "response": []
+				},
+				{
+					"name": "Update Submission Status (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"status\": \"READ\"\n}" },
+						"url": { "raw": "{{baseUrl}}/contact/{{submissionId}}/status", "host": ["{{baseUrl}}"], "path": ["contact", "{{submissionId}}", "status"] },
+						"description": "Update status: NEW → READ → REPLIED → ARCHIVED. REPLIED sets respondedAt timestamp."
+					}, "response": []
+				},
+				{
+					"name": "Delete Submission (Admin)",
+					"request": {
+						"method": "DELETE", "header": [],
+						"url": { "raw": "{{baseUrl}}/contact/{{submissionId}}", "host": ["{{baseUrl}}"], "path": ["contact", "{{submissionId}}"] }
+					}, "response": []
+				}
+			],
+			"description": "Contact form submissions with admin management"
+		},
+		{
+			"name": "Resume",
+			"item": [
+				{
+					"name": "Get Active Resume (Public)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/resume", "host": ["{{baseUrl}}"], "path": ["resume"] },
+						"description": "Get metadata for the active resume. Returns 404 if no resume uploaded."
+					}, "response": []
+				},
+				{
+					"name": "Download Resume (Public)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET", "header": [],
+						"url": { "raw": "{{baseUrl}}/resume/download", "host": ["{{baseUrl}}"], "path": ["resume", "download"] },
+						"description": "302 redirect to Cloudinary URL for PDF download."
+					}, "response": []
+				},
+				{
+					"name": "Upload Resume (Admin)",
+					"request": {
+						"method": "POST", "header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "file", "type": "file", "src": [], "description": "PDF file (max 5MB)" }
+							]
+						},
+						"url": { "raw": "{{baseUrl}}/resume", "host": ["{{baseUrl}}"], "path": ["resume"] },
+						"description": "Upload a resume PDF. Replaces any existing active resume. Requires ADMIN auth."
+					}, "response": []
+				},
+				{
+					"name": "Delete Resume (Admin)",
+					"request": {
+						"method": "DELETE", "header": [],
+						"url": { "raw": "{{baseUrl}}/resume", "host": ["{{baseUrl}}"], "path": ["resume"] },
+						"description": "Delete the active resume from DB and Cloudinary. Requires ADMIN auth."
+					}, "response": []
+				}
+			],
+			"description": "Resume PDF upload and download via Cloudinary"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [""]
+			}
 		}
 	],
 	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:8080/api/v1",
-			"description": "Base URL for all API requests. Change for staging/production."
-		},
-		{
-			"key": "projectId",
-			"value": "1",
-			"description": "Project ID used in single-resource endpoints. Update after creating a project."
-		},
-		{
-			"key": "technology",
-			"value": "Java",
-			"description": "Technology name for the filter-by-technology endpoint."
-		}
+		{ "key": "baseUrl", "value": "http://localhost:8080/api/v1", "description": "Base URL for all API requests" },
+		{ "key": "token", "value": "", "description": "JWT token (auto-populated by Login request)" },
+		{ "key": "projectId", "value": "1", "description": "Project ID for single-resource endpoints" },
+		{ "key": "technologyId", "value": "1", "description": "Technology ID" },
+		{ "key": "technologyName", "value": "Java", "description": "Technology name for filtering" },
+		{ "key": "linkId", "value": "1", "description": "Project link ID" },
+		{ "key": "imageId", "value": "1", "description": "Project image ID" },
+		{ "key": "certificationId", "value": "1", "description": "Certification ID" },
+		{ "key": "certificationSlug", "value": "aws-solutions-architect-associate", "description": "Certification slug" },
+		{ "key": "postId", "value": "1", "description": "Blog post ID" },
+		{ "key": "postSlug", "value": "building-enterprise-apis-with-spring-boot", "description": "Blog post slug" },
+		{ "key": "categoryId", "value": "1", "description": "Blog category ID" },
+		{ "key": "categorySlug", "value": "software-engineering", "description": "Blog category slug" },
+		{ "key": "tagId", "value": "1", "description": "Blog tag ID" },
+		{ "key": "tagSlug", "value": "spring-boot", "description": "Blog tag slug" },
+		{ "key": "blogImageId", "value": "1", "description": "Blog post image ID" },
+		{ "key": "submissionId", "value": "1", "description": "Contact submission ID" }
 	]
 }

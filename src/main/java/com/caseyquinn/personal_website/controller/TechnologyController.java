@@ -8,6 +8,8 @@ import com.caseyquinn.personal_website.dto.response.TechnologyResponse;
 import com.caseyquinn.personal_website.entity.enums.ProficiencyLevel;
 import com.caseyquinn.personal_website.entity.enums.TechnologyCategory;
 import com.caseyquinn.personal_website.service.TechnologyService;
+
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -52,7 +54,7 @@ public class TechnologyController {
     public ResponseEntity<Response<List<TechnologyResponse>>> getAllTechnologies() {
         log.info("Fetching all technologies");
         List<TechnologyResponse> technologies = technologyService.getAllTechnologies();
-        return ResponseEntity.ok(Response.success(technologies, "Technologies retrieved successfully"));
+        return ResponseEntity.ok(Response.success(technologies, TECHNOLOGIES_RETRIEVED));
     }
 
     /**
@@ -66,7 +68,7 @@ public class TechnologyController {
     public ResponseEntity<Response<Page<TechnologyResponse>>> getTechnologiesPaginated(Pageable pageable) {
         log.info("Fetching technologies with pagination: {}", pageable);
         Page<TechnologyResponse> technologies = technologyService.getTechnologiesPaginated(pageable);
-        return ResponseEntity.ok(Response.success(technologies, "Technologies retrieved successfully"));
+        return ResponseEntity.ok(Response.success(technologies, TECHNOLOGIES_RETRIEVED));
     }
 
     /**
@@ -81,7 +83,7 @@ public class TechnologyController {
             @Parameter(description = "Technology ID") @PathVariable Long id) {
         log.info("Fetching technology with id: {}", id);
         TechnologyResponse technology = technologyService.getTechnologyById(id);
-        return ResponseEntity.ok(Response.success(technology, "Technology retrieved successfully"));
+        return ResponseEntity.ok(Response.success(technology, TECHNOLOGY_RETRIEVED));
     }
 
     /**
@@ -96,7 +98,7 @@ public class TechnologyController {
             @Parameter(description = "Technology name") @PathVariable String name) {
         log.info("Fetching technology with name: {}", name);
         TechnologyResponse technology = technologyService.getTechnologyByName(name);
-        return ResponseEntity.ok(Response.success(technology, "Technology retrieved successfully"));
+        return ResponseEntity.ok(Response.success(technology, TECHNOLOGY_RETRIEVED));
     }
 
     /**
@@ -111,7 +113,7 @@ public class TechnologyController {
             @Parameter(description = "Technology category") @PathVariable TechnologyCategory category) {
         log.info("Fetching technologies by category: {}", category);
         List<TechnologyResponse> technologies = technologyService.getTechnologiesByCategory(category);
-        return ResponseEntity.ok(Response.success(technologies, "Technologies retrieved successfully"));
+        return ResponseEntity.ok(Response.success(technologies, TECHNOLOGIES_RETRIEVED));
     }
 
     /**
@@ -126,7 +128,7 @@ public class TechnologyController {
             @Parameter(description = "Proficiency level") @PathVariable ProficiencyLevel level) {
         log.info("Fetching technologies by proficiency level: {}", level);
         List<TechnologyResponse> technologies = technologyService.getTechnologiesByProficiencyLevel(level);
-        return ResponseEntity.ok(Response.success(technologies, "Technologies retrieved successfully"));
+        return ResponseEntity.ok(Response.success(technologies, TECHNOLOGIES_RETRIEVED));
     }
 
     /**
@@ -139,7 +141,7 @@ public class TechnologyController {
     public ResponseEntity<Response<List<TechnologyResponse>>> getFeaturedTechnologies() {
         log.info("Fetching featured technologies");
         List<TechnologyResponse> technologies = technologyService.getFeaturedTechnologies();
-        return ResponseEntity.ok(Response.success(technologies, "Featured technologies retrieved successfully"));
+        return ResponseEntity.ok(Response.success(technologies, FEATURED_TECHNOLOGIES_RETRIEVED));
     }
 
     /**
@@ -152,7 +154,7 @@ public class TechnologyController {
     public ResponseEntity<Response<List<TechnologyResponse>>> getMostUsedTechnologies() {
         log.info("Fetching most used technologies");
         List<TechnologyResponse> technologies = technologyService.getMostUsedTechnologies();
-        return ResponseEntity.ok(Response.success(technologies, "Most used technologies retrieved successfully"));
+        return ResponseEntity.ok(Response.success(technologies, MOST_USED_TECHNOLOGIES_RETRIEVED));
     }
 
     /**
@@ -168,7 +170,7 @@ public class TechnologyController {
         log.info("Creating new technology: {}", request.getName());
         TechnologyResponse technology = technologyService.createTechnology(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(technology, "Technology created successfully"));
+                .body(Response.success(technology, TECHNOLOGY_CREATED));
     }
 
     /**
@@ -185,7 +187,7 @@ public class TechnologyController {
             @Valid @RequestBody UpdateTechnologyRequest request) {
         log.info("Updating technology with id: {}", id);
         TechnologyResponse technology = technologyService.updateTechnology(id, request);
-        return ResponseEntity.ok(Response.success(technology, "Technology updated successfully"));
+        return ResponseEntity.ok(Response.success(technology, TECHNOLOGY_UPDATED));
     }
 
     /**
@@ -200,6 +202,6 @@ public class TechnologyController {
             @Parameter(description = "Technology ID") @PathVariable Long id) {
         log.info("Deleting technology with id: {}", id);
         technologyService.deleteTechnology(id);
-        return ResponseEntity.ok(Response.success(null, "Technology deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, TECHNOLOGY_DELETED));
     }
 }

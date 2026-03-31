@@ -22,11 +22,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
-import static java.util.Objects.isNull;
+import static com.caseyquinn.personal_website.constants.CacheConstants.*;
 
 /**
  * Service layer for managing technologies and their associated business logic.
@@ -45,7 +44,7 @@ public class TechnologyService {
      *
      * @return list of all technology responses
      */
-    @Cacheable(value = "technologies", key = "'all'")
+    @Cacheable(value = CACHE_TECHNOLOGIES, key = "'all'")
     public List<TechnologyResponse> getAllTechnologies() {
         log.info("Service: Fetching all technologies");
         List<Technology> technologies = technologyDao.findAll();
@@ -70,7 +69,7 @@ public class TechnologyService {
      * @param id the technology ID
      * @return technology response
      */
-    @Cacheable(value = "technologies", key = "'id:' + #id")
+    @Cacheable(value = CACHE_TECHNOLOGIES, key = "'id:' + #id")
     public TechnologyResponse getTechnologyById(Long id) {
         log.info("Service: Fetching technology with id: {}", id);
         Technology technology = technologyDao.findByIdOrThrow(id);
@@ -97,9 +96,9 @@ public class TechnologyService {
      * @return the created technology response
      */
     @Caching(evict = {
-            @CacheEvict(value = "technologies", allEntries = true),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "certifications", allEntries = true)
+            @CacheEvict(value = CACHE_TECHNOLOGIES, allEntries = true),
+            @CacheEvict(value = CACHE_PROJECTS, allEntries = true),
+            @CacheEvict(value = CACHE_CERTIFICATIONS, allEntries = true)
     })
     @Transactional
     public TechnologyResponse createTechnology(CreateTechnologyRequest request) {
@@ -122,9 +121,9 @@ public class TechnologyService {
      * @return the updated technology response
      */
     @Caching(evict = {
-            @CacheEvict(value = "technologies", allEntries = true),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "certifications", allEntries = true)
+            @CacheEvict(value = CACHE_TECHNOLOGIES, allEntries = true),
+            @CacheEvict(value = CACHE_PROJECTS, allEntries = true),
+            @CacheEvict(value = CACHE_CERTIFICATIONS, allEntries = true)
     })
     @Transactional
     public TechnologyResponse updateTechnology(Long id, UpdateTechnologyRequest request) {
@@ -150,9 +149,9 @@ public class TechnologyService {
      * @param id the technology ID
      */
     @Caching(evict = {
-            @CacheEvict(value = "technologies", allEntries = true),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "certifications", allEntries = true)
+            @CacheEvict(value = CACHE_TECHNOLOGIES, allEntries = true),
+            @CacheEvict(value = CACHE_PROJECTS, allEntries = true),
+            @CacheEvict(value = CACHE_CERTIFICATIONS, allEntries = true)
     })
     @Transactional
     public void deleteTechnology(Long id) {
@@ -207,7 +206,7 @@ public class TechnologyService {
      *
      * @return list of featured technology responses
      */
-    @Cacheable(value = "technologies", key = "'featured'")
+    @Cacheable(value = CACHE_TECHNOLOGIES, key = "'featured'")
     public List<TechnologyResponse> getFeaturedTechnologies() {
         log.info("Service: Fetching featured technologies");
         List<Technology> technologies = technologyDao.findFeaturedTechnologies();
@@ -263,28 +262,12 @@ public class TechnologyService {
         if (technologyDao.existsByName(technology.getName())) {
             throw new DuplicateResourceException("Technology", "name", technology.getName());
         }
-        validateYearsExperience(technology.getYearsExperience());
     }
 
     private void validateTechnologyUpdate(Technology technologyUpdate, Technology existingTechnology) {
         if (technologyUpdate.getName() != null && !existingTechnology.getName().equals(technologyUpdate.getName()) &&
             technologyDao.existsByName(technologyUpdate.getName())) {
             throw new DuplicateResourceException("Technology", "name", technologyUpdate.getName());
-        }
-        validateYearsExperience(technologyUpdate.getYearsExperience());
-    }
-
-    private void validateYearsExperience(BigDecimal yearsExperience) {
-        if (isNull(yearsExperience)) {
-            return;
-        }
-        if (yearsExperience.compareTo(BigDecimal.ZERO) < 0) {
-            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
-                    "Years of experience cannot be negative");
-        }
-        if (yearsExperience.compareTo(BigDecimal.valueOf(50)) > 0) {
-            throw new ValidationException(ErrorCode.VALIDATION_FAILED,
-                    "Years of experience seems unrealistic (max 50 years)");
         }
     }
 

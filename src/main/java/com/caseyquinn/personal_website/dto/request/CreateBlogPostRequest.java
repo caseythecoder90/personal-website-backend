@@ -17,7 +17,7 @@ public class CreateBlogPostRequest {
 
     @NotBlank(message = "Post title is required")
     @Size(min = 2, max = 200, message = "Post title must be between 2 and 200 characters")
-    @Schema(description = "Post title", example = "Getting Started with Spring Boot", required = true)
+    @Schema(description = "Post title", example = "Getting Started with Spring Boot", requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
 
     @Size(max = 200, message = "Slug cannot exceed 200 characters")
@@ -25,7 +25,7 @@ public class CreateBlogPostRequest {
     private String slug;
 
     @NotBlank(message = "Post content is required")
-    @Schema(description = "Post content in markdown or HTML format", required = true)
+    @Schema(description = "Post content in markdown or HTML format", requiredMode = Schema.RequiredMode.REQUIRED)
     private String content;
 
     @Size(max = 500, message = "Excerpt cannot exceed 500 characters")

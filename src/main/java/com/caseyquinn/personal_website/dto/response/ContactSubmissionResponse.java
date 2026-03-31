@@ -3,8 +3,10 @@ package com.caseyquinn.personal_website.dto.response;
 import com.caseyquinn.personal_website.entity.enums.InquiryType;
 import com.caseyquinn.personal_website.entity.enums.SubmissionStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Contact submission information")
 public class ContactSubmissionResponse {
 

@@ -1,5 +1,7 @@
 package com.caseyquinn.personal_website.security;
 
+import static com.caseyquinn.personal_website.constants.SecurityConstants.*;
+
 import com.caseyquinn.personal_website.exception.data.RetryableDataAccess;
 import com.caseyquinn.personal_website.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +26,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.debug("Loading user by username: {}", username);
+        log.info("Loading user by username: {}", username);
 
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_BY_USERNAME + username));
     }
 
     /**
@@ -38,9 +40,9 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Transactional(readOnly = true)
     public UserDetails loadUserById(Long id) {
-        log.debug("Loading user by ID: {}", id);
+        log.info("Loading user by ID: {}", id);
 
         return userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_BY_ID + id));
     }
 }

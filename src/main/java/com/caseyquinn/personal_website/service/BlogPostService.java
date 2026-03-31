@@ -16,6 +16,11 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.BlogPostMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.BLOG_CATEGORY_ALREADY_ASSOCIATED;
+import static com.caseyquinn.personal_website.constants.CacheConstants.*;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.BLOG_CATEGORY_NOT_ASSOCIATED;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.BLOG_TAG_ALREADY_ASSOCIATED;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.BLOG_TAG_NOT_ASSOCIATED;
@@ -53,6 +59,7 @@ public class BlogPostService {
      *
      * @return list of all blog post responses
      */
+    @Cacheable(value = CACHE_BLOG_POSTS, key = "'all'")
     public List<BlogPostResponse> getAllPosts() {
         log.info("Service: Fetching all blog posts");
         List<BlogPost> posts = blogPostDao.findAll();
@@ -64,10 +71,24 @@ public class BlogPostService {
      *
      * @return list of published blog post responses
      */
+    @Cacheable(value = CACHE_BLOG_POSTS, key = "'published'")
     public List<BlogPostResponse> getPublishedPosts() {
         log.info("Service: Fetching published blog posts");
         List<BlogPost> posts = blogPostDao.findPublished();
         return blogPostMapper.toResponseList(posts);
+    }
+
+    /**
+     * Retrieves published blog posts with pagination support.
+     *
+     * @param pageable pagination parameters
+     * @return page of published blog post responses
+     */
+    @Cacheable(value = CACHE_BLOG_POSTS, key = "'published:page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    public Page<BlogPostResponse> getPublishedPostsPaginated(Pageable pageable) {
+        log.info("Service: Fetching published blog posts with pagination: {}", pageable);
+        Page<BlogPost> posts = blogPostDao.findPublished(pageable);
+        return posts.map(blogPostMapper::toResponse);
     }
 
     /**
@@ -76,6 +97,7 @@ public class BlogPostService {
      * @param id the post ID
      * @return blog post response
      */
+    @Cacheable(value = CACHE_BLOG_POSTS, key = "'id:' + #id")
     public BlogPostResponse getPostById(Long id) {
         log.info("Service: Fetching blog post with id: {}", id);
         BlogPost post = blogPostDao.findByIdOrThrow(id);
@@ -103,6 +125,11 @@ public class BlogPostService {
      * @param request the post creation request
      * @return the created blog post response
      */
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_CATEGORIES, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_TAGS, allEntries = true)
+    })
     @Transactional
     public BlogPostResponse createPost(CreateBlogPostRequest request) {
         log.info("Service: Creating new blog post: {}", request.getTitle());
@@ -126,6 +153,11 @@ public class BlogPostService {
      * @param request the post update request
      * @return the updated blog post response
      */
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_CATEGORIES, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_TAGS, allEntries = true)
+    })
     @Transactional
     public BlogPostResponse updatePost(Long id, UpdateBlogPostRequest request) {
         log.info("Service: Updating blog post with id: {}", id);
@@ -146,6 +178,11 @@ public class BlogPostService {
      *
      * @param id the post ID
      */
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_CATEGORIES, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_TAGS, allEntries = true)
+    })
     @Transactional
     public void deletePost(Long id) {
         log.info("Service: Deleting blog post with id: {}", id);
@@ -163,6 +200,7 @@ public class BlogPostService {
      * @param id the post ID
      * @return the updated blog post response
      */
+    @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true)
     @Transactional
     public BlogPostResponse publishPost(Long id) {
         log.info("Service: Publishing blog post with id: {}", id);
@@ -182,6 +220,7 @@ public class BlogPostService {
      * @param id the post ID
      * @return the updated blog post response
      */
+    @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true)
     @Transactional
     public BlogPostResponse unpublishPost(Long id) {
         log.info("Service: Unpublishing blog post with id: {}", id);
@@ -201,6 +240,7 @@ public class BlogPostService {
      * @param slug the category slug
      * @return list of matching blog post responses
      */
+    @Cacheable(value = CACHE_BLOG_POSTS, key = "'category:' + #slug")
     public List<BlogPostResponse> getPostsByCategorySlug(String slug) {
         log.info("Service: Fetching blog posts by category slug: {}", slug);
         List<BlogPost> posts = blogPostDao.findPublishedByCategorySlug(slug);
@@ -213,6 +253,7 @@ public class BlogPostService {
      * @param slug the tag slug
      * @return list of matching blog post responses
      */
+    @Cacheable(value = CACHE_BLOG_POSTS, key = "'tag:' + #slug")
     public List<BlogPostResponse> getPostsByTagSlug(String slug) {
         log.info("Service: Fetching blog posts by tag slug: {}", slug);
         List<BlogPost> posts = blogPostDao.findPublishedByTagSlug(slug);
@@ -238,6 +279,10 @@ public class BlogPostService {
      * @param categoryId the category ID
      * @return the updated blog post response
      */
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_CATEGORIES, allEntries = true)
+    })
     @Transactional
     public BlogPostResponse addCategoryToPost(Long postId, Long categoryId) {
         log.info("Service: Adding category {} to blog post {}", categoryId, postId);
@@ -263,6 +308,10 @@ public class BlogPostService {
      * @param categoryId the category ID
      * @return the updated blog post response
      */
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_CATEGORIES, allEntries = true)
+    })
     @Transactional
     public BlogPostResponse removeCategoryFromPost(Long postId, Long categoryId) {
         log.info("Service: Removing category {} from blog post {}", categoryId, postId);
@@ -288,6 +337,10 @@ public class BlogPostService {
      * @param tagId the tag ID
      * @return the updated blog post response
      */
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_TAGS, allEntries = true)
+    })
     @Transactional
     public BlogPostResponse addTagToPost(Long postId, Long tagId) {
         log.info("Service: Adding tag {} to blog post {}", tagId, postId);
@@ -314,6 +367,10 @@ public class BlogPostService {
      * @param tagId the tag ID
      * @return the updated blog post response
      */
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_TAGS, allEntries = true)
+    })
     @Transactional
     public BlogPostResponse removeTagFromPost(Long postId, Long tagId) {
         log.info("Service: Removing tag {} from blog post {}", tagId, postId);

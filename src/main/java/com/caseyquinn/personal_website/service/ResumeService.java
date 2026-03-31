@@ -10,10 +10,14 @@ import com.caseyquinn.personal_website.mapper.ResumeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import static com.caseyquinn.personal_website.constants.FileConstants.*;
+import static com.caseyquinn.personal_website.constants.CacheConstants.*;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 
 /**
@@ -39,6 +43,7 @@ public class ResumeService {
      * @param file the PDF file to upload
      * @return the uploaded resume metadata
      */
+    @CacheEvict(value = CACHE_RESUME, allEntries = true)
     @Transactional
     public ResumeResponse uploadResume(MultipartFile file) {
         log.info("Service: Uploading new resume: {}", file.getOriginalFilename());
@@ -51,14 +56,14 @@ public class ResumeService {
             resumeDao.deleteById(existing.getId());
         });
 
-        CloudinaryUploadResult uploadResult = cloudinaryService.uploadRawFile(file, "resumes");
+        CloudinaryUploadResult uploadResult = cloudinaryService.uploadRawFile(file, SUBFOLDER_RESUMES);
 
         Resume resume = Resume.builder()
                 .fileName(file.getOriginalFilename())
                 .fileUrl(uploadResult.getSecureUrl())
                 .cloudinaryPublicId(uploadResult.getPublicId())
                 .fileSize(uploadResult.getBytes())
-                .contentType("application/pdf")
+                .contentType(MIME_PDF)
                 .active(true)
                 .build();
 
@@ -72,6 +77,7 @@ public class ResumeService {
      *
      * @return the active resume metadata
      */
+    @Cacheable(value = CACHE_RESUME, key = "'active'")
     public ResumeResponse getActiveResume() {
         log.info("Service: Fetching active resume");
         Resume resume = resumeDao.findActive()
@@ -84,6 +90,7 @@ public class ResumeService {
      *
      * @return the Cloudinary URL of the active resume
      */
+    @Cacheable(value = CACHE_RESUME, key = "'download-url'")
     public String getResumeDownloadUrl() {
         log.info("Service: Fetching resume download URL");
         Resume resume = resumeDao.findActive()
@@ -94,6 +101,7 @@ public class ResumeService {
     /**
      * Deletes the currently active resume from Cloudinary and the database.
      */
+    @CacheEvict(value = CACHE_RESUME, allEntries = true)
     @Transactional
     public void deleteResume() {
         log.info("Service: Deleting active resume");

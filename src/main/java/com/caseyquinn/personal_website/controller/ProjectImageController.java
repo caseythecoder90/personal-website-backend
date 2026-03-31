@@ -6,6 +6,8 @@ import com.caseyquinn.personal_website.dto.request.UpdateProjectImageRequest;
 import com.caseyquinn.personal_website.dto.response.ProjectImageResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.ProjectImageService;
+
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -51,7 +53,7 @@ public class ProjectImageController {
         log.info("Uploading image for projectId: {}", projectId);
         ProjectImageResponse response = projectImageService.uploadImage(projectId, file, request);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(Response.success(response, "Image uploaded successfully"));
+            .body(Response.success(response, IMAGE_UPLOADED));
     }
 
     /**
@@ -67,7 +69,7 @@ public class ProjectImageController {
 
         log.info("Fetching images for projectId: {}", projectId);
         List<ProjectImageResponse> images = projectImageService.getProjectImages(projectId);
-        return ResponseEntity.ok(Response.success(images, "Images retrieved successfully"));
+        return ResponseEntity.ok(Response.success(images, IMAGES_RETRIEVED));
     }
 
     /**
@@ -85,7 +87,7 @@ public class ProjectImageController {
 
         log.info("Fetching image: imageId={}, projectId={}", imageId, projectId);
         ProjectImageResponse image = projectImageService.getImageById(projectId, imageId);
-        return ResponseEntity.ok(Response.success(image, "Image retrieved successfully"));
+        return ResponseEntity.ok(Response.success(image, IMAGE_RETRIEVED));
     }
 
     /**
@@ -105,7 +107,7 @@ public class ProjectImageController {
 
         log.info("Updating image metadata: imageId={}, projectId={}", imageId, projectId);
         ProjectImageResponse image = projectImageService.updateImageMetadata(projectId, imageId, request);
-        return ResponseEntity.ok(Response.success(image, "Image metadata updated successfully"));
+        return ResponseEntity.ok(Response.success(image, IMAGE_METADATA_UPDATED));
     }
 
     /**
@@ -123,7 +125,7 @@ public class ProjectImageController {
 
         log.info("Deleting image: imageId={}, projectId={}", imageId, projectId);
         projectImageService.deleteImage(projectId, imageId);
-        return ResponseEntity.ok(Response.success(null, "Image deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, IMAGE_DELETED));
     }
 
     /**
@@ -141,6 +143,6 @@ public class ProjectImageController {
 
         log.info("Setting primary image: imageId={}, projectId={}", imageId, projectId);
         ProjectImageResponse image = projectImageService.setPrimaryImage(projectId, imageId);
-        return ResponseEntity.ok(Response.success(image, "Primary image set successfully"));
+        return ResponseEntity.ok(Response.success(image, PRIMARY_IMAGE_SET));
     }
 }

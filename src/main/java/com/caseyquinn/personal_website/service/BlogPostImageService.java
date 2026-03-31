@@ -1,5 +1,6 @@
 package com.caseyquinn.personal_website.service;
 
+import com.caseyquinn.personal_website.config.ImageProperties;
 import com.caseyquinn.personal_website.dao.BlogPostDao;
 import com.caseyquinn.personal_website.dao.BlogPostImageDao;
 import com.caseyquinn.personal_website.dto.request.CreateBlogPostImageRequest;
@@ -12,14 +13,15 @@ import com.caseyquinn.personal_website.entity.enums.BlogImageType;
 import com.caseyquinn.personal_website.exception.ErrorCode;
 import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.BlogPostImageMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.caseyquinn.personal_website.constants.FileConstants.*;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.BLOG_IMAGE_OWNERSHIP_MISMATCH;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.MAX_BLOG_IMAGES_EXCEEDED_FORMAT;
 import static java.util.Objects.isNull;
@@ -32,39 +34,15 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 @Service
 @Slf4j
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class BlogPostImageService {
 
-    private final int maxImagesPerPost;
+    private final ImageProperties imageProperties;
     private final BlogPostImageDao blogPostImageDao;
     private final BlogPostDao blogPostDao;
     private final CloudinaryService cloudinaryService;
     private final FileValidationService fileValidationService;
     private final BlogPostImageMapper blogPostImageMapper;
-
-    /**
-     * Constructs the BlogPostImageService with required dependencies.
-     *
-     * @param maxImagesPerPost the maximum number of images allowed per blog post
-     * @param blogPostImageDao the blog post image data access object
-     * @param blogPostDao the blog post data access object
-     * @param cloudinaryService the Cloudinary upload service
-     * @param fileValidationService the file validation service
-     * @param blogPostImageMapper the blog post image mapper
-     */
-    public BlogPostImageService(
-            @Value("${app.images.max-per-blog-post}") int maxImagesPerPost,
-            BlogPostImageDao blogPostImageDao,
-            BlogPostDao blogPostDao,
-            CloudinaryService cloudinaryService,
-            FileValidationService fileValidationService,
-            BlogPostImageMapper blogPostImageMapper) {
-        this.maxImagesPerPost = maxImagesPerPost;
-        this.blogPostImageDao = blogPostImageDao;
-        this.blogPostDao = blogPostDao;
-        this.cloudinaryService = cloudinaryService;
-        this.fileValidationService = fileValidationService;
-        this.blogPostImageMapper = blogPostImageMapper;
-    }
 
     /**
      * Uploads a new image for a blog post with validation and compensating transaction handling.
@@ -210,9 +188,9 @@ public class BlogPostImageService {
      */
     private void validateImageLimit(Long postId) {
         long currentCount = blogPostImageDao.countByBlogPostId(postId);
-        if (currentCount >= maxImagesPerPost) {
+        if (currentCount >= imageProperties.getMaxPerBlogPost()) {
             throw new ValidationException(ErrorCode.MAX_BLOG_IMAGES_EXCEEDED,
-                    String.format(MAX_BLOG_IMAGES_EXCEEDED_FORMAT, maxImagesPerPost));
+                    String.format(MAX_BLOG_IMAGES_EXCEEDED_FORMAT, imageProperties.getMaxPerBlogPost()));
         }
     }
 
@@ -240,7 +218,7 @@ public class BlogPostImageService {
      */
     private CloudinaryUploadResult uploadToCloudinary(MultipartFile file, String subFolder, Long postId) {
         try {
-            return cloudinaryService.uploadImage(file, "blog/" + subFolder);
+            return cloudinaryService.uploadImage(file, SUBFOLDER_BLOG + subFolder);
         } catch (ValidationException e) {
             log.error("Failed to upload image to Cloudinary for blog post id: {}", postId, e);
             throw e;

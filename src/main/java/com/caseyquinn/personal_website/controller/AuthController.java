@@ -1,5 +1,7 @@
 package com.caseyquinn.personal_website.controller;
 
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
+
 import com.caseyquinn.personal_website.annotations.AuthApiResponses;
 import com.caseyquinn.personal_website.dto.request.LoginRequest;
 import com.caseyquinn.personal_website.dto.response.AuthResponse;
@@ -40,6 +42,6 @@ public class AuthController {
     public ResponseEntity<Response<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         log.info("Processing login request for user: {}", request.getUsername());
         AuthResponse authResponse = authService.login(request);
-        return ResponseEntity.ok(Response.success(authResponse, "Login successful"));
+        return ResponseEntity.ok(Response.success(authResponse, LOGIN_SUCCESSFUL));
     }
 }

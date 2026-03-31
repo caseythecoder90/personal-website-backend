@@ -20,12 +20,12 @@ public class CreateCertificationRequest {
 
     @NotBlank(message = "Certification name is required")
     @Size(min = 2, max = 255, message = "Certification name must be between 2 and 255 characters")
-    @Schema(description = "Certification name", example = "Oracle Certified Professional, Java SE 17 Developer", required = true)
+    @Schema(description = "Certification name", example = "Oracle Certified Professional, Java SE 17 Developer", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
     @NotBlank(message = "Issuing organization is required")
     @Size(max = 255, message = "Issuing organization cannot exceed 255 characters")
-    @Schema(description = "Organization that issued the certification", example = "Oracle", required = true)
+    @Schema(description = "Organization that issued the certification", example = "Oracle", requiredMode = Schema.RequiredMode.REQUIRED)
     private String issuingOrganization;
 
     @Size(max = 255, message = "Credential ID cannot exceed 255 characters")
@@ -43,7 +43,7 @@ public class CreateCertificationRequest {
     private LocalDate expirationDate;
 
     @NotNull(message = "Certification status is required")
-    @Schema(description = "Current status of the certification", required = true)
+    @Schema(description = "Current status of the certification", requiredMode = Schema.RequiredMode.REQUIRED)
     private CertificationStatus status;
 
     @Size(max = 5000, message = "Description cannot exceed 5000 characters")

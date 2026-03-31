@@ -28,6 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
+import static com.caseyquinn.personal_website.util.HttpRequestUtils.HEADER_USER_AGENT;
+import static com.caseyquinn.personal_website.util.HttpRequestUtils.extractIpAddress;
+
+
 /**
  * REST controller for managing contact form submissions.
  */
@@ -56,11 +61,11 @@ public class ContactSubmissionController {
         log.info("Received contact form submission from: {}", request.getEmail());
 
         String ipAddress = extractIpAddress(httpRequest);
-        String userAgent = httpRequest.getHeader("User-Agent");
+        String userAgent = httpRequest.getHeader(HEADER_USER_AGENT);
 
         ContactSubmissionResponse submission = contactSubmissionService.submitContactForm(request, ipAddress, userAgent);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(submission, "Contact form submitted successfully"));
+                .body(Response.success(submission, CONTACT_SUBMITTED));
     }
 
     /**
@@ -73,7 +78,7 @@ public class ContactSubmissionController {
     public ResponseEntity<Response<List<ContactSubmissionResponse>>> getAllSubmissions() {
         log.info("Fetching all contact submissions");
         List<ContactSubmissionResponse> submissions = contactSubmissionService.getAllSubmissions();
-        return ResponseEntity.ok(Response.success(submissions, "Submissions retrieved successfully"));
+        return ResponseEntity.ok(Response.success(submissions, SUBMISSIONS_RETRIEVED));
     }
 
     /**
@@ -88,7 +93,7 @@ public class ContactSubmissionController {
             @Parameter(description = "Submission ID") @PathVariable Long id) {
         log.info("Fetching contact submission with id: {}", id);
         ContactSubmissionResponse submission = contactSubmissionService.getSubmissionById(id);
-        return ResponseEntity.ok(Response.success(submission, "Submission retrieved successfully"));
+        return ResponseEntity.ok(Response.success(submission, SUBMISSION_RETRIEVED));
     }
 
     /**
@@ -103,7 +108,7 @@ public class ContactSubmissionController {
             @Parameter(description = "Submission status") @PathVariable SubmissionStatus status) {
         log.info("Fetching contact submissions by status: {}", status);
         List<ContactSubmissionResponse> submissions = contactSubmissionService.getSubmissionsByStatus(status);
-        return ResponseEntity.ok(Response.success(submissions, "Submissions retrieved successfully"));
+        return ResponseEntity.ok(Response.success(submissions, SUBMISSIONS_RETRIEVED));
     }
 
     /**
@@ -118,7 +123,7 @@ public class ContactSubmissionController {
             @Parameter(description = "Inquiry type") @PathVariable InquiryType type) {
         log.info("Fetching contact submissions by inquiry type: {}", type);
         List<ContactSubmissionResponse> submissions = contactSubmissionService.getSubmissionsByInquiryType(type);
-        return ResponseEntity.ok(Response.success(submissions, "Submissions retrieved successfully"));
+        return ResponseEntity.ok(Response.success(submissions, SUBMISSIONS_RETRIEVED));
     }
 
     /**
@@ -135,7 +140,7 @@ public class ContactSubmissionController {
             @Valid @RequestBody UpdateContactStatusRequest request) {
         log.info("Updating contact submission {} status to: {}", id, request.getStatus());
         ContactSubmissionResponse submission = contactSubmissionService.updateSubmissionStatus(id, request);
-        return ResponseEntity.ok(Response.success(submission, "Submission status updated successfully"));
+        return ResponseEntity.ok(Response.success(submission, SUBMISSION_STATUS_UPDATED));
     }
 
     /**
@@ -150,14 +155,7 @@ public class ContactSubmissionController {
             @Parameter(description = "Submission ID") @PathVariable Long id) {
         log.info("Deleting contact submission with id: {}", id);
         contactSubmissionService.deleteSubmission(id);
-        return ResponseEntity.ok(Response.success(null, "Submission deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, SUBMISSION_DELETED));
     }
 
-    private String extractIpAddress(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
-    }
 }

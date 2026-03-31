@@ -15,7 +15,7 @@ public class CreateBlogCategoryRequest {
 
     @NotBlank(message = "Category name is required")
     @Size(min = 2, max = 100, message = "Category name must be between 2 and 100 characters")
-    @Schema(description = "Category name", example = "Technology", required = true)
+    @Schema(description = "Category name", example = "Technology", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
     @Size(max = 500, message = "Description cannot exceed 500 characters")

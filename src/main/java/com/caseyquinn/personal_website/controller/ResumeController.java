@@ -1,5 +1,7 @@
 package com.caseyquinn.personal_website.controller;
 
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
+
 import com.caseyquinn.personal_website.annotations.ResumeApiResponses;
 import com.caseyquinn.personal_website.dto.response.ResumeResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
@@ -42,7 +44,7 @@ public class ResumeController {
     public ResponseEntity<Response<ResumeResponse>> getActiveResume() {
         log.info("Fetching active resume metadata");
         ResumeResponse resume = resumeService.getActiveResume();
-        return ResponseEntity.ok(Response.success(resume, "Resume retrieved successfully"));
+        return ResponseEntity.ok(Response.success(resume, RESUME_RETRIEVED));
     }
 
     /**
@@ -73,7 +75,7 @@ public class ResumeController {
         log.info("Uploading new resume: {}", file.getOriginalFilename());
         ResumeResponse resume = resumeService.uploadResume(file);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(resume, "Resume uploaded successfully"));
+                .body(Response.success(resume, RESUME_UPLOADED));
     }
 
     /**
@@ -86,6 +88,6 @@ public class ResumeController {
     public ResponseEntity<Response<Void>> deleteResume() {
         log.info("Deleting active resume");
         resumeService.deleteResume();
-        return ResponseEntity.ok(Response.success(null, "Resume deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, RESUME_DELETED));
     }
 }
