@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -62,6 +65,21 @@ public class BlogPostController {
     public ResponseEntity<Response<List<BlogPostResponse>>> getPublishedPosts() {
         log.info("Fetching published blog posts");
         List<BlogPostResponse> posts = blogPostService.getPublishedPosts();
+        return ResponseEntity.ok(Response.success(posts, "Published blog posts retrieved successfully"));
+    }
+
+    /**
+     * Retrieves published blog posts with pagination support.
+     *
+     * @param pageable pagination parameters (default size: 10)
+     * @return response entity containing paginated published posts
+     */
+    @BlogPostApiResponses.GetPublishedPaginated
+    @GetMapping("/published/paginated")
+    public ResponseEntity<Response<Page<BlogPostResponse>>> getPublishedPostsPaginated(
+            @PageableDefault(size = 10) Pageable pageable) {
+        log.info("Fetching published blog posts with pagination: {}", pageable);
+        Page<BlogPostResponse> posts = blogPostService.getPublishedPostsPaginated(pageable);
         return ResponseEntity.ok(Response.success(posts, "Published blog posts retrieved successfully"));
     }
 

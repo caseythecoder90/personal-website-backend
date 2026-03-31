@@ -65,6 +65,7 @@ public final class ErrorMessages {
     public static final String MALFORMED_REQUEST_BODY = "Malformed request body";
     public static final String INVALID_ENUM_VALUE_FORMAT = "Invalid value '%s' for field '%s'. Accepted values: %s";
     public static final String INVALID_FIELD_TYPE_FORMAT = "Invalid value for field '%s': expected type %s";
+    public static final String MISSING_REQUEST_PARAMETER_FORMAT = "Required request parameter '%s' is not present";
     public static final String VALIDATION_FAILED = "Validation failed";
     public static final String DATA_INTEGRITY_ERROR = "A data integrity error occurred";
     public static final String DB_CONNECTION_FAILED = "Database connection failed. Please try again later.";

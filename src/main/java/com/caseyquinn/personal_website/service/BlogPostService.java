@@ -19,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,6 +75,19 @@ public class BlogPostService {
         log.info("Service: Fetching published blog posts");
         List<BlogPost> posts = blogPostDao.findPublished();
         return blogPostMapper.toResponseList(posts);
+    }
+
+    /**
+     * Retrieves published blog posts with pagination support.
+     *
+     * @param pageable pagination parameters
+     * @return page of published blog post responses
+     */
+    @Cacheable(value = "blog_posts", key = "'published:page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    public Page<BlogPostResponse> getPublishedPostsPaginated(Pageable pageable) {
+        log.info("Service: Fetching published blog posts with pagination: {}", pageable);
+        Page<BlogPost> posts = blogPostDao.findPublished(pageable);
+        return posts.map(blogPostMapper::toResponse);
     }
 
     /**
