@@ -15,7 +15,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -55,6 +57,7 @@ public class ContactSubmission {
     private SubmissionStatus status = SubmissionStatus.NEW;
     
     @Column(name = "ip_address", columnDefinition = "inet")
+    @JdbcTypeCode(SqlTypes.INET)
     private String ipAddress;
     
     @Column(name = "user_agent", columnDefinition = "TEXT")

@@ -6,6 +6,8 @@ import com.caseyquinn.personal_website.dto.request.UpdateProjectLinkRequest;
 import com.caseyquinn.personal_website.dto.response.ProjectLinkResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.ProjectLinkService;
+
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -54,7 +56,7 @@ public class ProjectLinkController {
         log.info("Creating link for projectId: {}", projectId);
         ProjectLinkResponse response = projectLinkService.createLink(projectId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(response, "Link created successfully"));
+                .body(Response.success(response, LINK_CREATED));
     }
 
     /**
@@ -70,7 +72,7 @@ public class ProjectLinkController {
 
         log.info("Fetching links for projectId: {}", projectId);
         List<ProjectLinkResponse> links = projectLinkService.getProjectLinks(projectId);
-        return ResponseEntity.ok(Response.success(links, "Links retrieved successfully"));
+        return ResponseEntity.ok(Response.success(links, LINKS_RETRIEVED));
     }
 
     /**
@@ -88,7 +90,7 @@ public class ProjectLinkController {
 
         log.info("Fetching link: linkId={}, projectId={}", linkId, projectId);
         ProjectLinkResponse link = projectLinkService.getLinkById(projectId, linkId);
-        return ResponseEntity.ok(Response.success(link, "Link retrieved successfully"));
+        return ResponseEntity.ok(Response.success(link, LINK_RETRIEVED));
     }
 
     /**
@@ -108,7 +110,7 @@ public class ProjectLinkController {
 
         log.info("Updating link: linkId={}, projectId={}", linkId, projectId);
         ProjectLinkResponse link = projectLinkService.updateLink(projectId, linkId, request);
-        return ResponseEntity.ok(Response.success(link, "Link updated successfully"));
+        return ResponseEntity.ok(Response.success(link, LINK_UPDATED));
     }
 
     /**
@@ -126,6 +128,6 @@ public class ProjectLinkController {
 
         log.info("Deleting link: linkId={}, projectId={}", linkId, projectId);
         projectLinkService.deleteLink(projectId, linkId);
-        return ResponseEntity.ok(Response.success(null, "Link deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, LINK_DELETED));
     }
 }

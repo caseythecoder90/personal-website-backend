@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.BLOG_CATEGORY_IN_USE;
+import static com.caseyquinn.personal_website.constants.CacheConstants.*;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -41,7 +42,7 @@ public class BlogCategoryService {
      *
      * @return list of all blog category responses
      */
-    @Cacheable(value = "blog_categories", key = "'all'")
+    @Cacheable(value = CACHE_BLOG_CATEGORIES, key = "'all'")
     public List<BlogCategoryResponse> getAllCategories() {
         log.info("Service: Fetching all blog categories");
         List<BlogCategory> categories = blogCategoryDao.findAll();
@@ -54,7 +55,7 @@ public class BlogCategoryService {
      * @param id the category ID
      * @return blog category response
      */
-    @Cacheable(value = "blog_categories", key = "'id:' + #id")
+    @Cacheable(value = CACHE_BLOG_CATEGORIES, key = "'id:' + #id")
     public BlogCategoryResponse getCategoryById(Long id) {
         log.info("Service: Fetching blog category with id: {}", id);
         BlogCategory category = blogCategoryDao.findByIdOrThrow(id);
@@ -67,7 +68,7 @@ public class BlogCategoryService {
      * @param slug the category slug
      * @return blog category response
      */
-    @Cacheable(value = "blog_categories", key = "'slug:' + #slug")
+    @Cacheable(value = CACHE_BLOG_CATEGORIES, key = "'slug:' + #slug")
     public BlogCategoryResponse getCategoryBySlug(String slug) {
         log.info("Service: Fetching blog category with slug: {}", slug);
         BlogCategory category = blogCategoryDao.findBySlug(slug)
@@ -82,8 +83,8 @@ public class BlogCategoryService {
      * @return the created blog category response
      */
     @Caching(evict = {
-            @CacheEvict(value = "blog_categories", allEntries = true),
-            @CacheEvict(value = "blog_posts", allEntries = true)
+            @CacheEvict(value = CACHE_BLOG_CATEGORIES, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true)
     })
     @Transactional
     public BlogCategoryResponse createCategory(CreateBlogCategoryRequest request) {
@@ -106,8 +107,8 @@ public class BlogCategoryService {
      * @return the updated blog category response
      */
     @Caching(evict = {
-            @CacheEvict(value = "blog_categories", allEntries = true),
-            @CacheEvict(value = "blog_posts", allEntries = true)
+            @CacheEvict(value = CACHE_BLOG_CATEGORIES, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true)
     })
     @Transactional
     public BlogCategoryResponse updateCategory(Long id, UpdateBlogCategoryRequest request) {
@@ -128,8 +129,8 @@ public class BlogCategoryService {
      * @param id the category ID
      */
     @Caching(evict = {
-            @CacheEvict(value = "blog_categories", allEntries = true),
-            @CacheEvict(value = "blog_posts", allEntries = true)
+            @CacheEvict(value = CACHE_BLOG_CATEGORIES, allEntries = true),
+            @CacheEvict(value = CACHE_BLOG_POSTS, allEntries = true)
     })
     @Transactional
     public void deleteCategory(Long id) {

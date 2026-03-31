@@ -14,6 +14,6 @@ public class CreateBlogTagRequest {
 
     @NotBlank(message = "Tag name is required")
     @Size(min = 2, max = 50, message = "Tag name must be between 2 and 50 characters")
-    @Schema(description = "Tag name", example = "java", required = true)
+    @Schema(description = "Tag name", example = "java", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 }

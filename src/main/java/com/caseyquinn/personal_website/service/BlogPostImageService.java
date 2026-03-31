@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.caseyquinn.personal_website.constants.FileConstants.*;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.BLOG_IMAGE_OWNERSHIP_MISMATCH;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.MAX_BLOG_IMAGES_EXCEEDED_FORMAT;
 import static java.util.Objects.isNull;
@@ -217,7 +218,7 @@ public class BlogPostImageService {
      */
     private CloudinaryUploadResult uploadToCloudinary(MultipartFile file, String subFolder, Long postId) {
         try {
-            return cloudinaryService.uploadImage(file, "blog/" + subFolder);
+            return cloudinaryService.uploadImage(file, SUBFOLDER_BLOG + subFolder);
         } catch (ValidationException e) {
             log.error("Failed to upload image to Cloudinary for blog post id: {}", postId, e);
             throw e;

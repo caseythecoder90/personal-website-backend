@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
+import static com.caseyquinn.personal_website.util.HttpRequestUtils.HEADER_RETRY_AFTER;
 
 /**
  * Global exception handler for all REST controllers.
@@ -35,7 +36,6 @@ import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private static final String RETRY_AFTER_HEADER = "Retry-After";
     private static final String RETRY_AFTER_SECONDS = "60";
 
     @ExceptionHandler(NotFoundException.class)
@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Response<Void>> handleRateLimitExceeded(RateLimitExceededException ex) {
         log.warn("[{}] {}", ex.getErrorCode().getCode(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                .header(RETRY_AFTER_HEADER, RETRY_AFTER_SECONDS)
+                .header(HEADER_RETRY_AFTER, RETRY_AFTER_SECONDS)
                 .body(Response.error(ex.getErrorCode().getCode(), ex.getMessage()));
     }
 

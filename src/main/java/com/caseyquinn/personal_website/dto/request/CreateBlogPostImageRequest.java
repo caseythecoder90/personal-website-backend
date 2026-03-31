@@ -18,7 +18,7 @@ import lombok.Data;
 public class CreateBlogPostImageRequest {
 
     @NotNull(message = "Image type is required")
-    @Schema(description = "Type of image", required = true, example = "FEATURED")
+    @Schema(description = "Type of image", requiredMode = Schema.RequiredMode.REQUIRED, example = "FEATURED")
     private BlogImageType imageType;
 
     @Size(max = 255, message = "Alt text cannot exceed 255 characters")

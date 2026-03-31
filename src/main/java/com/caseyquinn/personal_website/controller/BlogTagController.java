@@ -6,6 +6,8 @@ import com.caseyquinn.personal_website.dto.request.UpdateBlogTagRequest;
 import com.caseyquinn.personal_website.dto.response.BlogTagResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.BlogTagService;
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -48,7 +50,7 @@ public class BlogTagController {
     public ResponseEntity<Response<List<BlogTagResponse>>> getAllTags() {
         log.info("Fetching all blog tags");
         List<BlogTagResponse> tags = blogTagService.getAllTags();
-        return ResponseEntity.ok(Response.success(tags, "Blog tags retrieved successfully"));
+        return ResponseEntity.ok(Response.success(tags, BLOG_TAGS_RETRIEVED));
     }
 
     /**
@@ -61,7 +63,7 @@ public class BlogTagController {
     public ResponseEntity<Response<List<BlogTagResponse>>> getPopularTags() {
         log.info("Fetching popular blog tags");
         List<BlogTagResponse> tags = blogTagService.getPopularTags();
-        return ResponseEntity.ok(Response.success(tags, "Popular blog tags retrieved successfully"));
+        return ResponseEntity.ok(Response.success(tags, POPULAR_BLOG_TAGS_RETRIEVED));
     }
 
     /**
@@ -76,7 +78,7 @@ public class BlogTagController {
             @Parameter(description = "Tag ID") @PathVariable Long id) {
         log.info("Fetching blog tag with id: {}", id);
         BlogTagResponse tag = blogTagService.getTagById(id);
-        return ResponseEntity.ok(Response.success(tag, "Blog tag retrieved successfully"));
+        return ResponseEntity.ok(Response.success(tag, BLOG_TAG_RETRIEVED));
     }
 
     /**
@@ -91,7 +93,7 @@ public class BlogTagController {
             @Parameter(description = "Tag slug") @PathVariable String slug) {
         log.info("Fetching blog tag with slug: {}", slug);
         BlogTagResponse tag = blogTagService.getTagBySlug(slug);
-        return ResponseEntity.ok(Response.success(tag, "Blog tag retrieved successfully"));
+        return ResponseEntity.ok(Response.success(tag, BLOG_TAG_RETRIEVED));
     }
 
     /**
@@ -107,7 +109,7 @@ public class BlogTagController {
         log.info("Creating new blog tag: {}", request.getName());
         BlogTagResponse tag = blogTagService.createTag(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(tag, "Blog tag created successfully"));
+                .body(Response.success(tag, BLOG_TAG_CREATED));
     }
 
     /**
@@ -124,7 +126,7 @@ public class BlogTagController {
             @Valid @RequestBody UpdateBlogTagRequest request) {
         log.info("Updating blog tag with id: {}", id);
         BlogTagResponse tag = blogTagService.updateTag(id, request);
-        return ResponseEntity.ok(Response.success(tag, "Blog tag updated successfully"));
+        return ResponseEntity.ok(Response.success(tag, BLOG_TAG_UPDATED));
     }
 
     /**
@@ -139,6 +141,6 @@ public class BlogTagController {
             @Parameter(description = "Tag ID") @PathVariable Long id) {
         log.info("Deleting blog tag with id: {}", id);
         blogTagService.deleteTag(id);
-        return ResponseEntity.ok(Response.success(null, "Blog tag deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, BLOG_TAG_DELETED));
     }
 }

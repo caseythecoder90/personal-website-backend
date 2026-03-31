@@ -24,7 +24,10 @@ import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static com.caseyquinn.personal_website.constants.SecurityConstants.*;
+import static com.caseyquinn.personal_website.util.HttpRequestUtils.HEADER_RETRY_AFTER;
+import static com.caseyquinn.personal_website.util.HttpRequestUtils.HEADER_X_RATE_LIMIT_REMAINING;
+import static com.caseyquinn.personal_website.util.HttpRequestUtils.extractIpAddress;
 
 /**
  * Rate limiting filter using Bucket4j with per-IP, per-tier token buckets.
@@ -51,7 +54,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        String clientIp = resolveClientIp(request);
+        String clientIp = extractIpAddress(request);
         String tier = classifyRequest(request);
         String bucketKey = clientIp + ":" + tier;
 
@@ -59,7 +62,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
         if (probe.isConsumed()) {
-            response.setHeader("X-Rate-Limit-Remaining", String.valueOf(probe.getRemainingTokens()));
+            response.setHeader(HEADER_X_RATE_LIMIT_REMAINING, String.valueOf(probe.getRemainingTokens()));
             filterChain.doFilter(request, response);
         } else {
             long retryAfterSeconds = Duration.ofNanos(probe.getNanosToWaitForRefill()).toSeconds() + 1;
@@ -78,20 +81,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Resolves the client IP address, checking X-Forwarded-For for reverse proxy support.
-     *
-     * @param request the HTTP request
-     * @return the client IP address
-     */
-    private String resolveClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (isNotBlank(xForwardedFor)) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
-    }
-
-    /**
      * Classifies the request into a rate limit tier based on path and HTTP method.
      *
      * @param request the HTTP request
@@ -102,14 +91,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         if (path.startsWith("/api/v1/auth/")) {
-            return "login";
+            return TIER_LOGIN;
         }
 
         if ("POST".equals(method) || "PUT".equals(method) || "DELETE".equals(method)) {
-            return "admin";
+            return TIER_ADMIN;
         }
 
-        return "public";
+        return TIER_PUBLIC;
     }
 
     /**
@@ -120,8 +109,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
      */
     private Bucket createBucket(String tier) {
         RateLimitProperties.Tier config = switch (tier) {
-            case "login" -> rateLimitProperties.getLogin();
-            case "admin" -> rateLimitProperties.getAdminApi();
+            case TIER_LOGIN -> rateLimitProperties.getLogin();
+            case TIER_ADMIN -> rateLimitProperties.getAdminApi();
             default -> rateLimitProperties.getPublicApi();
         };
 
@@ -142,7 +131,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
      */
     private void writeRateLimitResponse(HttpServletResponse response, long retryAfterSeconds) throws IOException {
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-        response.setHeader("Retry-After", String.valueOf(retryAfterSeconds));
+        response.setHeader(HEADER_RETRY_AFTER, String.valueOf(retryAfterSeconds));
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         Response<Void> errorResponse = Response.error(

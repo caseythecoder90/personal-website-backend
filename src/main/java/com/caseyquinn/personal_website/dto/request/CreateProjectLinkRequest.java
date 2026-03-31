@@ -16,13 +16,13 @@ import org.hibernate.validator.constraints.URL;
 public class CreateProjectLinkRequest {
 
     @NotNull(message = "Link type is required")
-    @Schema(description = "Type of link", example = "GITHUB", required = true)
+    @Schema(description = "Type of link", example = "GITHUB", requiredMode = Schema.RequiredMode.REQUIRED)
     private LinkType type;
 
     @NotNull(message = "URL is required")
     @URL(message = "Must be a valid URL")
     @Size(max = 1000, message = "URL cannot exceed 1000 characters")
-    @Schema(description = "Link URL", example = "https://github.com/user/repo", required = true)
+    @Schema(description = "Link URL", example = "https://github.com/user/repo", requiredMode = Schema.RequiredMode.REQUIRED)
     private String url;
 
     @Size(max = 100, message = "Label cannot exceed 100 characters")

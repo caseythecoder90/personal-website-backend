@@ -7,6 +7,8 @@ import com.caseyquinn.personal_website.dto.response.CertificationResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.entity.enums.CertificationStatus;
 import com.caseyquinn.personal_website.service.CertificationService;
+
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -49,7 +51,7 @@ public class CertificationController {
     public ResponseEntity<Response<List<CertificationResponse>>> getAllCertifications() {
         log.info("Fetching all certifications");
         List<CertificationResponse> certifications = certificationService.getAllCertifications();
-        return ResponseEntity.ok(Response.success(certifications, "Certifications retrieved successfully"));
+        return ResponseEntity.ok(Response.success(certifications, CERTIFICATIONS_RETRIEVED));
     }
 
     /**
@@ -64,7 +66,7 @@ public class CertificationController {
             @Parameter(description = "Certification ID") @PathVariable Long id) {
         log.info("Fetching certification with id: {}", id);
         CertificationResponse certification = certificationService.getCertificationById(id);
-        return ResponseEntity.ok(Response.success(certification, "Certification retrieved successfully"));
+        return ResponseEntity.ok(Response.success(certification, CERTIFICATION_RETRIEVED));
     }
 
     /**
@@ -79,7 +81,7 @@ public class CertificationController {
             @Parameter(description = "Certification slug") @PathVariable String slug) {
         log.info("Fetching certification with slug: {}", slug);
         CertificationResponse certification = certificationService.getCertificationBySlug(slug);
-        return ResponseEntity.ok(Response.success(certification, "Certification retrieved successfully"));
+        return ResponseEntity.ok(Response.success(certification, CERTIFICATION_RETRIEVED));
     }
 
     /**
@@ -95,7 +97,7 @@ public class CertificationController {
         log.info("Creating new certification: {}", request.getName());
         CertificationResponse certification = certificationService.createCertification(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(certification, "Certification created successfully"));
+                .body(Response.success(certification, CERTIFICATION_CREATED));
     }
 
     /**
@@ -112,7 +114,7 @@ public class CertificationController {
             @Valid @RequestBody UpdateCertificationRequest request) {
         log.info("Updating certification with id: {}", id);
         CertificationResponse certification = certificationService.updateCertification(id, request);
-        return ResponseEntity.ok(Response.success(certification, "Certification updated successfully"));
+        return ResponseEntity.ok(Response.success(certification, CERTIFICATION_UPDATED));
     }
 
     /**
@@ -127,7 +129,7 @@ public class CertificationController {
             @Parameter(description = "Certification ID") @PathVariable Long id) {
         log.info("Deleting certification with id: {}", id);
         certificationService.deleteCertification(id);
-        return ResponseEntity.ok(Response.success(null, "Certification deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, CERTIFICATION_DELETED));
     }
 
     /**
@@ -142,7 +144,7 @@ public class CertificationController {
             @Parameter(description = "Certification status") @PathVariable CertificationStatus status) {
         log.info("Fetching certifications by status: {}", status);
         List<CertificationResponse> certifications = certificationService.getCertificationsByStatus(status);
-        return ResponseEntity.ok(Response.success(certifications, "Certifications retrieved successfully"));
+        return ResponseEntity.ok(Response.success(certifications, CERTIFICATIONS_RETRIEVED));
     }
 
     /**
@@ -157,7 +159,7 @@ public class CertificationController {
             @Parameter(description = "Issuing organization name") @PathVariable String organization) {
         log.info("Fetching certifications by organization: {}", organization);
         List<CertificationResponse> certifications = certificationService.getCertificationsByOrganization(organization);
-        return ResponseEntity.ok(Response.success(certifications, "Certifications retrieved successfully"));
+        return ResponseEntity.ok(Response.success(certifications, CERTIFICATIONS_RETRIEVED));
     }
 
     /**
@@ -170,7 +172,7 @@ public class CertificationController {
     public ResponseEntity<Response<List<CertificationResponse>>> getPublishedCertifications() {
         log.info("Fetching published certifications");
         List<CertificationResponse> certifications = certificationService.getPublishedCertifications();
-        return ResponseEntity.ok(Response.success(certifications, "Published certifications retrieved successfully"));
+        return ResponseEntity.ok(Response.success(certifications, PUBLISHED_CERTIFICATIONS_RETRIEVED));
     }
 
     /**
@@ -183,7 +185,7 @@ public class CertificationController {
     public ResponseEntity<Response<List<CertificationResponse>>> getFeaturedCertifications() {
         log.info("Fetching featured certifications");
         List<CertificationResponse> certifications = certificationService.getFeaturedCertifications();
-        return ResponseEntity.ok(Response.success(certifications, "Featured certifications retrieved successfully"));
+        return ResponseEntity.ok(Response.success(certifications, FEATURED_CERTIFICATIONS_RETRIEVED));
     }
 
     /**
@@ -200,7 +202,7 @@ public class CertificationController {
             @Parameter(description = "Technology ID") @PathVariable Long technologyId) {
         log.info("Adding technology {} to certification {}", technologyId, id);
         CertificationResponse certification = certificationService.addTechnologyToCertification(id, technologyId);
-        return ResponseEntity.ok(Response.success(certification, "Technology added to certification successfully"));
+        return ResponseEntity.ok(Response.success(certification, CERT_TECHNOLOGY_ADDED));
     }
 
     /**
@@ -217,6 +219,6 @@ public class CertificationController {
             @Parameter(description = "Technology ID") @PathVariable Long technologyId) {
         log.info("Removing technology {} from certification {}", technologyId, id);
         CertificationResponse certification = certificationService.removeTechnologyFromCertification(id, technologyId);
-        return ResponseEntity.ok(Response.success(certification, "Technology removed from certification successfully"));
+        return ResponseEntity.ok(Response.success(certification, CERT_TECHNOLOGY_REMOVED));
     }
 }

@@ -17,6 +17,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 import java.util.Map;
 
+import static com.caseyquinn.personal_website.constants.CacheConstants.*;
+
 /**
  * Redis cache configuration with per-cache TTLs and JSON serialization.
  */
@@ -51,13 +53,13 @@ public class CacheConfig {
                 .disableCachingNullValues();
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = Map.of(
-                "projects", defaultConfig.entryTtl(Duration.ofMinutes(10)),
-                "technologies", defaultConfig.entryTtl(Duration.ofMinutes(30)),
-                "certifications", defaultConfig.entryTtl(Duration.ofMinutes(30)),
-                "blog_posts", defaultConfig.entryTtl(Duration.ofMinutes(20)),
-                "blog_categories", defaultConfig.entryTtl(Duration.ofMinutes(30)),
-                "blog_tags", defaultConfig.entryTtl(Duration.ofMinutes(30)),
-                "resume", defaultConfig.entryTtl(Duration.ofMinutes(60))
+                CACHE_PROJECTS, defaultConfig.entryTtl(Duration.ofMinutes(10)),
+                CACHE_TECHNOLOGIES, defaultConfig.entryTtl(Duration.ofMinutes(30)),
+                CACHE_CERTIFICATIONS, defaultConfig.entryTtl(Duration.ofMinutes(30)),
+                CACHE_BLOG_POSTS, defaultConfig.entryTtl(Duration.ofMinutes(20)),
+                CACHE_BLOG_CATEGORIES, defaultConfig.entryTtl(Duration.ofMinutes(30)),
+                CACHE_BLOG_TAGS, defaultConfig.entryTtl(Duration.ofMinutes(30)),
+                CACHE_RESUME, defaultConfig.entryTtl(Duration.ofMinutes(60))
         );
 
         return RedisCacheManager.builder(connectionFactory)

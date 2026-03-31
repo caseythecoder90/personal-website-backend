@@ -14,7 +14,7 @@ import lombok.Data;
 public class CreateProjectImageRequest {
 
     @NotNull(message = "Image type is required")
-    @Schema(description = "Type of image", required = true, example = "SCREENSHOT")
+    @Schema(description = "Type of image", requiredMode = Schema.RequiredMode.REQUIRED, example = "SCREENSHOT")
     private ImageType imageType;
 
     @Size(max = 255, message = "Alt text cannot exceed 255 characters")

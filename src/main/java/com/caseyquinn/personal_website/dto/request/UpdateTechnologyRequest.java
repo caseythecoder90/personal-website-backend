@@ -20,7 +20,7 @@ public class UpdateTechnologyRequest {
     
     @NotBlank(message = "Technology name is required")
     @Size(min = 2, max = 50, message = "Technology name must be between 2 and 50 characters")
-    @Schema(description = "Technology name", example = "Java", required = true)
+    @Schema(description = "Technology name", example = "Java", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
     
     @Size(max = 20, message = "Version cannot exceed 20 characters")
@@ -28,7 +28,7 @@ public class UpdateTechnologyRequest {
     private String version;
     
     @NotNull(message = "Technology category is required")
-    @Schema(description = "Technology category", required = true)
+    @Schema(description = "Technology category", requiredMode = Schema.RequiredMode.REQUIRED)
     private TechnologyCategory category;
     
     @URL(message = "Must be a valid URL")
