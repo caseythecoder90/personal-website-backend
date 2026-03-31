@@ -54,6 +54,23 @@ public class BlogPostApiResponses {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "Get published blog posts with pagination", description = "Retrieve published blog posts with pagination support")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Paginated published posts retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            )
+    })
+    public @interface GetPublishedPaginated {}
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
     @Operation(summary = "Get blog post by ID", description = "Retrieve a specific blog post by its ID")
     @ApiResponses({
             @ApiResponse(

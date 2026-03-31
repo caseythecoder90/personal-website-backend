@@ -15,6 +15,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -132,6 +133,18 @@ public class GlobalExceptionHandler {
             log.debug("Static resource not found: {}", resourcePath);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Handles missing required request parameters (e.g., ?q= not provided on search endpoints).
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Response<Void>> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex) {
+        log.warn("[{}] Missing parameter: {}", ErrorCode.VALIDATION_FAILED.getCode(), ex.getParameterName());
+        String message = String.format(MISSING_REQUEST_PARAMETER_FORMAT, ex.getParameterName());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Response.error(ErrorCode.VALIDATION_FAILED.getCode(), message));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
