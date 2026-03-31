@@ -59,4 +59,15 @@ public final class ErrorMessages {
     public static final String RESUME_UPLOAD_FAILED = "Failed to upload resume: %s";
     public static final String INVALID_PDF_FILE = "File must be a valid PDF document";
     public static final String NO_ACTIVE_RESUME = "No active resume found";
+
+    // Global Exception Handler Messages
+    public static final String MAX_UPLOAD_SIZE_EXCEEDED = "File size exceeds the maximum allowed upload size";
+    public static final String MALFORMED_REQUEST_BODY = "Malformed request body";
+    public static final String INVALID_ENUM_VALUE_FORMAT = "Invalid value '%s' for field '%s'. Accepted values: %s";
+    public static final String INVALID_FIELD_TYPE_FORMAT = "Invalid value for field '%s': expected type %s";
+    public static final String VALIDATION_FAILED = "Validation failed";
+    public static final String DATA_INTEGRITY_ERROR = "A data integrity error occurred";
+    public static final String DB_CONNECTION_FAILED = "Database connection failed. Please try again later.";
+    public static final String DATA_ACCESS_ERROR = "A data access error occurred. Please try again later.";
+    public static final String UNEXPECTED_ERROR = "An unexpected error occurred";
 }
