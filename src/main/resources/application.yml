@@ -78,7 +78,7 @@ jasypt:
 # Resend email configuration
 resend:
   api-key: ${RESEND_API_KEY}
-  from-email: "Casey Quinn <noreply@caseyquinn.com>"
+  from-email: "Casey Quinn <noreply@caseylovesyas.com>"
   owner-email: ${OWNER_EMAIL}
 
 # Application-specific configuration

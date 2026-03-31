@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static com.caseyquinn.personal_website.constants.FileConstants.*;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static java.util.Objects.isNull;
 
@@ -38,7 +39,7 @@ public class FileValidationService {
      * @throws ValidationException if validation fails
      */
     public void validatePdfFile(MultipartFile file, long maxFileSize) {
-        log.debug("Validating PDF file: name={}, size={}, contentType={}",
+        log.info("Validating PDF file: name={}, size={}, contentType={}",
             file.getOriginalFilename(), file.getSize(), file.getContentType());
 
         validateFileNotEmpty(file);
@@ -51,7 +52,7 @@ public class FileValidationService {
         }
 
         String contentType = file.getContentType();
-        if (isNull(contentType) || !"application/pdf".equalsIgnoreCase(contentType)) {
+        if (isNull(contentType) || !MIME_PDF.equalsIgnoreCase(contentType)) {
             throw new ValidationException(ErrorCode.INVALID_FILE_TYPE, INVALID_PDF_FILE);
         }
 
@@ -65,7 +66,7 @@ public class FileValidationService {
             throw new ValidationException(ErrorCode.FILE_UPLOAD_ERROR, String.format(FILE_READ_ERROR, e.getMessage()));
         }
 
-        log.debug("PDF file validation successful");
+        log.info("PDF file validation successful");
     }
 
     /**

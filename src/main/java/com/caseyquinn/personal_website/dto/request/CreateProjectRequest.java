@@ -22,7 +22,7 @@ public class CreateProjectRequest {
     
     @NotBlank(message = "Project name is required")
     @Size(min = 2, max = 100, message = "Project name must be between 2 and 100 characters")
-    @Schema(description = "Project name", example = "Personal Website", required = true)
+    @Schema(description = "Project name", example = "Personal Website", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
     
     @Size(min = 2, max = 100, message = "Slug must be between 2 and 100 characters")
@@ -31,7 +31,7 @@ public class CreateProjectRequest {
     
     @NotBlank(message = "Short description is required")
     @Size(max = 200, message = "Short description cannot exceed 200 characters")
-    @Schema(description = "Short project description for listings", required = true)
+    @Schema(description = "Short project description for listings", requiredMode = Schema.RequiredMode.REQUIRED)
     private String shortDescription;
     
     @Size(max = 5000, message = "Full description cannot exceed 5000 characters")
@@ -39,7 +39,7 @@ public class CreateProjectRequest {
     private String fullDescription;
     
     @NotNull(message = "Project type is required")
-    @Schema(description = "Project type", required = true)
+    @Schema(description = "Project type", requiredMode = Schema.RequiredMode.REQUIRED)
     private ProjectType type;
     
     @Schema(description = "Project status (defaults to PLANNING if not provided)")

@@ -6,6 +6,8 @@ import com.caseyquinn.personal_website.dto.request.UpdateBlogCategoryRequest;
 import com.caseyquinn.personal_website.dto.response.BlogCategoryResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.BlogCategoryService;
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -48,7 +50,7 @@ public class BlogCategoryController {
     public ResponseEntity<Response<List<BlogCategoryResponse>>> getAllCategories() {
         log.info("Fetching all blog categories");
         List<BlogCategoryResponse> categories = blogCategoryService.getAllCategories();
-        return ResponseEntity.ok(Response.success(categories, "Blog categories retrieved successfully"));
+        return ResponseEntity.ok(Response.success(categories, BLOG_CATEGORIES_RETRIEVED));
     }
 
     /**
@@ -63,7 +65,7 @@ public class BlogCategoryController {
             @Parameter(description = "Category ID") @PathVariable Long id) {
         log.info("Fetching blog category with id: {}", id);
         BlogCategoryResponse category = blogCategoryService.getCategoryById(id);
-        return ResponseEntity.ok(Response.success(category, "Blog category retrieved successfully"));
+        return ResponseEntity.ok(Response.success(category, BLOG_CATEGORY_RETRIEVED));
     }
 
     /**
@@ -78,7 +80,7 @@ public class BlogCategoryController {
             @Parameter(description = "Category slug") @PathVariable String slug) {
         log.info("Fetching blog category with slug: {}", slug);
         BlogCategoryResponse category = blogCategoryService.getCategoryBySlug(slug);
-        return ResponseEntity.ok(Response.success(category, "Blog category retrieved successfully"));
+        return ResponseEntity.ok(Response.success(category, BLOG_CATEGORY_RETRIEVED));
     }
 
     /**
@@ -94,7 +96,7 @@ public class BlogCategoryController {
         log.info("Creating new blog category: {}", request.getName());
         BlogCategoryResponse category = blogCategoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(category, "Blog category created successfully"));
+                .body(Response.success(category, BLOG_CATEGORY_CREATED));
     }
 
     /**
@@ -111,7 +113,7 @@ public class BlogCategoryController {
             @Valid @RequestBody UpdateBlogCategoryRequest request) {
         log.info("Updating blog category with id: {}", id);
         BlogCategoryResponse category = blogCategoryService.updateCategory(id, request);
-        return ResponseEntity.ok(Response.success(category, "Blog category updated successfully"));
+        return ResponseEntity.ok(Response.success(category, BLOG_CATEGORY_UPDATED));
     }
 
     /**
@@ -126,6 +128,6 @@ public class BlogCategoryController {
             @Parameter(description = "Category ID") @PathVariable Long id) {
         log.info("Deleting blog category with id: {}", id);
         blogCategoryService.deleteCategory(id);
-        return ResponseEntity.ok(Response.success(null, "Blog category deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, BLOG_CATEGORY_DELETED));
     }
 }

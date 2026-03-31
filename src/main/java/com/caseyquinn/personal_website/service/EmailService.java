@@ -1,5 +1,7 @@
 package com.caseyquinn.personal_website.service;
 
+import static com.caseyquinn.personal_website.constants.EmailConstants.*;
+
 import com.caseyquinn.personal_website.entity.ContactSubmission;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
@@ -52,15 +54,15 @@ public class EmailService {
 
         try {
             Context context = new Context();
-            context.setVariable("name", submission.getName());
-            context.setVariable("message", submission.getMessage());
+            context.setVariable(VAR_NAME, submission.getName());
+            context.setVariable(VAR_MESSAGE, submission.getMessage());
 
-            String html = emailTemplateEngine.process("contact-confirmation", context);
+            String html = emailTemplateEngine.process(TEMPLATE_CONTACT_CONFIRMATION, context);
 
             CreateEmailOptions params = CreateEmailOptions.builder()
                     .from(fromEmail)
                     .to(submission.getEmail())
-                    .subject("Thank you for reaching out!")
+                    .subject(SUBJECT_CONTACT_CONFIRMATION)
                     .html(html)
                     .build();
 
@@ -83,20 +85,20 @@ public class EmailService {
 
         try {
             Context context = new Context();
-            context.setVariable("name", submission.getName());
-            context.setVariable("email", submission.getEmail());
-            context.setVariable("inquiryType", submission.getInquiryType().name());
-            context.setVariable("subject", submission.getSubject());
-            context.setVariable("message", submission.getMessage());
-            context.setVariable("ipAddress", submission.getIpAddress());
-            context.setVariable("submittedAt", submission.getCreatedAt());
+            context.setVariable(VAR_NAME, submission.getName());
+            context.setVariable(VAR_EMAIL, submission.getEmail());
+            context.setVariable(VAR_INQUIRY_TYPE, submission.getInquiryType().name());
+            context.setVariable(VAR_SUBJECT, submission.getSubject());
+            context.setVariable(VAR_MESSAGE, submission.getMessage());
+            context.setVariable(VAR_IP_ADDRESS, submission.getIpAddress());
+            context.setVariable(VAR_SUBMITTED_AT, submission.getCreatedAt());
 
-            String html = emailTemplateEngine.process("contact-notification", context);
+            String html = emailTemplateEngine.process(TEMPLATE_CONTACT_NOTIFICATION, context);
 
             CreateEmailOptions params = CreateEmailOptions.builder()
                     .from(fromEmail)
                     .to(ownerEmail)
-                    .subject("New Contact Submission: " + submission.getInquiryType())
+                    .subject(SUBJECT_NEW_CONTACT_PREFIX + submission.getInquiryType())
                     .html(html)
                     .build();
 

@@ -6,6 +6,8 @@ import com.caseyquinn.personal_website.dto.request.UpdateProjectRequest;
 import com.caseyquinn.personal_website.dto.response.ProjectResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.ProjectService;
+
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -44,7 +46,7 @@ public class ProjectController {
     public ResponseEntity<Response<List<ProjectResponse>>> getAllProjects() {
         log.info("Fetching all projects");
         List<ProjectResponse> projects = projectService.getAllProjects();
-        return ResponseEntity.ok(Response.success(projects, "Projects retrieved successfully"));
+        return ResponseEntity.ok(Response.success(projects, PROJECTS_RETRIEVED));
     }
     
     /**
@@ -59,7 +61,7 @@ public class ProjectController {
             @PageableDefault(size = 10) Pageable pageable) {
         log.info("Fetching projects with pagination: {}", pageable);
         Page<ProjectResponse> projects = projectService.getProjectsPaginated(pageable);
-        return ResponseEntity.ok(Response.success(projects, "Projects retrieved successfully"));
+        return ResponseEntity.ok(Response.success(projects, PROJECTS_RETRIEVED));
     }
     
     /**
@@ -74,7 +76,7 @@ public class ProjectController {
             @Parameter(description = "Project ID") @PathVariable Long id) {
         log.info("Fetching project with id: {}", id);
         ProjectResponse project = projectService.getProjectById(id);
-        return ResponseEntity.ok(Response.success(project, "Project retrieved successfully"));
+        return ResponseEntity.ok(Response.success(project, PROJECT_RETRIEVED));
     }
     
     /**
@@ -90,7 +92,7 @@ public class ProjectController {
         log.info("Creating new project: {}", request.getName());
         ProjectResponse project = projectService.createProject(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(project, "Project created successfully"));
+                .body(Response.success(project, PROJECT_CREATED));
     }
     
     /**
@@ -107,7 +109,7 @@ public class ProjectController {
             @Valid @RequestBody UpdateProjectRequest request) {
         log.info("Updating project with id: {}", id);
         ProjectResponse project = projectService.updateProject(id, request);
-        return ResponseEntity.ok(Response.success(project, "Project updated successfully"));
+        return ResponseEntity.ok(Response.success(project, PROJECT_UPDATED));
     }
     
     /**
@@ -122,7 +124,7 @@ public class ProjectController {
             @Parameter(description = "Project ID") @PathVariable Long id) {
         log.info("Deleting project with id: {}", id);
         projectService.deleteProject(id);
-        return ResponseEntity.ok(Response.success(null, "Project deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, PROJECT_DELETED));
     }
     
     /**
@@ -137,6 +139,6 @@ public class ProjectController {
             @Parameter(description = "Technology name") @PathVariable String technology) {
         log.info("Fetching projects by technology: {}", technology);
         List<ProjectResponse> projects = projectService.getProjectsByTechnologyName(technology);
-        return ResponseEntity.ok(Response.success(projects, "Projects retrieved successfully"));
+        return ResponseEntity.ok(Response.success(projects, PROJECTS_RETRIEVED));
     }
 }

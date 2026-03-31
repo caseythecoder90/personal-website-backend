@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
+import static com.caseyquinn.personal_website.constants.CacheConstants.*;
 
 /**
  * Service layer for managing technologies and their associated business logic.
@@ -43,7 +44,7 @@ public class TechnologyService {
      *
      * @return list of all technology responses
      */
-    @Cacheable(value = "technologies", key = "'all'")
+    @Cacheable(value = CACHE_TECHNOLOGIES, key = "'all'")
     public List<TechnologyResponse> getAllTechnologies() {
         log.info("Service: Fetching all technologies");
         List<Technology> technologies = technologyDao.findAll();
@@ -68,7 +69,7 @@ public class TechnologyService {
      * @param id the technology ID
      * @return technology response
      */
-    @Cacheable(value = "technologies", key = "'id:' + #id")
+    @Cacheable(value = CACHE_TECHNOLOGIES, key = "'id:' + #id")
     public TechnologyResponse getTechnologyById(Long id) {
         log.info("Service: Fetching technology with id: {}", id);
         Technology technology = technologyDao.findByIdOrThrow(id);
@@ -95,9 +96,9 @@ public class TechnologyService {
      * @return the created technology response
      */
     @Caching(evict = {
-            @CacheEvict(value = "technologies", allEntries = true),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "certifications", allEntries = true)
+            @CacheEvict(value = CACHE_TECHNOLOGIES, allEntries = true),
+            @CacheEvict(value = CACHE_PROJECTS, allEntries = true),
+            @CacheEvict(value = CACHE_CERTIFICATIONS, allEntries = true)
     })
     @Transactional
     public TechnologyResponse createTechnology(CreateTechnologyRequest request) {
@@ -120,9 +121,9 @@ public class TechnologyService {
      * @return the updated technology response
      */
     @Caching(evict = {
-            @CacheEvict(value = "technologies", allEntries = true),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "certifications", allEntries = true)
+            @CacheEvict(value = CACHE_TECHNOLOGIES, allEntries = true),
+            @CacheEvict(value = CACHE_PROJECTS, allEntries = true),
+            @CacheEvict(value = CACHE_CERTIFICATIONS, allEntries = true)
     })
     @Transactional
     public TechnologyResponse updateTechnology(Long id, UpdateTechnologyRequest request) {
@@ -148,9 +149,9 @@ public class TechnologyService {
      * @param id the technology ID
      */
     @Caching(evict = {
-            @CacheEvict(value = "technologies", allEntries = true),
-            @CacheEvict(value = "projects", allEntries = true),
-            @CacheEvict(value = "certifications", allEntries = true)
+            @CacheEvict(value = CACHE_TECHNOLOGIES, allEntries = true),
+            @CacheEvict(value = CACHE_PROJECTS, allEntries = true),
+            @CacheEvict(value = CACHE_CERTIFICATIONS, allEntries = true)
     })
     @Transactional
     public void deleteTechnology(Long id) {
@@ -205,7 +206,7 @@ public class TechnologyService {
      *
      * @return list of featured technology responses
      */
-    @Cacheable(value = "technologies", key = "'featured'")
+    @Cacheable(value = CACHE_TECHNOLOGIES, key = "'featured'")
     public List<TechnologyResponse> getFeaturedTechnologies() {
         log.info("Service: Fetching featured technologies");
         List<Technology> technologies = technologyDao.findFeaturedTechnologies();

@@ -1,5 +1,7 @@
 package com.caseyquinn.personal_website.controller;
 
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
+
 import com.caseyquinn.personal_website.annotations.OperationsApiResponses;
 import com.caseyquinn.personal_website.dto.request.EncryptionRequest;
 import com.caseyquinn.personal_website.dto.response.EncryptionResponse;
@@ -33,7 +35,7 @@ public class OperationsController {
     @OperationsApiResponses.Health
     @GetMapping("/health")
     public ResponseEntity<Response<HealthResponse>> health() {
-        return ResponseEntity.ok(Response.success(operationsService.getHealth(), "Service is healthy"));
+        return ResponseEntity.ok(Response.success(operationsService.getHealth(), SERVICE_HEALTHY));
     }
 
     /**
@@ -45,7 +47,7 @@ public class OperationsController {
     @OperationsApiResponses.Encrypt
     @PostMapping("/operations/encrypt")
     public ResponseEntity<Response<EncryptionResponse>> encrypt(@Valid @RequestBody EncryptionRequest request) {
-        return ResponseEntity.ok(Response.success(operationsService.encrypt(request.getText()), "Text encrypted successfully"));
+        return ResponseEntity.ok(Response.success(operationsService.encrypt(request.getText()), TEXT_ENCRYPTED));
     }
 
     /**
@@ -57,7 +59,7 @@ public class OperationsController {
     @OperationsApiResponses.Decrypt
     @PostMapping("/operations/decrypt")
     public ResponseEntity<Response<EncryptionResponse>> decrypt(@Valid @RequestBody EncryptionRequest request) {
-        return ResponseEntity.ok(Response.success(operationsService.decrypt(request.getText()), "Text decrypted successfully"));
+        return ResponseEntity.ok(Response.success(operationsService.decrypt(request.getText()), TEXT_DECRYPTED));
     }
 
     /**
@@ -70,6 +72,6 @@ public class OperationsController {
     @OperationsApiResponses.HashPassword
     @PostMapping("/operations/hash-password")
     public ResponseEntity<Response<EncryptionResponse>> hashPassword(@Valid @RequestBody EncryptionRequest request) {
-        return ResponseEntity.ok(Response.success(operationsService.hashPassword(request.getText()), "Password hashed successfully"));
+        return ResponseEntity.ok(Response.success(operationsService.hashPassword(request.getText()), PASSWORD_HASHED));
     }
 }

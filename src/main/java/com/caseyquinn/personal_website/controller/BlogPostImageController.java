@@ -6,6 +6,7 @@ import com.caseyquinn.personal_website.dto.request.UpdateBlogPostImageRequest;
 import com.caseyquinn.personal_website.dto.response.BlogPostImageResponse;
 import com.caseyquinn.personal_website.dto.response.Response;
 import com.caseyquinn.personal_website.service.BlogPostImageService;
+import static com.caseyquinn.personal_website.constants.ResponseMessages.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -60,7 +61,7 @@ public class BlogPostImageController {
         log.info("Uploading image for blog post id: {}", postId);
         BlogPostImageResponse response = blogPostImageService.uploadImage(postId, file, request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success(response, "Blog post image uploaded successfully"));
+                .body(Response.success(response, BLOG_IMAGE_UPLOADED));
     }
 
     /**
@@ -75,7 +76,7 @@ public class BlogPostImageController {
             @Parameter(description = "Blog post ID") @PathVariable Long postId) {
         log.info("Fetching images for blog post id: {}", postId);
         List<BlogPostImageResponse> images = blogPostImageService.getImagesByPostId(postId);
-        return ResponseEntity.ok(Response.success(images, "Blog post images retrieved successfully"));
+        return ResponseEntity.ok(Response.success(images, BLOG_IMAGES_RETRIEVED));
     }
 
     /**
@@ -92,7 +93,7 @@ public class BlogPostImageController {
             @Parameter(description = "Image ID") @PathVariable Long imageId) {
         log.info("Fetching image with id: {} for blog post id: {}", imageId, postId);
         BlogPostImageResponse image = blogPostImageService.getImageById(postId, imageId);
-        return ResponseEntity.ok(Response.success(image, "Blog post image retrieved successfully"));
+        return ResponseEntity.ok(Response.success(image, BLOG_IMAGE_RETRIEVED));
     }
 
     /**
@@ -111,7 +112,7 @@ public class BlogPostImageController {
             @Valid @RequestBody UpdateBlogPostImageRequest request) {
         log.info("Updating image with id: {} for blog post id: {}", imageId, postId);
         BlogPostImageResponse image = blogPostImageService.updateImage(postId, imageId, request);
-        return ResponseEntity.ok(Response.success(image, "Blog post image updated successfully"));
+        return ResponseEntity.ok(Response.success(image, BLOG_IMAGE_UPDATED));
     }
 
     /**
@@ -128,7 +129,7 @@ public class BlogPostImageController {
             @Parameter(description = "Image ID") @PathVariable Long imageId) {
         log.info("Deleting image with id: {} from blog post id: {}", imageId, postId);
         blogPostImageService.deleteImage(postId, imageId);
-        return ResponseEntity.ok(Response.success(null, "Blog post image deleted successfully"));
+        return ResponseEntity.ok(Response.success(null, BLOG_IMAGE_DELETED));
     }
 
     /**
@@ -145,6 +146,6 @@ public class BlogPostImageController {
             @Parameter(description = "Image ID") @PathVariable Long imageId) {
         log.info("Setting image {} as primary for blog post id: {}", imageId, postId);
         BlogPostImageResponse image = blogPostImageService.setPrimaryImage(postId, imageId);
-        return ResponseEntity.ok(Response.success(image, "Image set as primary successfully"));
+        return ResponseEntity.ok(Response.success(image, BLOG_IMAGE_PRIMARY_SET));
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import static com.caseyquinn.personal_website.constants.OperationsConstants.*;
+
 /**
  * Service providing operational utilities including health checks and encryption operations.
  */
@@ -50,7 +52,7 @@ public class OperationsService {
      */
     public HealthResponse getHealth() {
         return HealthResponse.builder()
-                .status("UP")
+                .status(HEALTH_STATUS_UP)
                 .service(applicationName)
                 .version(version)
                 .environment(String.join(", ", environment.getActiveProfiles()))
@@ -69,7 +71,7 @@ public class OperationsService {
         log.info("Encrypting text");
         String encrypted = stringEncryptor.encrypt(plaintext);
         return EncryptionResponse.builder()
-                .text("ENC(" + encrypted + ")")
+                .text(ENCRYPTION_PREFIX + encrypted + ENCRYPTION_SUFFIX)
                 .build();
     }
 
@@ -83,7 +85,7 @@ public class OperationsService {
         requireNonProductionProfile();
         log.info("Decrypting text");
         String input = ciphertext;
-        if (input.startsWith("ENC(") && input.endsWith(")")) {
+        if (input.startsWith(ENCRYPTION_PREFIX) && input.endsWith(ENCRYPTION_SUFFIX)) {
             input = input.substring(4, input.length() - 1);
         }
         String decrypted = stringEncryptor.decrypt(input);

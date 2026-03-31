@@ -12,10 +12,10 @@ import lombok.Data;
 public class LoginRequest {
 
     @NotBlank(message = "Username is required")
-    @Schema(description = "Username or email", example = "admin", required = true)
+    @Schema(description = "Username or email", example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
     private String username;
 
     @NotBlank(message = "Password is required")
-    @Schema(description = "Password", example = "admin123", required = true)
+    @Schema(description = "Password", example = "admin123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
 }
