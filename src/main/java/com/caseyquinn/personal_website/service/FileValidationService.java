@@ -1,14 +1,15 @@
 package com.caseyquinn.personal_website.service;
 
+import com.caseyquinn.personal_website.config.ImageProperties;
 import com.caseyquinn.personal_website.exception.ErrorCode;
 import com.caseyquinn.personal_website.exception.business.ValidationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Set;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static java.util.Objects.isNull;
@@ -18,15 +19,10 @@ import static java.util.Objects.isNull;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileValidationService {
 
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
-    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp"
-    );
+    private final ImageProperties imageProperties;
 
     private static final byte[] JPEG_MAGIC = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
     private static final byte[] PNG_MAGIC = {(byte) 0x89, 0x50, 0x4E, 0x47};
@@ -61,7 +57,7 @@ public class FileValidationService {
 
         try {
             byte[] fileBytes = file.getBytes();
-            if (isNull(fileBytes) || fileBytes.length < 4 || !startsWith(fileBytes, PDF_MAGIC)) {
+            if (fileBytes.length < 4 || !startsWith(fileBytes, PDF_MAGIC)) {
                 throw new ValidationException(ErrorCode.INVALID_FILE_TYPE, INVALID_PDF_FILE);
             }
         } catch (IOException e) {
@@ -79,7 +75,7 @@ public class FileValidationService {
      * @throws ValidationException if validation fails
      */
     public void validateImageFile(MultipartFile file) {
-        log.debug("Validating image file: name={}, size={}, contentType={}",
+        log.info("Validating image file: name={}, size={}, contentType={}",
             file.getOriginalFilename(), file.getSize(), file.getContentType());
 
         validateFileNotEmpty(file);
@@ -87,7 +83,7 @@ public class FileValidationService {
         String contentType = validateContentType(file);
         validateMagicBytes(file, contentType);
 
-        log.debug("Image file validation successful");
+        log.info("Image file validation successful");
     }
 
     private boolean isValidImageMagicBytes(byte[] fileBytes, String contentType) {
@@ -130,10 +126,10 @@ public class FileValidationService {
      * @throws ValidationException if the file size exceeds the limit
      */
     private void validateFileSize(MultipartFile file) {
-        if (file.getSize() > MAX_FILE_SIZE) {
+        if (file.getSize() > imageProperties.getMaxFileSize()) {
             throw new ValidationException(
                 ErrorCode.FILE_SIZE_EXCEEDED,
-                String.format(FILE_SIZE_EXCEEDED_FORMAT, file.getSize(), MAX_FILE_SIZE)
+                String.format(FILE_SIZE_EXCEEDED_FORMAT, file.getSize(), imageProperties.getMaxFileSize())
             );
         }
     }
@@ -147,10 +143,10 @@ public class FileValidationService {
      */
     private String validateContentType(MultipartFile file) {
         String contentType = file.getContentType();
-        if (isNull(contentType) || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+        if (isNull(contentType) || !imageProperties.getAllowedContentTypes().contains(contentType.toLowerCase())) {
             throw new ValidationException(
                 ErrorCode.INVALID_FILE_TYPE,
-                String.format(INVALID_FILE_TYPE_FORMAT, contentType, ALLOWED_CONTENT_TYPES)
+                String.format(INVALID_FILE_TYPE_FORMAT, contentType, imageProperties.getAllowedContentTypes())
             );
         }
         return contentType;
