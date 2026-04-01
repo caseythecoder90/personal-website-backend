@@ -1,0 +1,13 @@
+.git
+.idea
+.vscode
+.claude
+target/
+docs/
+*.iml
+*.iws
+*.ipr
+.env
+*.env
+nul
+temp-*.json

@@ -18,13 +18,15 @@ COMMENT ON TABLE users IS 'Users for authentication and authorization';
 COMMENT ON COLUMN users.password IS 'BCrypt hashed password';
 COMMENT ON COLUMN users.role IS 'User role: ADMIN or USER';
 
--- Insert default admin user (password: admin123 - CHANGE THIS!)
--- Password is BCrypt hash of 'admin123'
+-- Insert default admin user
+-- IMPORTANT: After first deploy, immediately update the password via SQL:
+--   UPDATE users SET password = '<new-bcrypt-hash>' WHERE username = 'admin';
+-- Generate a hash using: /api/v1/operations/hash-password (non-production only)
 INSERT INTO users (username, email, password, full_name, role)
 VALUES (
     'admin',
     'admin@caseyquinn.com',
-    '$2a$10$N9qo8uLOickgx2ZMRZoMye1J5Yc8nJe6pqQhW.xGSvIKHYjYi3HWK',
+    '$2a$10$placeholder000000000000000000000000000000000000000000',
     'Casey Quinn',
     'ADMIN'
 );

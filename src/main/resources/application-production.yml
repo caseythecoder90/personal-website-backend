@@ -1,0 +1,27 @@
+server:
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 5
+
+  jpa:
+    show-sql: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    com.caseyquinn.personal_website: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    org.flywaydb: INFO

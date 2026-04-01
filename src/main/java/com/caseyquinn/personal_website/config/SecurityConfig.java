@@ -102,9 +102,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",  // React dev server
-                "http://localhost:4200",  // Angular dev server
-                "https://caseyquinn.com"  // Production frontend
+                "http://localhost:3000",
+                "http://localhost:4200",
+                "https://caseyrquinn.com",
+                "https://www.caseyrquinn.com"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
