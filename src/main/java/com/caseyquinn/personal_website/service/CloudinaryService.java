@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
-import static com.caseyquinn.personal_website.service.CloudinaryConstants.*;
+import static com.caseyquinn.personal_website.constants.CloudinaryConstants.*;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
