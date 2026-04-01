@@ -5,7 +5,7 @@ Comprehensive checklist for implementing all features of the Personal Website Po
 
 ---
 
-## 🏗️ Phase 1: Portfolio Foundation (Done)
+## Phase 1: Portfolio Foundation (Done)
 
 ### Project & Technology CRUD
 - [x] **Project Entity & Repository**
@@ -20,132 +20,258 @@ Comprehensive checklist for implementing all features of the Personal Website Po
 
 - [x] **Service & Controller Layer**
   - [x] ProjectService with business rules
-  - [x] TechnologyService
-  - [x] ProjectController with full CRUD
+  - [x] TechnologyService with all CRUD + filtering (category, proficiency, featured, most-used)
+  - [x] ProjectController with full CRUD + pagination
+  - [x] TechnologyController with full CRUD + filtering endpoints
   - [x] DTO/Mapper layer (MapStruct)
 
 - [x] **Exception Handling**
   - [x] ErrorCode enum for all error types
   - [x] BusinessException / ValidationException / DuplicateResourceException
-  - [x] NotFoundException
+  - [x] NotFoundException / ForbiddenException / RateLimitExceededException
   - [x] GlobalExceptionHandler with proper HTTP status mapping
+  - [x] MissingServletRequestParameterException handling (400 not 500)
   - [x] @RetryableDataAccess annotation for transient failures
 
 - [x] **Database & Migration**
   - [x] spring-boot-starter-flyway dependency
   - [x] V1__initial_schema.sql — all tables, enums, indexes, constraints
+  - [x] V2-V8 migrations (cloudinary, users, project_links, certifications, blog images, resumes)
   - [x] ddl-auto set to validate
-  - [x] test-data.sql updated for current schema
 
 - [x] **Configuration & Logging**
-  - [x] application.yml with PostgreSQL + Redis config
+  - [x] application.yml with PostgreSQL + Redis config (all secrets via env vars)
+  - [x] application-production.yml profile overrides
   - [x] Logback compact console pattern
-  - [x] OpenAPI/Swagger configuration
+  - [x] OpenAPI/Swagger configuration with Bearer token security scheme
 
 ---
 
-## 📝 Phase 2: Portfolio Enhancement (Next)
+## Phase 2: Portfolio Enhancement (Done)
 
 ### Project Image Management
-- [ ] **Image Upload Endpoints**
-  - [ ] POST /api/v1/projects/{id}/images — multipart upload
-  - [ ] GET /api/v1/projects/{id}/images — list images
-  - [ ] PUT /api/v1/projects/{id}/images/{imageId} — update metadata
-  - [ ] DELETE /api/v1/projects/{id}/images/{imageId} — remove image
-  - [ ] PUT /api/v1/projects/{id}/images/{imageId}/primary — set primary
+- [x] **Image Upload Endpoints**
+  - [x] POST /api/v1/projects/{id}/images — multipart upload
+  - [x] GET /api/v1/projects/{id}/images — list images
+  - [x] GET /api/v1/projects/{id}/images/{imageId} — get single image
+  - [x] PUT /api/v1/projects/{id}/images/{imageId} — update metadata
+  - [x] DELETE /api/v1/projects/{id}/images/{imageId} — remove image
+  - [x] PUT /api/v1/projects/{id}/images/{imageId}/set-primary — set primary
 
-- [ ] **Image Processing**
-  - [ ] File validation (format, size, dimensions)
-  - [ ] Thumbnail generation
-  - [ ] Cloud storage integration (S3/Cloudinary)
-  - [ ] CDN integration
+- [x] **Image Processing**
+  - [x] File validation (format, size, magic bytes verification)
+  - [x] Cloudinary integration for cloud storage
+  - [x] ImageProperties config class for limits and allowed types
+  - [x] FileValidationService with PDF and image validation
+
+### Project Links
+- [x] **Project Link CRUD**
+  - [x] ProjectLink entity with LinkType enum (GITHUB, LIVE, DEMO, etc.)
+  - [x] Full CRUD endpoints under /api/v1/projects/{id}/links
+  - [x] V4 + V5 migrations (create links table, remove legacy URL columns)
 
 ### Caching
-- [ ] **Redis Cache Implementation**
-  - [ ] @Cacheable on project/technology list endpoints
-  - [ ] @CacheEvict on create/update/delete
-  - [ ] TTL configuration per cache type
+- [x] **Redis Cache Implementation**
+  - [x] @Cacheable on project, technology, certification, blog, resume endpoints
+  - [x] @CacheEvict on create/update/delete with cross-cache eviction
+  - [x] TTL configuration per cache type (CacheConfig + CacheConstants)
+  - [x] Redis JSON serialization with Jackson (fixed deserialization issues)
 
-### Project Enhancements
-- [ ] **Advanced Filtering**
-  - [ ] Filter by technology, status, type, difficulty
-  - [ ] Sort by date, popularity, name
-  - [ ] Pagination improvements
+### Rate Limiting
+- [x] **Bucket4j Rate Limiting**
+  - [x] Per-IP token bucket rate limiting
+  - [x] Tiered limits: public (60/min), login (5/min), admin (30/min)
+  - [x] RateLimitFilter with configurable RateLimitProperties
+  - [x] Retry-After header on 429 responses
 
 ---
 
-## 🎨 Phase 3: Blog System
+## Phase 3: Blog System (Done)
 
 ### Blog Post CRUD Operations
-- [ ] **Blog Post Entities & DTOs**
-  - [ ] BlogPostRequest/Response DTOs
-  - [ ] Blog post validation rules
-  - [ ] BlogPostMapper (MapStruct)
+- [x] **Blog Post Entities & DTOs**
+  - [x] BlogPost entity with publish/unpublish workflow
+  - [x] CreateBlogPostRequest / UpdateBlogPostRequest DTOs
+  - [x] BlogPostResponse with categories, tags, images
+  - [x] BlogPostMapper (MapStruct)
 
-- [ ] **Blog Post API**
-  - [ ] GET /api/v1/blog/posts (list published, with filters)
-  - [ ] POST /api/v1/blog/posts (create)
-  - [ ] GET /api/v1/blog/posts/{id}
-  - [ ] PUT /api/v1/blog/posts/{id} (update)
-  - [ ] POST /api/v1/blog/posts/{id}/publish
+- [x] **Blog Post API**
+  - [x] GET /api/v1/blog/posts — all posts
+  - [x] GET /api/v1/blog/posts/published — published only
+  - [x] GET /api/v1/blog/posts/published/paginated — paginated published posts
+  - [x] GET /api/v1/blog/posts/{id} — by ID
+  - [x] GET /api/v1/blog/posts/slug/{slug} — by slug (increments view count)
+  - [x] GET /api/v1/blog/posts/category/{slug} — by category
+  - [x] GET /api/v1/blog/posts/tag/{slug} — by tag
+  - [x] GET /api/v1/blog/posts/search?q= — full text search
+  - [x] POST /api/v1/blog/posts — create
+  - [x] PUT /api/v1/blog/posts/{id} — update
+  - [x] DELETE /api/v1/blog/posts/{id} — delete (unpublish first)
+  - [x] PUT /api/v1/blog/posts/{id}/publish — publish
+  - [x] PUT /api/v1/blog/posts/{id}/unpublish — unpublish
+  - [x] POST/DELETE /api/v1/blog/posts/{id}/categories/{categoryId} — link/unlink
+  - [x] POST/DELETE /api/v1/blog/posts/{id}/tags/{tagId} — link/unlink
 
-- [ ] **Blog Category Management**
-  - [ ] GET/POST /api/v1/blog/categories
+- [x] **Blog Category Management**
+  - [x] Full CRUD endpoints
+  - [x] Slug-based lookup
 
-- [ ] **Blog Tag Management**
-  - [ ] GET/POST /api/v1/blog/tags
-  - [ ] Tag usage count tracking
+- [x] **Blog Tag Management**
+  - [x] Full CRUD endpoints
+  - [x] Popular tags endpoint (top 10 by usage count)
+  - [x] Usage count tracking (increment/decrement on link/unlink)
+
+- [x] **Blog Post Images**
+  - [x] Full CRUD + set primary endpoint
+  - [x] Cloudinary integration
+  - [x] Image types: FEATURED, INLINE, GALLERY, THUMBNAIL
 
 ### Blog DAO Layer
-- [ ] BlogDAO + BlogDaoImpl
-- [ ] BlogCategoryDao + BlogTagDao
-- [ ] @RetryableDataAccess on all implementations
+- [x] BlogPostDao + BlogPostDaoImpl
+- [x] BlogCategoryDao + BlogCategoryDaoImpl
+- [x] BlogTagDao + BlogTagDaoImpl
+- [x] @RetryableDataAccess on all implementations
 
 ---
 
-## 📧 Phase 4: Contact & Communication
+## Phase 4: Certifications (Done)
+
+- [x] **Certification CRUD**
+  - [x] Certification entity with CertificationStatus enum (EARNED, IN_PROGRESS, EXPIRED)
+  - [x] Full CRUD endpoints with slug, status, organization, published, featured filtering
+  - [x] Many-to-many relationship with Technology (link/unlink endpoints)
+  - [x] V6 migration (certifications table + join table)
+
+---
+
+## Phase 5: Contact & Communication (Done)
 
 ### Contact Submission System
-- [ ] **Contact Form Processing**
-  - [ ] ContactDAO + ContactDaoImpl
-  - [ ] ContactService with validation
-  - [ ] ContactController
-  - [ ] POST /api/v1/contact — public submission endpoint
+- [x] **Contact Form Processing**
+  - [x] ContactSubmissionDao + ContactSubmissionDaoImpl
+  - [x] ContactSubmissionService with validation
+  - [x] ContactSubmissionController
+  - [x] POST /api/v1/contact — public submission endpoint
+  - [x] IP address and User-Agent capture
 
-- [ ] **Spam Protection**
-  - [ ] Redis-based rate limiting by IP
-  - [ ] Content pattern spam detection
-  - [ ] reCAPTCHA integration (future)
+- [x] **Spam Protection**
+  - [x] Bucket4j rate limiting by IP (shared with global rate limiter)
+  - [x] Message length validation (20-2000 chars)
 
-- [ ] **Contact Management via API**
-  - [ ] GET /api/v1/contact — list submissions with filters
-  - [ ] PUT /api/v1/contact/{id}/status — update status
-  - [ ] POST /api/v1/contact/{id}/reply — send response email
+- [x] **Contact Management via API**
+  - [x] GET /api/v1/contact — list all submissions (ADMIN)
+  - [x] GET /api/v1/contact/{id} — single submission (ADMIN)
+  - [x] GET /api/v1/contact/status/{status} — filter by status (ADMIN)
+  - [x] GET /api/v1/contact/inquiry-type/{type} — filter by inquiry type (ADMIN)
+  - [x] PUT /api/v1/contact/{id}/status — update status (ADMIN)
+  - [x] DELETE /api/v1/contact/{id} — delete (ADMIN)
 
 ### Email Notifications
-- [ ] **Resend.com Integration**
-  - [ ] Contact form confirmation to visitor
-  - [ ] New inquiry notification to owner
-  - [ ] Reply email to visitor
+- [x] **Resend Integration**
+  - [x] Contact confirmation email to visitor (async)
+  - [x] New submission notification to site owner (async)
+  - [x] Thymeleaf HTML email templates
+  - [x] EmailConstants for template names, variables, subjects
 
 ---
 
-## 📄 Phase 5: Resume Management
+## Phase 6: Resume Management (Done)
 
 ### Resume System
-- [ ] **Resume API**
-  - [ ] GET /api/v1/resume/download (public PDF download)
-  - [ ] GET /api/v1/resume/info (metadata)
-  - [ ] POST /api/v1/resume/upload (file upload via API)
+- [x] **Resume API**
+  - [x] GET /api/v1/resume — active resume metadata (public)
+  - [x] GET /api/v1/resume/download — 302 redirect to Cloudinary URL (public)
+  - [x] POST /api/v1/resume — upload PDF (ADMIN, replaces existing)
+  - [x] DELETE /api/v1/resume — delete active resume (ADMIN)
 
-- [ ] **Resume Storage**
-  - [ ] Local file storage with versioning
-  - [ ] Archive old versions on upload
-  - [ ] Cache management for resume resource
+- [x] **Resume Storage**
+  - [x] Cloudinary raw file upload for PDFs
+  - [x] Single active resume model (upload replaces previous)
+  - [x] PDF validation (content type + magic bytes)
+  - [x] 5MB file size limit
+  - [x] V8 migration (resumes table)
 
 ---
 
-## 🚀 Phase 6: Production & Deployment
+## Phase 7: Security & Authentication (Done)
+
+- [x] **JWT Authentication**
+  - [x] Stateless JWT with 24-hour expiration, 7-day refresh
+  - [x] JwtTokenProvider, JwtAuthenticationFilter
+  - [x] Login endpoint: POST /api/v1/auth/login
+  - [x] V3 migration (users table)
+
+- [x] **Spring Security Configuration**
+  - [x] Public GET endpoints, ADMIN-only write operations
+  - [x] CORS configured for frontend origins
+  - [x] Stateless session management
+
+- [x] **Configuration Encryption**
+  - [x] Jasypt for sensitive properties (ENC() format)
+  - [x] Encrypt/decrypt utility endpoints (non-production only)
+  - [x] Hash-password utility endpoint (non-production only)
+
+---
+
+## Phase 8: Code Quality & Constants (Done)
+
+- [x] **Domain-Driven Constants**
+  - [x] ResponseMessages — all controller success messages
+  - [x] CacheConstants — cache names and key prefixes
+  - [x] EmailConstants — template names, variables, subjects
+  - [x] SecurityConstants — JWT, auth, rate limit tiers
+  - [x] FileConstants — MIME types, Cloudinary subfolders
+  - [x] OperationsConstants — health status, encryption prefix/suffix
+  - [x] ErrorMessages — all error message strings
+  - [x] CloudinaryConstants — API parameter and response keys
+
+- [x] **Utility Classes**
+  - [x] HttpRequestUtils — IP extraction, HTTP header constants
+
+- [x] **API Documentation**
+  - [x] Custom annotation classes for all controller endpoints
+  - [x] Replaced deprecated @Schema required=true with requiredMode
+
+---
+
+## Phase 9: Production Deployment (Done)
+
+### Docker & CI/CD
+- [x] **Dockerfile** — multi-stage build (Maven build + JRE runtime)
+- [x] **.dockerignore** — excludes secrets, IDE files, build artifacts
+- [x] **docker-compose.prod.yml** — all 5 services (app, postgres, redis, nginx, certbot)
+- [x] **.env.example** — template with placeholder values
+
+### GitHub Actions
+- [x] **CI/CD Pipeline** (.github/workflows/deploy.yml)
+  - [x] Auto-build Docker image on push to main
+  - [x] Push to GitHub Container Registry
+  - [x] SSH deploy to VPS (pull + restart)
+  - [x] Repository secrets configured (VPS_HOST, VPS_USER, VPS_SSH_KEY)
+
+### Nginx & SSL
+- [x] **Nginx reverse proxy** with SSL termination
+- [x] **Let's Encrypt** certificates via Certbot (auto-renewal)
+- [x] Security headers (HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection)
+- [x] HTTP → HTTPS redirect
+
+### VPS Infrastructure
+- [x] Hetzner CX22 VPS (Ubuntu 24.04)
+- [x] Deploy user with Docker access
+- [x] UFW firewall (ports 22, 80, 443 only)
+- [x] PostgreSQL and Redis isolated within Docker network (no external ports)
+
+---
+
+## Phase 10: Frontend & Testing (Next)
+
+### Frontend
+- [ ] **React/Next.js Frontend**
+  - [ ] Portfolio showcase pages
+  - [ ] Blog with markdown rendering
+  - [ ] Contact form
+  - [ ] Resume download
+  - [ ] Admin dashboard for content management
 
 ### Testing
 - [ ] **Unit Tests**
@@ -153,7 +279,7 @@ Comprehensive checklist for implementing all features of the Personal Website Po
   - [ ] Validation rule tests
 
 - [ ] **Integration Tests**
-  - [ ] DAO layer with local PostgreSQL
+  - [ ] DAO layer with local PostgreSQL (not H2)
   - [ ] Controller tests with MockMvc
 
 - [ ] **Exception Tests**
@@ -161,87 +287,37 @@ Comprehensive checklist for implementing all features of the Personal Website Po
   - [ ] Data access error scenarios
   - [ ] Retry behavior verification
 
-### Production Setup
-- [ ] **Railway Configuration**
-  - [ ] Environment variables setup
-  - [ ] Database migration on deploy
-  - [ ] Health check endpoints
+---
 
-- [ ] **Vercel Frontend Integration**
-  - [ ] CORS configuration
-  - [ ] API integration testing
+## Documentation
 
-- [ ] **Monitoring**
-  - [ ] Actuator endpoints exposed
-  - [ ] Application metrics
-  - [ ] Error rate monitoring
+| Document | Location | Description |
+|----------|----------|-------------|
+| Docker Setup | `docs/deployment/DOCKER.md` | Dockerfile, docker-compose, container architecture |
+| GitHub Actions CI/CD | `docs/deployment/GITHUB_ACTIONS_CICD.md` | Pipeline, secrets, monitoring, rollback |
+| Nginx Reverse Proxy | `docs/deployment/NGINX_REVERSE_PROXY.md` | Full config breakdown, security headers |
+| Certbot SSL | `docs/deployment/CERTBOT_SSL.md` | Let's Encrypt, certificate lifecycle |
+| VPS Deployment | `docs/deployment/VPS_DEPLOYMENT.md` | Server setup, initial deployment |
+| Manual Test Plan | `docs/testing/MANUAL_TEST_PLAN.md` | API endpoint testing guide |
+| CLAUDE.md | `CLAUDE.md` | AI development context and coding standards |
 
 ---
 
-## 📋 User Stories
+## Implementation Priority Matrix
 
-### Epic 1: Project Portfolio Management
-
-**As a developer, I want to manage my project portfolio via API so that I can showcase my work effectively.**
-
-1. **Project Creation (Two-Step Process)**
-   - Create project metadata first, then add images separately
-   - Acceptance: Project is functional immediately, images can be added afterward
-
-2. **Separate Image Management**
-   - Upload images to projects independently via dedicated endpoints
-   - Acceptance: Can upload/retry independently, project remains accessible
-
-3. **Project Publishing Workflow**
-   - Save projects as drafts and publish when ready
-   - Acceptance: Can toggle between draft/published states
-
-### Epic 2: Blog Content Management
-
-**As a developer, I want to publish blog posts via API so that I can share technical knowledge.**
-
-1. **Blog Post Creation**
-   - Write and publish blog posts with categories and tags
-   - Acceptance: Markdown support, draft/publish workflow, slug generation
-
-2. **Content Organization**
-   - Organize blog posts with categories and tags
-   - Acceptance: Can create/manage categories, add/remove tags, filter by taxonomy
-
-### Epic 3: Technology Proficiency Tracking
-
-**As a developer, I want to track and showcase my technology skills so that visitors understand my expertise.**
-
-1. **Technology Management**
-   - Add and rate proficiency in technologies via API
-   - Acceptance: Can add technologies, set proficiency levels, track experience
-
-### Epic 4: Contact & Communication
-
-**As a visitor, I want to contact the developer so that I can inquire about opportunities.**
-
-1. **Contact Form Submission**
-   - Submit contact inquiries via a form
-   - Acceptance: Simple form, email confirmation, spam protection
-
-2. **Inquiry Response**
-   - Respond to inquiries via API
-   - Acceptance: Can view, mark status, send responses via email
-
----
-
-## 📊 Implementation Priority Matrix
-
-| Priority | Feature | Complexity | Dependencies | Phase |
-|----------|---------|------------|--------------|-------|
-| P1 | Project CRUD + Flyway | High | None | 1 (Done) |
-| P1 | Image Upload Endpoints | Medium | Project CRUD | 2 |
-| P1 | Redis Caching | Low | Project CRUD | 2 |
-| P2 | Blog System | High | Flyway schema | 3 |
-| P2 | Contact Form | Medium | Flyway schema | 4 |
-| P3 | Email Notifications | Low | Contact form | 4 |
-| P3 | Resume System | Low | File Storage | 5 |
-| P4 | Rate Limiting | Medium | Redis | 4 |
-| P5 | Production Deployment | High | All Features | 6 |
-
-This checklist ensures all documented requirements are implemented with proper API flows and a clean API-first approach.
+| Priority | Feature | Status |
+|----------|---------|--------|
+| P1 | Project CRUD + Flyway | Done |
+| P1 | Image Upload Endpoints | Done |
+| P1 | Redis Caching | Done |
+| P1 | JWT Authentication | Done |
+| P2 | Blog System | Done |
+| P2 | Certifications | Done |
+| P2 | Contact Form + Email | Done |
+| P2 | Resume Management | Done |
+| P2 | Rate Limiting | Done |
+| P3 | Domain-Driven Constants | Done |
+| P3 | Docker + CI/CD | Done |
+| P3 | VPS Deployment + SSL | Done |
+| P4 | Frontend (React/Next.js) | Next |
+| P4 | Automated Testing | Next |

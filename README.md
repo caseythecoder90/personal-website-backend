@@ -113,7 +113,7 @@ All GET endpoints are public. Write operations require JWT authentication with A
 ### Blog (Posts, Categories, Tags, Images)
 | Method | Endpoint | Auth |
 |--------|----------|------|
-| GET | `/api/v1/blog/posts`, `/published`, `/slug/{slug}`, `/category/{slug}`, `/tag/{slug}`, `/search` | Public |
+| GET | `/api/v1/blog/posts`, `/published`, `/published/paginated`, `/slug/{slug}`, `/category/{slug}`, `/tag/{slug}`, `/search?q=` | Public |
 | POST/PUT/DELETE | `/api/v1/blog/posts/**` | ADMIN |
 | GET/POST/PUT/DELETE | `/api/v1/blog/categories/**` | GET: Public, Write: ADMIN |
 | GET/POST/PUT/DELETE | `/api/v1/blog/tags/**` | GET: Public, Write: ADMIN |
@@ -155,11 +155,35 @@ All GET endpoints are public. Write operations require JWT authentication with A
 ## Caching
 
 Redis-backed caching with per-resource TTLs:
-- Projects: 10 minutes
-- Technologies: 30 minutes
-- Certifications: 30 minutes
+
+| Cache | TTL |
+|-------|-----|
+| Projects | 10 minutes |
+| Technologies | 30 minutes |
+| Certifications | 30 minutes |
+| Blog Posts | 20 minutes |
+| Blog Categories | 30 minutes |
+| Blog Tags | 30 minutes |
+| Resume | 60 minutes |
 
 Write operations evict related caches. Technology changes trigger cross-cache eviction across projects, technologies, and certifications since they contain embedded technology data.
+
+## Deployment
+
+Deployed on a Hetzner VPS with automated CI/CD:
+
+```
+Push to main → GitHub Actions builds Docker image → Pushes to GHCR → SSHs into VPS → Pulls and restarts
+```
+
+Production stack: Nginx (SSL termination + reverse proxy) → Spring Boot → PostgreSQL + Redis, all in Docker Compose. Let's Encrypt certificates via Certbot with auto-renewal.
+
+See `docs/deployment/` for detailed guides:
+- [Docker Setup](docs/deployment/DOCKER.md)
+- [GitHub Actions CI/CD](docs/deployment/GITHUB_ACTIONS_CICD.md)
+- [Nginx Reverse Proxy](docs/deployment/NGINX_REVERSE_PROXY.md)
+- [Certbot SSL](docs/deployment/CERTBOT_SSL.md)
+- [VPS Deployment](docs/deployment/VPS_DEPLOYMENT.md)
 
 ## Development Setup
 
