@@ -25,11 +25,10 @@ The V3 migration will automatically create the `users` table and insert a defaul
 ## Default Admin Credentials
 
 **Username:** `admin`
-**Password:** `admin123`
-**Email:** `admin@caseyquinn.com`
+**Password:** Set via SQL after first deploy (see [VPS Deployment Guide](../deployment/VPS_DEPLOYMENT.md))
 **Role:** `ADMIN`
 
-⚠️ **IMPORTANT:** Change this password after first login!
+The V3 migration inserts an admin user with a placeholder password hash. After deploying, generate a BCrypt hash using the `/api/v1/operations/hash-password` endpoint (non-production only) and update the database directly.
 
 ---
 
@@ -43,7 +42,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin",
-    "password": "admin123"
+    "password": "your-password"
   }'
 ```
 
@@ -217,9 +216,7 @@ Currently allows:
 **To add more origins:** Edit `SecurityConfig.java` → `corsConfigurationSource()`
 
 ### JWT Secret
-**Default:** `your-256-bit-secret-key-change-this-in-production-minimum-32-characters`
-
-**For Production:** Set environment variable:
+Set via environment variable (no default — required):
 ```bash
 export JWT_SECRET="your-secure-random-256-bit-secret-key-here"
 ```

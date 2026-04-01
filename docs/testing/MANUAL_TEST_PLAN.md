@@ -40,7 +40,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin",
-    "password": "admin123"
+    "password": "your-password"
   }'
 ```
 
@@ -65,7 +65,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "wronguser",
-    "password": "admin123"
+    "password": "your-password"
   }'
 ```
 
@@ -2178,7 +2178,7 @@ curl -v http://localhost:8080/api/v1/projects
 - **Fix:** Check token format: `Bearer ` + token (note the space)
 
 **Issue:** 401 Unauthorized on login
-- **Fix:** Verify username is `admin` and password is `admin123`
+- **Fix:** Verify username is `admin` and password is `your-password`
 - **Fix:** Check user exists in database: `SELECT * FROM users WHERE username='admin';`
 
 **Issue:** 404 on all endpoints
@@ -2225,7 +2225,7 @@ curl -v http://localhost:8080/api/v1/projects
 
 ## Notes
 
-- **Default Admin Credentials:** username: `admin`, password: `admin123`
+- **Default Admin Credentials:** username: `admin`, password: `your-password`
 - **Token Expiration:** 24 hours - login again if expired
 - **Postman Collection:** Already exists at `docs/api/postman/personal-website-api.postman_collection.json`
 - **Test Images:** Use real image files (JPEG/PNG/GIF/WebP) under 10MB

@@ -7,16 +7,23 @@ This directory contains the Docker Compose configuration for local development.
 ### PostgreSQL
 - **Image**: postgres:16-alpine
 - **Port**: 5432
-- **Database**: casquinn_personal_website
-- **Username**: casquinn
-- **Password**: Ku^a4MoADdqLf4n>ka,d
+- **Database**: Set via `POSTGRES_DB` env var
+- **Username**: Set via `POSTGRES_USER` env var
+- **Password**: Set via `POSTGRES_PASSWORD` env var
 
 ### Redis
 - **Image**: redis:7-alpine
 - **Port**: 6379
-- **Password**: vHZBDJUzyG}1AE6dBMZY
+- **Password**: Set via `REDIS_PASSWORD` env var
 
 ## Quick Start
+
+### Set up environment
+Copy `.env.example` to a local `.env` file in this directory and fill in your credentials:
+```bash
+cp ../../../../.env.example .env
+# Edit .env with your local credentials
+```
 
 ### Start the services
 ```bash
@@ -54,19 +61,19 @@ docker-compose down -v
 ### PostgreSQL
 ```bash
 # Using psql inside the container
-docker-compose exec postgres psql -U casquinn -d casquinn_personal_website
+docker-compose exec postgres psql -U $POSTGRES_USER -d $POSTGRES_DB
 
 # Or using local psql client
-psql -h localhost -p 5432 -U casquinn -d casquinn_personal_website
+psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB
 ```
 
 ### Redis
 ```bash
 # Using redis-cli inside the container
-docker-compose exec redis redis-cli -a vHZBDJUzyG}1AE6dBMZY
+docker-compose exec redis redis-cli -a $REDIS_PASSWORD
 
 # Test connection
-docker-compose exec redis redis-cli -a vHZBDJUzyG}1AE6dBMZY ping
+docker-compose exec redis redis-cli -a $REDIS_PASSWORD ping
 ```
 
 ## Health Checks
@@ -75,10 +82,10 @@ Both services include health checks to ensure they're ready before the applicati
 
 ```bash
 # Check PostgreSQL health
-docker-compose exec postgres pg_isready -U casquinn -d casquinn_personal_website
+docker-compose exec postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
 
 # Check Redis health
-docker-compose exec redis redis-cli -a vHZBDJUzyG}1AE6dBMZY ping
+docker-compose exec redis redis-cli -a $REDIS_PASSWORD ping
 ```
 
 ## Data Persistence
