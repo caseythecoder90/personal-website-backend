@@ -45,7 +45,6 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
-    repair-on-migrate: true
     locations: classpath:db/migration
 
   servlet:
