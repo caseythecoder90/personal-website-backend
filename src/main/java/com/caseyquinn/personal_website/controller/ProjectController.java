@@ -65,6 +65,19 @@ public class ProjectController {
     }
     
     /**
+     * Retrieves featured published projects for portfolio showcase.
+     *
+     * @return response entity containing list of featured projects
+     */
+    @ProjectApiResponses.GetFeatured
+    @GetMapping("/projects/featured")
+    public ResponseEntity<Response<List<ProjectResponse>>> getFeaturedProjects() {
+        log.info("Fetching featured projects");
+        List<ProjectResponse> projects = projectService.getFeaturedPublishedProjects();
+        return ResponseEntity.ok(Response.success(projects, FEATURED_PROJECTS_RETRIEVED));
+    }
+
+    /**
      * Retrieves a specific project by its ID.
      *
      * @param id the project ID
