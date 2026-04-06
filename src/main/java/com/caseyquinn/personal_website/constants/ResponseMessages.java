@@ -21,6 +21,7 @@ public final class ResponseMessages {
     public static final String PROJECT_CREATED = "Project created successfully";
     public static final String PROJECT_UPDATED = "Project updated successfully";
     public static final String PROJECT_DELETED = "Project deleted successfully";
+    public static final String FEATURED_PROJECTS_RETRIEVED = "Featured projects retrieved successfully";
 
     // ── Project Images ───────────────────────────────────────────────────
 

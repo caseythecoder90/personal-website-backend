@@ -166,4 +166,21 @@ public class ProjectApiResponses {
             )
     })
     public @interface GetByTechnology {}
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "Get featured projects", description = "Retrieve featured published projects for portfolio showcase")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Featured projects retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            )
+    })
+    public @interface GetFeatured {}
 }
