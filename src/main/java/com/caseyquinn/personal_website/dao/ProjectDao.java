@@ -119,6 +119,14 @@ public interface ProjectDao {
     List<Project> findByTechnologyId(Long technologyId);
 
     /**
+     * Finds published projects with pagination.
+     *
+     * @param pageable pagination parameters
+     * @return paginated published projects
+     */
+    Page<Project> findPublishedPaginated(Pageable pageable);
+
+    /**
      * Finds published projects ordered by display order.
      *
      * @return list of published projects

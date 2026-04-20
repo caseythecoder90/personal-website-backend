@@ -71,6 +71,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/contact/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/contact/**").hasRole("ADMIN")
 
+                        // Public view count increment
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/projects/*/views").permitAll()
+
                         // Protected WRITE operations - require ADMIN role
                         .requestMatchers(HttpMethod.POST, "/api/v1/projects/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/projects/**").hasRole("ADMIN")

@@ -58,9 +58,10 @@ public class ProjectController {
     @ProjectApiResponses.GetPaginated
     @GetMapping("/projects/paginated")
     public ResponseEntity<Response<Page<ProjectResponse>>> getProjectsPaginated(
-            @PageableDefault(size = 10) Pageable pageable) {
-        log.info("Fetching projects with pagination: {}", pageable);
-        Page<ProjectResponse> projects = projectService.getProjectsPaginated(pageable);
+            @PageableDefault(size = 10) Pageable pageable,
+            @Parameter(description = "Filter by published status") @RequestParam(required = false) Boolean published) {
+        log.info("Fetching projects with pagination: {}, published: {}", pageable, published);
+        Page<ProjectResponse> projects = projectService.getProjectsPaginated(pageable, published);
         return ResponseEntity.ok(Response.success(projects, PROJECTS_RETRIEVED));
     }
     
@@ -89,6 +90,21 @@ public class ProjectController {
             @Parameter(description = "Project ID") @PathVariable Long id) {
         log.info("Fetching project with id: {}", id);
         ProjectResponse project = projectService.getProjectById(id);
+        return ResponseEntity.ok(Response.success(project, PROJECT_RETRIEVED));
+    }
+
+    /**
+     * Retrieves a specific project by its URL slug.
+     *
+     * @param slug the project slug
+     * @return response entity containing the project
+     */
+    @ProjectApiResponses.GetBySlug
+    @GetMapping("/projects/slug/{slug}")
+    public ResponseEntity<Response<ProjectResponse>> getProjectBySlug(
+            @Parameter(description = "Project slug") @PathVariable String slug) {
+        log.info("Fetching project with slug: {}", slug);
+        ProjectResponse project = projectService.getProjectBySlug(slug);
         return ResponseEntity.ok(Response.success(project, PROJECT_RETRIEVED));
     }
     
@@ -140,6 +156,21 @@ public class ProjectController {
         return ResponseEntity.ok(Response.success(null, PROJECT_DELETED));
     }
     
+    /**
+     * Increments the view count for a project.
+     *
+     * @param id the project ID
+     * @return response entity with no content
+     */
+    @ProjectApiResponses.IncrementViewCount
+    @PutMapping("/projects/{id}/views")
+    public ResponseEntity<Void> incrementViewCount(
+            @Parameter(description = "Project ID") @PathVariable Long id) {
+        log.info("Incrementing view count for project with id: {}", id);
+        projectService.incrementProjectViewCount(id);
+        return ResponseEntity.noContent().build();
+    }
+
     /**
      * Retrieves projects that use a specific technology.
      *

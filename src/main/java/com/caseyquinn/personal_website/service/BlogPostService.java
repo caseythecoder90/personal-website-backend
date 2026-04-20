@@ -84,7 +84,6 @@ public class BlogPostService {
      * @param pageable pagination parameters
      * @return page of published blog post responses
      */
-    @Cacheable(value = CACHE_BLOG_POSTS, key = "'published:page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<BlogPostResponse> getPublishedPostsPaginated(Pageable pageable) {
         log.info("Service: Fetching published blog posts with pagination: {}", pageable);
         Page<BlogPost> posts = blogPostDao.findPublished(pageable);

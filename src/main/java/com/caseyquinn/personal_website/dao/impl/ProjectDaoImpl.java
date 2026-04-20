@@ -113,6 +113,12 @@ public class ProjectDaoImpl implements ProjectDao {
     }
 
     @Override
+    public Page<Project> findPublishedPaginated(Pageable pageable) {
+        log.info("DAO: Fetching published projects with pagination: {}", pageable);
+        return projectRepository.findByPublishedTrue(pageable);
+    }
+
+    @Override
     public List<Project> findPublishedProjectsOrderedByDisplay() {
         log.info("DAO: Fetching published projects ordered by display");
         return projectRepository.findByPublishedTrueOrderByDisplayOrderAscCreatedAtDesc();

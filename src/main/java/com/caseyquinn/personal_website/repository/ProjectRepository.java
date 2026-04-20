@@ -4,6 +4,8 @@ import com.caseyquinn.personal_website.entity.Project;
 import com.caseyquinn.personal_website.entity.enums.ProjectType;
 import com.caseyquinn.personal_website.entity.enums.ProjectStatus;
 import com.caseyquinn.personal_website.entity.enums.DifficultyLevel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,6 +34,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByTechnologyId(@Param("technologyId") Long technologyId);
     
     // Project filtering and sorting
+    Page<Project> findByPublishedTrue(Pageable pageable);
+
     List<Project> findByPublishedTrueOrderByDisplayOrderAscCreatedAtDesc();
     
     List<Project> findByFeaturedTrueAndPublishedTrueOrderByDisplayOrderAsc();

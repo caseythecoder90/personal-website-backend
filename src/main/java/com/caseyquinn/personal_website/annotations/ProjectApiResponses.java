@@ -183,4 +183,47 @@ public class ProjectApiResponses {
             )
     })
     public @interface GetFeatured {}
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "Get project by slug", description = "Retrieve a specific project by its URL slug")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Project retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Project not found",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            )
+    })
+    public @interface GetBySlug {}
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(summary = "Increment project view count", description = "Increments the view count for a project when viewed by a visitor")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "View count incremented successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Project not found",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = Response.class))
+            )
+    })
+    public @interface IncrementViewCount {}
 }

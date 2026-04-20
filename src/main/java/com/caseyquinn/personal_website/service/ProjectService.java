@@ -31,8 +31,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static com.caseyquinn.personal_website.constants.CacheConstants.*;
@@ -69,7 +71,9 @@ public class ProjectService {
     public List<ProjectResponse> getAllProjects() {
         log.info("Service: Fetching all projects");
         List<Project> projects = projectDao.findAll();
-        return projectMapper.toResponseList(projects);
+        return projects.stream()
+                .map(this::buildProjectResponseWithDetails)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
@@ -78,10 +82,12 @@ public class ProjectService {
      * @param pageable pagination parameters
      * @return paginated project responses
      */
-    public Page<ProjectResponse> getProjectsPaginated(Pageable pageable) {
-        log.info("Service: Fetching projects with pagination: {}", pageable);
-        Page<Project> projects = projectDao.findAll(pageable);
-        return projects.map(projectMapper::toResponse);
+    public Page<ProjectResponse> getProjectsPaginated(Pageable pageable, Boolean published) {
+        log.info("Service: Fetching projects with pagination: {}, published: {}", pageable, published);
+        Page<Project> projects = isTrue(published)
+                ? projectDao.findPublishedPaginated(pageable)
+                : projectDao.findAll(pageable);
+        return projects.map(this::buildProjectResponseWithDetails);
     }
 
     /**
@@ -223,7 +229,9 @@ public class ProjectService {
     public List<ProjectResponse> getFeaturedPublishedProjects() {
         log.info("Service: Fetching featured published projects");
         List<Project> projects = projectDao.findFeaturedPublishedProjects();
-        return projectMapper.toResponseList(projects);
+        return projects.stream()
+                .map(this::buildProjectResponseWithDetails)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
