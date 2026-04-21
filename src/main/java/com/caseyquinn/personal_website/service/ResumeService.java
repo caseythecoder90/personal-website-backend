@@ -56,7 +56,8 @@ public class ResumeService {
             resumeDao.deleteById(existing.getId());
         });
 
-        CloudinaryUploadResult uploadResult = cloudinaryService.uploadRawFile(file, SUBFOLDER_RESUMES);
+        String publicId = buildResumePublicId(file.getOriginalFilename());
+        CloudinaryUploadResult uploadResult = cloudinaryService.uploadRawFile(file, SUBFOLDER_RESUMES, publicId);
 
         Resume resume = Resume.builder()
                 .fileName(file.getOriginalFilename())
@@ -87,6 +88,9 @@ public class ResumeService {
 
     /**
      * Gets the download URL for the currently active resume.
+     * The stored URL already ends with the human-readable filename (including
+     * extension) because the resume is uploaded with an explicit public_id,
+     * so a plain redirect causes the browser to save it with the correct name.
      *
      * @return the Cloudinary URL of the active resume
      */
@@ -96,6 +100,31 @@ public class ResumeService {
         Resume resume = resumeDao.findActive()
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, NO_ACTIVE_RESUME));
         return resume.getFileUrl();
+    }
+
+    /**
+     * Builds a Cloudinary-safe public ID from the uploaded filename, preserving
+     * the extension so the resulting URL ends with e.g. "casey_quinn_resume.pdf".
+     * Splits on the last dot, sanitizes the basename and extension separately,
+     * then recombines them.
+     */
+    private String buildResumePublicId(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return "resume";
+        }
+        int dotIdx = fileName.lastIndexOf('.');
+        String base = dotIdx > 0 ? fileName.substring(0, dotIdx) : fileName;
+        String ext = dotIdx > 0 ? fileName.substring(dotIdx + 1) : "";
+
+        String sanitizedBase = base.toLowerCase()
+                .replaceAll("[^a-z0-9]+", "_")
+                .replaceAll("^_+|_+$", "");
+        String sanitizedExt = ext.toLowerCase().replaceAll("[^a-z0-9]+", "");
+
+        if (sanitizedBase.isEmpty()) {
+            sanitizedBase = "resume";
+        }
+        return sanitizedExt.isEmpty() ? sanitizedBase : sanitizedBase + "." + sanitizedExt;
     }
 
     /**

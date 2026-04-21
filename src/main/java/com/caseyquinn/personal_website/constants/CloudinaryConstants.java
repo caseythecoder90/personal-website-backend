@@ -15,6 +15,8 @@ public final class CloudinaryConstants {
     public static final String PARAM_RESOURCE_TYPE = "resource_type";
     public static final String PARAM_USE_FILENAME = "use_filename";
     public static final String PARAM_UNIQUE_FILENAME = "unique_filename";
+    public static final String PARAM_PUBLIC_ID = "public_id";
+    public static final String PARAM_OVERWRITE = "overwrite";
 
     // Response keys
     public static final String RESPONSE_URL = "url";

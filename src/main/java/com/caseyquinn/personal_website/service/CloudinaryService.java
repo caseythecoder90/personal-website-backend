@@ -12,12 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static com.caseyquinn.personal_website.constants.CloudinaryConstants.*;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Service for managing file uploads and deletions with Cloudinary cloud storage.
@@ -41,18 +43,21 @@ public class CloudinaryService {
      * @return upload result with URL, dimensions, and metadata
      */
     public CloudinaryUploadResult uploadImage(MultipartFile file, String subFolder) {
-        return upload(file, subFolder, RESOURCE_TYPE_IMAGE, IMAGE_UPLOAD_FAILED);
+        return upload(file, subFolder, null, RESOURCE_TYPE_IMAGE, IMAGE_UPLOAD_FAILED);
     }
 
     /**
-     * Uploads a raw file (e.g., PDF) to Cloudinary with optional subfolder organization.
+     * Uploads a raw file (e.g., PDF) to Cloudinary with an explicit public ID.
+     * The public ID becomes the final URL segment, including extension, so the
+     * browser saves the file with a human-readable name on direct download.
      *
      * @param file the file to upload
      * @param subFolder optional subfolder within the main folder
+     * @param publicId the desired Cloudinary public ID (e.g. "casey_quinn_resume.pdf")
      * @return upload result with URL and metadata (no dimensions for raw files)
      */
-    public CloudinaryUploadResult uploadRawFile(MultipartFile file, String subFolder) {
-        return upload(file, subFolder, RESOURCE_TYPE_RAW, RESUME_UPLOAD_FAILED);
+    public CloudinaryUploadResult uploadRawFile(MultipartFile file, String subFolder, String publicId) {
+        return upload(file, subFolder, publicId, RESOURCE_TYPE_RAW, RESUME_UPLOAD_FAILED);
     }
 
     /**
@@ -84,19 +89,23 @@ public class CloudinaryService {
      * @param errorMessageFormat the error message format for upload failures
      * @return upload result with URL and metadata
      */
-    private CloudinaryUploadResult upload(MultipartFile file, String subFolder,
+    private CloudinaryUploadResult upload(MultipartFile file, String subFolder, String publicId,
                                           String resourceType, String errorMessageFormat) {
         log.info("Uploading {} to Cloudinary: {} bytes", resourceType, file.getSize());
 
         try {
             String uploadFolder = nonNull(subFolder) ? folder + "/" + subFolder : folder;
 
-            Map<String, Object> uploadParams = Map.of(
-                PARAM_FOLDER, uploadFolder,
-                PARAM_RESOURCE_TYPE, resourceType,
-                PARAM_USE_FILENAME, true,
-                PARAM_UNIQUE_FILENAME, true
-            );
+            Map<String, Object> uploadParams = new HashMap<>();
+            uploadParams.put(PARAM_FOLDER, uploadFolder);
+            uploadParams.put(PARAM_RESOURCE_TYPE, resourceType);
+            if (isNotBlank(publicId)) {
+                uploadParams.put(PARAM_PUBLIC_ID, publicId);
+                uploadParams.put(PARAM_OVERWRITE, true);
+            } else {
+                uploadParams.put(PARAM_USE_FILENAME, true);
+                uploadParams.put(PARAM_UNIQUE_FILENAME, true);
+            }
 
             Map<?, ?> response = cloudinary.uploader().upload(file.getBytes(), uploadParams);
 
