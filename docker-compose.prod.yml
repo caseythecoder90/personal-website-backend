@@ -18,6 +18,13 @@ services:
     networks:
       - app-network
 
+  frontend:
+    image: ghcr.io/caseythecoder90/personal-website-frontend:latest
+    container_name: personal-website-frontend
+    restart: unless-stopped
+    networks:
+      - app-network
+
   postgres:
     image: postgres:16-alpine
     container_name: personal-website-postgres
