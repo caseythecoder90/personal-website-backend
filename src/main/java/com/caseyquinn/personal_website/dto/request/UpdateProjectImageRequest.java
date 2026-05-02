@@ -29,4 +29,7 @@ public class UpdateProjectImageRequest {
 
     @Schema(description = "Set as primary image (unsets previous primary)", example = "true")
     private Boolean isPrimary;
+
+    @Schema(description = "Whether the image should appear in the project gallery. Set false for images that are only embedded inline in the markdown description.", example = "false")
+    private Boolean displayInGallery;
 }

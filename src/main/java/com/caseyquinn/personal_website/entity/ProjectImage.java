@@ -66,7 +66,11 @@ public class ProjectImage {
     @Column(name = "is_primary")
     @Builder.Default
     private Boolean isPrimary = false;
-    
+
+    @Column(name = "display_in_gallery", nullable = false)
+    @Builder.Default
+    private Boolean displayInGallery = true;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     

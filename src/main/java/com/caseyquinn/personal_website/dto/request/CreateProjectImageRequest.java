@@ -33,4 +33,8 @@ public class CreateProjectImageRequest {
     @Schema(description = "Set as primary image (unsets previous primary)", example = "false")
     @Builder.Default
     private Boolean isPrimary = false;
+
+    @Schema(description = "Whether the image should appear in the project gallery. Set false for images that are only embedded inline in the markdown description.", example = "true")
+    @Builder.Default
+    private Boolean displayInGallery = true;
 }

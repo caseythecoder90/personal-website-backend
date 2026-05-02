@@ -12,11 +12,13 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.ProjectLinkMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.caseyquinn.personal_website.constants.CacheConstants.CACHE_PROJECTS;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.LINK_OWNERSHIP_MISMATCH;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
@@ -70,6 +72,7 @@ public class ProjectLinkService {
      * @param request the create link request
      * @return the created link response
      */
+    @CacheEvict(value = CACHE_PROJECTS, allEntries = true)
     @Transactional
     public ProjectLinkResponse createLink(Long projectId, CreateProjectLinkRequest request) {
         log.info("Creating link for projectId: {}", projectId);
@@ -107,6 +110,7 @@ public class ProjectLinkService {
      * @param request the update request
      * @return the updated link response
      */
+    @CacheEvict(value = CACHE_PROJECTS, allEntries = true)
     @Transactional
     public ProjectLinkResponse updateLink(Long projectId, Long linkId, UpdateProjectLinkRequest request) {
         log.info("Updating link: linkId={}, projectId={}", linkId, projectId);
@@ -124,6 +128,7 @@ public class ProjectLinkService {
      * @param projectId the project ID
      * @param linkId the link ID
      */
+    @CacheEvict(value = CACHE_PROJECTS, allEntries = true)
     @Transactional
     public void deleteLink(Long projectId, Long linkId) {
         log.info("Deleting link: linkId={}, projectId={}", linkId, projectId);

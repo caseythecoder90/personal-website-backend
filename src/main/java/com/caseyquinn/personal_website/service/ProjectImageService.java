@@ -14,12 +14,14 @@ import com.caseyquinn.personal_website.exception.business.ValidationException;
 import com.caseyquinn.personal_website.mapper.ProjectImageMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.caseyquinn.personal_website.constants.CacheConstants.CACHE_PROJECTS;
 import static com.caseyquinn.personal_website.exception.ErrorMessages.*;
 import static org.apache.commons.lang3.BooleanUtils.isNotTrue;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
@@ -48,6 +50,7 @@ public class ProjectImageService {
      * @param request the image creation request containing metadata
      * @return the uploaded image response
      */
+    @CacheEvict(value = CACHE_PROJECTS, allEntries = true)
     @Transactional
     public ProjectImageResponse uploadImage(Long projectId, MultipartFile file, CreateProjectImageRequest request) {
         log.info("Uploading image for projectId: {}", projectId);
@@ -103,6 +106,7 @@ public class ProjectImageService {
      * @param request the update request containing new metadata
      * @return the updated image response
      */
+    @CacheEvict(value = CACHE_PROJECTS, allEntries = true)
     @Transactional
     public ProjectImageResponse updateImageMetadata(Long projectId, Long imageId, UpdateProjectImageRequest request) {
         log.info("Updating image metadata: imageId={}, projectId={}", imageId, projectId);
@@ -128,6 +132,7 @@ public class ProjectImageService {
      * @param projectId the project ID
      * @param imageId the image ID
      */
+    @CacheEvict(value = CACHE_PROJECTS, allEntries = true)
     @Transactional
     public void deleteImage(Long projectId, Long imageId) {
         log.info("Deleting image: imageId={}, projectId={}", imageId, projectId);
@@ -151,6 +156,7 @@ public class ProjectImageService {
      * @param imageId the image ID
      * @return the updated image response
      */
+    @CacheEvict(value = CACHE_PROJECTS, allEntries = true)
     @Transactional
     public ProjectImageResponse setPrimaryImage(Long projectId, Long imageId) {
         log.info("Setting primary image: imageId={}, projectId={}", imageId, projectId);

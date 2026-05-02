@@ -19,6 +19,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
@@ -143,6 +144,18 @@ public class GlobalExceptionHandler {
             MissingServletRequestParameterException ex) {
         log.warn("[{}] Missing parameter: {}", ErrorCode.VALIDATION_FAILED.getCode(), ex.getParameterName());
         String message = String.format(MISSING_REQUEST_PARAMETER_FORMAT, ex.getParameterName());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Response.error(ErrorCode.VALIDATION_FAILED.getCode(), message));
+    }
+
+    /**
+     * Handles missing multipart parts (e.g., 'file' not included in a multipart upload).
+     */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<Response<Void>> handleMissingServletRequestPart(
+            MissingServletRequestPartException ex) {
+        log.warn("[{}] Missing multipart part: {}", ErrorCode.VALIDATION_FAILED.getCode(), ex.getRequestPartName());
+        String message = String.format(MISSING_REQUEST_PART_FORMAT, ex.getRequestPartName());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Response.error(ErrorCode.VALIDATION_FAILED.getCode(), message));
     }

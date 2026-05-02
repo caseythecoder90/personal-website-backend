@@ -46,6 +46,9 @@ public class ProjectImageResponse {
     @Schema(description = "Whether this is the primary image", example = "true")
     private Boolean isPrimary;
 
+    @Schema(description = "Whether the image should appear in the project gallery. False indicates the image is only embedded inline in the markdown description.", example = "true")
+    private Boolean displayInGallery;
+
     @Schema(description = "Creation timestamp", example = "2024-01-15T10:30:00")
     private LocalDateTime createdAt;
 }
