@@ -40,3 +40,16 @@ build/
 ### Temp / Local ###
 nul
 temp-*.json
+
+### Seed scripts and data (local-only tooling) ###
+scripts/seed/
+
+### Local working docs and Claude session state ###
+.claude/context/
+.claude/settings.local.json
+portfolio-data-context.md
+portfolio-image-guide.md
+varm-*-description.md
+varm-*-diagram.svg
+varm-*-pipeline-*.md
+varm-*-pipeline-*.svg
