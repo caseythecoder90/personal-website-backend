@@ -2,9 +2,12 @@ package com.caseyquinn.personal_website.config;
 
 import com.caseyquinn.personal_website.security.JwtAuthenticationFilter;
 import com.caseyquinn.personal_website.security.RateLimitFilter;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,7 +26,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -57,6 +62,9 @@ public class SecurityConfig {
                         // Swagger/OpenAPI - public
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
+                        // Let internal error dispatches surface as their real status (with CORS
+                        // headers) instead of being re-filtered into a misleading 401.
+                        .requestMatchers("/error").permitAll()
 
                         // Public READ operations - viewing portfolio
                         .requestMatchers(HttpMethod.GET, "/api/v1/projects/**").permitAll()
@@ -118,6 +126,29 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    /**
+     * Applies CORS headers on ERROR (and ASYNC) dispatches, which Spring Security's own
+     * CorsFilter skips by default (OncePerRequestFilter#shouldNotFilterErrorDispatch).
+     * Without this, a server-side error that forwards to /error loses its
+     * Access-Control-Allow-Origin header, and the browser reports the real 4xx/5xx as an
+     * opaque "CORS policy" failure. Registered for ERROR/ASYNC only so it does not duplicate
+     * the header the Security chain already adds on normal REQUEST dispatches.
+     */
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsErrorDispatchFilter(CorsConfigurationSource corsConfigurationSource) {
+        CorsFilter filter = new CorsFilter(corsConfigurationSource) {
+            @Override
+            protected boolean shouldNotFilterErrorDispatch() {
+                return false;
+            }
+        };
+
+        FilterRegistrationBean<CorsFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setDispatcherTypes(EnumSet.of(DispatcherType.ERROR, DispatcherType.ASYNC));
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return registration;
     }
 
     /**

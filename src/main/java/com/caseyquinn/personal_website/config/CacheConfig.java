@@ -2,7 +2,11 @@ package com.caseyquinn.personal_website.config;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -22,7 +26,8 @@ import static com.caseyquinn.personal_website.constants.CacheConstants.*;
  */
 @Configuration
 @EnableCaching
-public class CacheConfig {
+@Slf4j
+public class CacheConfig implements CachingConfigurer {
 
     /**
      * Creates a Redis cache manager with per-cache TTL configurations.
@@ -58,5 +63,35 @@ public class CacheConfig {
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
+    }
+
+    /**
+     * Fail-open cache errors: if Redis is unreachable or slow, log and fall through to the
+     * underlying source (DB) instead of letting a cache exception break the request. Prevents a
+     * Redis hiccup from turning a public page into a 500 -> /error -> 401.
+     */
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new CacheErrorHandler() {
+            @Override
+            public void handleCacheGetError(RuntimeException ex, Cache cache, Object key) {
+                log.warn("Cache GET failed [{}], falling through to source", cache.getName(), ex);
+            }
+
+            @Override
+            public void handleCachePutError(RuntimeException ex, Cache cache, Object key, Object value) {
+                log.warn("Cache PUT failed [{}]", cache.getName(), ex);
+            }
+
+            @Override
+            public void handleCacheEvictError(RuntimeException ex, Cache cache, Object key) {
+                log.warn("Cache EVICT failed [{}]", cache.getName(), ex);
+            }
+
+            @Override
+            public void handleCacheClearError(RuntimeException ex, Cache cache) {
+                log.warn("Cache CLEAR failed [{}]", cache.getName(), ex);
+            }
+        };
     }
 }
