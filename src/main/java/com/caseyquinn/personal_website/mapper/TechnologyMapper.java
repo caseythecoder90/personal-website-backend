@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.AfterMapping;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper(
@@ -47,7 +48,7 @@ public interface TechnologyMapper {
             technology.setFeatured(false);
         }
         if (technology.getYearsExperience() == null) {
-            technology.setYearsExperience(java.math.BigDecimal.ZERO);
+            technology.setYearsExperience(BigDecimal.ZERO);
         }
     }
 }
