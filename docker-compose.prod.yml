@@ -1,3 +1,8 @@
+# Personal-website app stack. Ports 80/443, TLS, and all reverse-proxy routing
+# now live in the standalone edge-proxy stack (/opt/edge-proxy) — this stack no
+# longer runs nginx or certbot. `app` and `frontend` join the shared external
+# `edge` network so the edge proxy can reach them by container name; the data
+# tier (postgres, redis) stays on the private app-network only.
 services:
   app:
     image: ghcr.io/caseythecoder90/personal-website-backend:latest
@@ -16,14 +21,15 @@ services:
       retries: 3
       start_period: 60s
     networks:
-      - app-network
+      - app-network   # reach postgres + redis
+      - edge          # reachable by the edge proxy (api.caseyrquinn.com)
 
   frontend:
     image: ghcr.io/caseythecoder90/personal-website-frontend:latest
     container_name: personal-website-frontend
     restart: unless-stopped
     networks:
-      - app-network
+      - edge          # static SPA; only the edge proxy needs to reach it
 
   postgres:
     image: postgres:16-alpine
@@ -41,7 +47,7 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - app-network
+      - app-network   # private data tier — NOT on edge
 
   redis:
     image: redis:7-alpine
@@ -56,34 +62,7 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - app-network
-
-  nginx:
-    image: nginx:alpine
-    container_name: personal-website-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./certbot/www:/var/www/certbot:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-    depends_on:
-      app:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - app-network
-
-  certbot:
-    image: certbot/certbot
-    container_name: personal-website-certbot
-    volumes:
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    networks:
-      - app-network
+      - app-network   # private data tier — NOT on edge
 
 volumes:
   postgres_data:
@@ -92,3 +71,8 @@ volumes:
 networks:
   app-network:
     driver: bridge
+  # Shared reverse-proxy network, created once on the host (`docker network create
+  # edge`) and owned by no single stack. Only app + frontend join it here.
+  edge:
+    external: true
+    name: edge
